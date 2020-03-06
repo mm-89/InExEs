@@ -55,7 +55,7 @@ class sun_ray_direction:
 
 	def get_sun_direction(self):
 
-		norm_time = mt.pi/21600.*(self.second - 43200.) # 0 at noon means cos=1
+		norm_time = mt.pi*(self.second/43200. - 1.) # 0 at noon means cos=1
 		return -mt.cos(sun_zenith_angle(self.day))*mt.sin(norm_time),\
 				mt.sin(sun_zenith_angle(self.day))*mt.cos(self.latitude) - mt.cos(sun_zenith_angle(self.day))*mt.sin(self.latitude)*mt.cos(norm_time),\
 				mt.cos(sun_zenith_angle(self.day))*mt.cos(self.latitude)*mt.cos(norm_time) + mt.sin(sun_zenith_angle(self.day))*mt.sin(self.latitude)
