@@ -10,7 +10,7 @@ We suppose that InExES can work on every machine, but we only try on a Mac, Linu
 ## Install instructions
 
     git clone https://github.com/mm-89/InExEs.git
-    	pip3 install matplotlib
+    pip3 install matplotlib
 	pip3 install trimesh
 	pip3 install Rtree
 	pip3 install shapely
@@ -19,8 +19,8 @@ We suppose that InExES can work on every machine, but we only try on a Mac, Linu
 
 You may face some problems reguarding libraries installation. Where is some solutions.
 * Cannot install Rtree on mac or Linux :
-	 * MAC : `pip install "rtree>=0.8,<0.9"`
-	 * Linux : `sudo apt install python3-rtree`
+	 * Mac : `pip install "rtree>=0.8,<0.9"`
+	 * Linux : `sudo apt install python3-rtree` or `pip install Rtree`
 
 * Missing C lib on mac (just after the Rtree problem) :
 	*  `brew install spatialindex`
@@ -29,7 +29,7 @@ You may face some problems reguarding libraries installation. Where is some solu
 	* `pip3 install "librairie_name"`
 
 * No module name '_tkinter' :
-	* sudo apt install python3-tk
+	* `sudo apt install python3-tk`
 
 ## Start the simulation
 
