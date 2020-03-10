@@ -10,6 +10,7 @@ We suppose that InExES can work on every machine, but we only try on a Mac, Linu
 ## Install instructions
 
     git clone https://github.com/mm-89/InExEs.git
+    	pip3 install matplotlib
 	pip3 install trimesh
 	pip3 install Rtree
 	pip3 install shapely
@@ -26,6 +27,9 @@ You may face some problems reguarding libraries installation. Where is some solu
 
 * Any missing librairies like **scipy**,**shapely**,**networkx**,**piglet**
 	* `pip3 install "librairie_name"`
+
+* No module name '_tkinter' :
+	* sudo apt install python3-tk
 
 ## Start the simulation
 
