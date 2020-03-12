@@ -16,6 +16,7 @@ file_out = "my_test_mesh"
 extension = "ply"
 #--------------------------------------------
 
+#POSTURES SETUP ----------------------------------
 #define and charge a posture
 posture = ps.posture(my_file)
 
@@ -24,11 +25,16 @@ normals = posture.get_normals()
 
 #minimized them to avoid extra intersections
 normals_minimized = posture.get_normals_min()
+#--------------------------------------------
 
+#SUNRAYS SETUP ----------------------------------
 #set the sun ray direction (one step for now)
 sun_ray = srd.sun_ray_direction(second=400)
 sun_direction = sun_ray.get_sun_direction()
+#--------------------------------------------
 
+
+#SHADOW MAPPING ----------------------------------
 #look for intersections
 ray_origins = posture.get_vertices_barycenter() + normals_minimized
 ray_direction = [sun_direction for i in range(len(ray_origins))]
@@ -63,11 +69,17 @@ my_new_mesh = tm.Trimesh(vertices=posture.get_vertices(), faces=posture.get_face
 
 #to export a mesh - it works
 tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
+#--------------------------------------------
 
+#BETA COEFICIENT ----------------------------------
 #try to compute beta coefficient
 start = time.time()
 posture.compute_beta(N=5)
 print(time.time() - start)
+#--------------------------------------------
+
+
+#DISPLAY 3D VISUALISATION ----------------------------------
 """
 #visualize current mesh
 ray_visualize = tm.load_path(np.hstack((
