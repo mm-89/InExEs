@@ -20,7 +20,7 @@ class Posture:
 			angles_normals.append(mrd.polar_transform(comp))
 		
 		self.angles_normals = angles_normals
-		self.normals_minimized = self.my_file.face_normals
+		self.normals_minimized = self.my_file.face_normals/1000.
 
 	@property
 	def get_posture(self):
@@ -54,14 +54,14 @@ class Posture:
 		if(random):
 			for counter, t in enumerate(ray_ori_all):
 
-				ray_ori = [t for i in range(N*(N - 1))]
+				ray_ori = [t for i in range(N)]
 				ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0],
 															angles[counter][1], random=True)
 
 				res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
 														ray_directions=ray_dir)
 				cpt_false = np.nonzero(~res)[0]
-				beta.append(len(cpt_false)/(N*(N - 1)))
+				beta.append(len(cpt_false)/N)
 
 				print("Computing beta ... ", 
 					round(counter/len(ray_ori_all)*100,1), 
@@ -71,15 +71,15 @@ class Posture:
 
 			for counter, comp in enumerate(ray_ori_all):
 
-				ray_ori = [comp for i in range(N*(N - 1))]
+				ray_ori = [comp for i in range(N)]
 				ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], 
-															angles[counter][1], random=random)
+															angles[counter][1], random=False)
 
 				res = self.my_file.ray.intersects_any(ray_origins=ray_ori, 
 														ray_directions=ray_dir)
 			
 				cpt_false = np.nonzero(~res)[0]
-				beta.append(len(cpt_false)/(N*(N - 1)))
+				beta.append(len(cpt_false)/N)
 
 				print("Computing beta ... ", 
 					round(counter/len(ray_ori_all)*100,1), 
