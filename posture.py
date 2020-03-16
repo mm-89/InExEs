@@ -20,7 +20,7 @@ class Posture:
 			angles_normals.append(mrd.polar_transform(comp))
 		
 		self.angles_normals = angles_normals
-		self.normals_minimized = self.my_file.face_normals*0.01
+		self.normals_minimized = self.my_file.face_normals
 
 	@property
 	def get_posture(self):
@@ -44,26 +44,21 @@ class Posture:
 
 
 	def compute_beta(self, N, random=True):
-		ray_ori_all = self.my_file.triangles_center + self.my_file.face_normals
+		ray_ori_all = self.my_file.triangles_center + self.normals_minimized
 
 		ray_dir = []
-		angles = self.angles_normals
-		
 		beta = []
 
+		angles = self.angles_normals
+		
 		if(random):
 			for counter, t in enumerate(ray_ori_all):
 
-				ray_ori = []
+				ray_ori = [t for i in range(N*(N - 1))]
+				ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0],
+															angles[counter][1], random=True)
 
-				for i in range(N*(N - 1)):
-
-					ray_ori.append(t)
-					ray_ori = [t for i in range(N*(N - 1))]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], 
-																angles[counter][1], random=True)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
+				res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
 														ray_directions=ray_dir)
 				cpt_false = np.nonzero(~res)[0]
 				beta.append(len(cpt_false)/(N*(N - 1)))
@@ -74,25 +69,23 @@ class Posture:
 
 		else:
 
-			for counter, t in enumerate(ray_ori_all):
+			for counter, comp in enumerate(ray_ori_all):
 
-				ray_ori = []
-				for i in range(N*(N - 1)):
+				ray_ori = [comp for i in range(N*(N - 1))]
+				ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], 
+															angles[counter][1], random=random)
 
-					ray_ori.append(t)
-					ray_ori = [t for i in range(N*(N - 1))]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], angles[counter][1], random=random)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori, \
-																ray_directions=ray_dir)
+				res = self.my_file.ray.intersects_any(ray_origins=ray_ori, 
+														ray_directions=ray_dir)
 			
 				cpt_false = np.nonzero(~res)[0]
-				tmp = len(cpt_false)
-				beta.append(tmp/(N*(N - 1)))
+				beta.append(len(cpt_false)/(N*(N - 1)))
 
 				print("Computing beta ... ", 
 					round(counter/len(ray_ori_all)*100,1), 
 					" percent complete", end="\r")
+
+		print(beta)
 
 		return beta
 
@@ -113,7 +106,7 @@ class Posture:
 	def get_angles_from_normals(self):
 		return self.angles_normals
 
-	def set_normals_minimized(self, fact=0.01):
+	def set_normals_minimized(self, fact=0.001):
 		return self.face_normals*fact
 
 	def show_posture(self):

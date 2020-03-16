@@ -56,8 +56,8 @@ def point_hemisphere_uniform(N):
 
     res = []
 
-    for i in range(N):          #this is theta
-        for j in range(N - 1):      #this is phi
+    for i in range(N - 1):          #this is theta
+        for j in range(N):      #this is phi
             x = sin(i*inter_t)*cos(j*inter_p)
 
             y = sin(i*inter_t)*sin(j*inter_p)
