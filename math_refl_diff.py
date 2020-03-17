@@ -2,6 +2,9 @@ from math import *
 import numpy as np
 import random
 
+#PARAMS : comp
+#OUTPUT : array of theta and phi value 
+#DESCRIPTION : get theta and phi values for ?
 def polar_transform(comp):
 
     #compute theta
@@ -12,7 +15,9 @@ def polar_transform(comp):
 
     return np.array([theta, phi])
 
-
+#PARAMS : theta, phi
+#OUTPUT : 
+#DESCRIPTION : 
 def matrix_rotation(theta, phi):
     #first rotation in xy axis 
     first = np.array([[cos(phi), -sin(phi), 0.],[sin(phi), cos(phi), 0.],[0., 0., 1.]])
@@ -23,7 +28,9 @@ def matrix_rotation(theta, phi):
     return np.dot(first, second)
 
 
-#perfectly uniform random point generation on a hemisphere
+#PARAMS : N
+#OUTPUT : 
+#DESCRIPTION : perfectly uniform random point generation on a hemisphere
 def point_hemisphere_uniform(N):
     res = []
 
@@ -50,7 +57,10 @@ def point_hemisphere_uniform(N):
     return res[:N]
 
 
-#random points generation on a hemisphere
+
+#PARAMS : N
+#OUTPUT : 
+#DESCRIPTION : random points generation on a hemisphere
 def point_hemisphere_random(N):
 
     res = []
@@ -68,6 +78,9 @@ def point_hemisphere_random(N):
     return res
 
 
+#PARAMS : N, theta, phi, random
+#OUTPUT : 
+#DESCRIPTION : 
 def make_rays_in_a_hemisphere(N, theta, phi, random=True):
     if(random):
         my_points = point_hemisphere_random(N)
