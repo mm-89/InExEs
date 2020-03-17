@@ -1,6 +1,6 @@
 import math as mt
 
-class sun_ray_direction:
+class Sun_ray_direction:
 
 	def __init__(self, year=2000, month=1, day=1, second=0., timestep=60., lat=45.):
 		"""
