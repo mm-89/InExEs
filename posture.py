@@ -44,7 +44,7 @@ class Posture:
 
 
 	def compute_beta(self, N, random=True):
-		ray_ori_all = self.my_file.triangles_center + self.normals_minimized
+		ray_ori_all = self.my_file.triangles_center + self.normals_minimized/1000.
 
 		ray_dir = []
 		beta = []
@@ -85,8 +85,6 @@ class Posture:
 					round(counter/len(ray_ori_all)*100,1), 
 					" percent complete", end="\r")
 
-		print(beta)
-
 		return beta
 
 
@@ -98,7 +96,7 @@ class Posture:
 		return self.my_file.vertices
 
 
-
+	@property
 	def get_vertices_barycenter(self):
 		return self.my_file.triangles_center
 
