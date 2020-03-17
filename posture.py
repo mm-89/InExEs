@@ -23,26 +23,42 @@ class Posture:
 		print(time.time() - start)
 
 	@property
+	#PARAMS : self
+	#OUTPUT : ply file loaded
+	#DESCRIPTION : return an instance of our mesh
 	def get_posture(self):
 		return self.my_file
 
 	@property
+	#PARAMS : self
+	#OUTPUT : face's normals
+	#DESCRIPTION : return the face's normals of our mesh
 	def get_normals(self):
 		return self.my_file.face_normals
 
-
+	#PARAMS : self
+	#OUTPUT : face's areas
+	#DESCRIPTION : return the face's areas of our mesh
 	def get_area_faces(self):
 		return self.my_file.area_faces
 
-
+	#PARAMS : self
+	#OUTPUT : mesh area
+	#DESCRIPTION : return mesh's area
 	def get_total_area(self):
 		return self.my_file.area
 
 	@property
+	#PARAMS : self
+	#OUTPUT : face's  minimized normals
+	#DESCRIPTION : return the face's  minimized normals of our mesh
 	def get_normals_minimized(self):
 		return self.normals_minimized
 
-
+	#PARAMS : self, random value
+	#OUTPUT : nothing
+	#DESCRIPTION : Define the array of beta values by an existing file 
+	#			   Or by calculation --> create the beta coeff file
 	def compute_beta(self, random=True):
     	#Try to find a beta_coefficient file
 		try:
@@ -113,29 +129,49 @@ class Posture:
 			
 
 
-
+	#PARAMS : self
+	#OUTPUT : mesh faces as array
+	#DESCRIPTION : return the mesh faces 
 	def get_faces(self):
 		return self.my_file.faces
 
-
+	#PARAMS : self
+	#OUTPUT : mesh vertices as array
+	#DESCRIPTION : return the mesh vertices
 	def get_vertices(self):
 		return self.my_file.vertices
 
 
-
+	#PARAMS : self
+	#OUTPUT : array of barycenters
+	#DESCRIPTION : get the barycenter of each triangle
 	def get_vertices_barycenter(self):
 		return self.my_file.triangles_center
 
-
+	#PARAMS : self
+	#OUTPUT : array of barycenters
+	#DESCRIPTION : get the barycenter of each triangle
 	def get_angles_from_normals(self):
 		return self.angles_normals
 
+
+	#PARAMS : self
+	#OUTPUT : face's normals
+	#DESCRIPTION : Set a new value for the face's minimised normals NEED TO BE MORE PRECISE (explain why for exemple)
 	def set_normals_minimized(self, fact=0.001):
 		return self.face_normals*fact
 
+
+	#PARAMS : self
+	#OUTPUT : nothing
+	#DESCRIPTION : Display the mesh
 	def show_posture(self):
 		self.my_file.show()
 
+
+	#PARAMS : self
+	#OUTPUT : nothing
+	#DESCRIPTION : Clean and test the ply file before simulation
 	def plyTests(self):
 		self.my_file.remove_degenerate_faces()
 		self.my_file.remove_duplicate_faces()
