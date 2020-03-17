@@ -59,11 +59,11 @@ class Posture:
 			print("No beta file found")
 			print("You will need to define a N value, press enter for default value (default value N = 5)")
 			value = input("N value : ")
-			print("You choose N =", value)
-			if value is None: 
+			if value == '': 
 				N = 5
 			else:
 				N = int(value)
+			print("You choose N =", N)
 					
 			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
 
