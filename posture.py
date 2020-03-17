@@ -11,11 +11,6 @@ class Posture:
 	def __init__(self, my_file):
 		self.my_file = tm.load(my_file)
 
-		self.my_file.remove_degenerate_faces()
-		self.my_file.remove_duplicate_faces()
-		self.my_file.remove_infinite_values()
-		self.my_file.remove_unreferenced_vertices()
-
 		normals = self.my_file.face_normals
 		angles_normals = []
 		for comp in normals:
@@ -49,18 +44,21 @@ class Posture:
 
 
 	def compute_beta(self, random=True):
+    	#Try to find a beta_coefficient file
 		try:
 			with open('input/beta_coefficient.txt') as f:
 				print(f.readlines())
+				#We put the file content = to beta coeff value
 				self.betaCoeff = f.readlines()
 				print(self.betaCoeff)
 				return
 		except IOError:
+			#If not we ask user for an N value, compute beta and create a beta coeff file
 			print("No beta file found")
 			print("You will need to define a N value, press enter for default value (default value N = 5)")
 			value = input("N value : ")
 			if value == '': 
-				N = 5
+				N = 5 #DEFAULT VALUE OF BETA
 			else:
 				N = int(value)
 			print("You choose N =", N)
@@ -137,5 +135,12 @@ class Posture:
 
 	def show_posture(self):
 		self.my_file.show()
+
+	def plyTests(self):
+		self.my_file.remove_degenerate_faces()
+		self.my_file.remove_duplicate_faces()
+		self.my_file.remove_infinite_values()
+		self.my_file.remove_unreferenced_vertices()
+    	
 
 
