@@ -1,40 +1,83 @@
 from math import *
 import numpy as np
+import random
 
 def polar_transform(comp):
-    if(comp[0]==0.):
-        phi = pi/2.
-    else:
-        phi = atan(comp[1]/comp[0])
-    if(comp[2]==0.):
-        theta = pi/2.
-    else:
-        theta = acos(  comp[2]/(comp[0]*comp[0] + comp[1]*comp[1] + comp[2]*comp[2])**0.5  )
+
+    #compute theta
+    theta = acos(comp[2])
+
+    #compute phi
+    phi = np.arctan2(comp[1], comp[0])
+
     return np.array([theta, phi])
 
-def compute_diff_radiation(N, theta, phi):
-    inter_t = pi/(2*N)
-    inter_p = 2*pi/N
+
+def matrix_rotation(theta, phi):
+    #first rotation in xy axis 
+    first = np.array([[cos(phi), -sin(phi), 0.],[sin(phi), cos(phi), 0.],[0., 0., 1.]])
+    
+    #second rotation in xz axis
+    second = np.array([[cos(theta), 0., sin(theta)],[0., 1., 0.],[-sin(theta), 0., cos(theta)]])
+
+    return np.dot(first, second)
+
+
+#perfectly uniform random point generation on a hemisphere
+def point_hemisphere_uniform(N):
+    res = []
+
+    n_c = 0
+    m_theta = int(round((pi*N/4)**0.5))
+
+    d_theta = pi/m_theta
+    d_phi = 4*pi/(d_theta*N)
+
+    for i in range(m_theta):
+        theta = pi*(i + 0.5)/(2*m_theta)
+        m_phi = int(round(2*pi*sin(theta)/d_phi))
+
+        for j in range(m_phi):
+            phi = 2*pi*j/m_phi
+
+            x = sin(theta)*cos(phi)
+            y = sin(theta)*sin(phi)
+            z = cos(theta)
+    
+            res.append(np.array([x, y, z]))
+            n_c += 1
+    
+    return res[:N]
+
+
+#random points generation on a hemisphere
+def point_hemisphere_random(N):
 
     res = []
 
-    x = []
-    y = []
-    z = []
+    for i in range(N):  #just to have same dimensionality of uniform one
+        phi = 2*pi*random.uniform(0,1)
+        theta = np.arccos(random.uniform(0,1))
 
-    for i in range(N - 1):          #this is theta
-        for j in range(N):      #this is alpha
-            x.append(sin(pi/2 - i*inter_t)*cos(j*inter_p)*sin(phi) - \
-                    (sin(pi/2 - i*inter_t)*cos(theta)*sin(j*inter_p) - \
-                        cos(pi/2 - i*inter_t)*sin(theta))*cos(phi))
-            y.append(sin(pi/2 - i*inter_t)*cos(j*inter_p)*cos(phi) + \
-                    (sin(pi/2 - i*inter_t)*cos(theta)*sin(j*inter_p) - \
-                        cos(pi/2 - i*inter_t)*sin(theta))*sin(phi))
-            z.append(sin(pi/2 - i*inter_t)*sin(theta)*sin(j*inter_p) + \
-                        cos(pi/2 - i*inter_t)*cos(theta))
-
-    for r in range(N*(N - 1)):
-        tmp = np.array([ x[r], y[r], z[r] ])
-        res.append(tmp)
+        x = sin(theta)*cos(phi)
+        y = sin(theta)*sin(phi)
+        z = (cos(theta))
+    
+        res.append(np.array([x, y, z]))
 
     return res
+
+
+def make_rays_in_a_hemisphere(N, theta, phi, random=True):
+    if(random):
+        my_points = point_hemisphere_random(N)
+    else:
+        my_points = point_hemisphere_uniform(N)
+  
+    my_points_new = []
+
+    for i in my_points:
+        my_points_new.append(np.dot(matrix_rotation(theta, phi), i))
+
+    return my_points_new
+    

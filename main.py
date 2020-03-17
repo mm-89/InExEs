@@ -18,18 +18,18 @@ extension = "ply"
 
 #POSTURES SETUP ----------------------------------
 #define and charge a posture
-posture = ps.posture(my_file)
+posture = ps.Posture(my_file)
 
 #need normals
-normals = posture.get_normals()
+normals = posture.get_normals
 
 #minimized them to avoid extra intersections
-normals_minimized = posture.get_normals_min()
+normals_minimized = posture.get_normals_minimized
 #--------------------------------------------
 
 #SUNRAYS SETUP ----------------------------------
 #set the sun ray direction (one step for now)
-sun_ray = srd.sun_ray_direction(second=400)
+sun_ray = srd.Sun_ray_direction(second=400)
 sun_direction = sun_ray.get_sun_direction()
 #--------------------------------------------
 
@@ -44,7 +44,7 @@ if not len(ray_origins)==len(ray_direction):
 	print("Some problems occured")
 
 #try to evaluate intersections
-inf = posture.get_posture().ray.intersects_any(ray_origins=ray_origins, ray_directions=ray_direction)
+inf = posture.get_posture.ray.intersects_any(ray_origins=ray_origins, ray_directions=ray_direction)
 
 #take only non-zero components (non-zero=not hit)
 face_nohit = np.nonzero(~inf)[0]
@@ -74,7 +74,7 @@ tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
 #BETA COEFICIENT ----------------------------------
 #try to compute beta coefficient
 start = time.time()
-posture.compute_beta(N=5)
+posture.compute_beta(N=5, random=False)
 print(time.time() - start)
 #--------------------------------------------
 
