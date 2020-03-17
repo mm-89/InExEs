@@ -73,9 +73,8 @@ tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
 
 #BETA COEFICIENT ----------------------------------
 #try to compute beta coefficient
-start = time.time()
-posture.compute_beta(N=5, random=False)
-print(time.time() - start)
+
+
 #--------------------------------------------
 
 
