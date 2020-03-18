@@ -1,72 +1,65 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import trimesh as tm
-
+import simulation as sim
 import sun_ray_direction as srd
-import posture as ps
-import math_refl_diff as mrd
 
-import time
+#NAMELIST---------------------------------------------------------------
 
-#PARAMETER ----------------------------------
-my_file = "postures/head_high_res/head.ply"
+#POSTURE PARAMETERS--------------------------
+#charging the posture by path
 
-output_dir = "output"
-file_out = "my_test_mesh"
-extension = "ply"
-#--------------------------------------------
+my_posture_file = "postures/head_high_res/head.ply"
 
-#POSTURES SETUP ----------------------------------
-#define and charge a posture
-posture = ps.Posture(my_file)
+#LIGHT SOURCE PARAMETERS---------------------
+#it has to be defined
 
-#SUNRAYS SETUP ----------------------------------
-#set the sun ray direction (one step for now)
-sun_ray = srd.Sun_ray_direction()
-sun_direction = sun_ray.get_sun_direction(day=1, second=43200)
-#--------------------------------------------
+sun_ray_source = srd.Sun_ray_direction(latitude=20)
 
+#SIMULATION PARAMETERS------------------------
+#timestep of simulation
 
-#SHADOW MAPPING ----------------------------------
-#look for intersections
-ray_origins = posture.get_vertices_barycenter + posture.normals_minimized
-#ray_direction = [sun_direction for i in range(len(ray_origins))]
+timestep = 60.
 
-#just to check
-#if not len(ray_origins)==len(ray_direction):
-#	print("Some problems occured")
+#POSTURE PARAMETERS--------------------------
+#need start angle
 
-#new_origins = []
-#for comp in ray_origins:
-#	if(np.dot(comp, sun_direction) > 0 and np.dot(comp, sun_direction) <= 1):
-#		new_origins.append(comp)
+start_angle = 180.
 
-#print("old lenght: ", len(ray_origins), " new lenght: ", len(new_origins))
+#DATA PARAMETERS------------------------------
+#set start date
 
-ray_direction = [sun_direction for i in range(len(ray_origins))]
+s_year = 2014
+s_month = 9
+s_day = 15
+s_hour = 12
+s_minute = 0
+s_second = 0
 
-#OLD VERSION
-#try to evaluate intersections 
-#inf = posture.get_posture.ray.intersects_any(ray_origins=ray_origins, ray_directions=ray_direction)
+#----------------------------------------
+#set end date
 
-#print("old lenght: ", len(new_origins), " new lenght: ", len(ray_direction))
+e_year = 2014
+e_month = 9
+e_day = 15
+e_hour = 12
+e_minute = 30
+e_second = 0
 
-#NEW VERSION
-inf = posture.get_posture.ray.intersects_any(ray_origins=ray_origins, ray_directions=ray_direction)
+#-------------------------------------------------------------------------
+#vector of current data
 
-#take only non-zero components (non-zero=not hit)
-face_nohit = np.nonzero(~inf)[0]
+start_date = [s_year, s_month, s_day, s_hour, s_minute, s_second]
+end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 
+#-----------------------------------------
 
+my_simulation = sim.Simulation(start_date, 
+								end_date, 
+								timestep, 
+								my_posture_file, 
+								sun_ray_source,
+								start_angle)
 
-#try to re-write a mesh
-my_new_mesh = tm.Trimesh(vertices=posture.get_vertices, 
-						faces=posture.get_faces, 
-						process=True, 
-						#face_colors=col_ver
-						)
+#to visualize a particular timestep
+#my_simulation.show_one_timestep(start_date)
 
-#IMPORTANT TO IMPLEMENTATE
-#to export a mesh - it works
-#tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
-#--------------------------------------------
+#to do a whole simulation
+my_simulation.make_simulation()
