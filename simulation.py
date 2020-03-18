@@ -49,6 +49,7 @@ class Simulation:
 
 	def make_simulation(self):
 
+		method_red = True
 
 		#some information for users
 		print("")
@@ -63,6 +64,7 @@ class Simulation:
 		current_second = self.start_second
 	
 		print("Start simulation...")
+		print("")
 
 		start = time.time()
 		while(current_data < self.end_date):
@@ -79,10 +81,24 @@ class Simulation:
 				print("Some problems occured")
 				break
 
-			#ray_tracing
-			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-														ray_directions=ray_direction)
+			if(method_red):
 
+				for j, comp in enumerate(self.posture.get_normals):
+
+					proj = np.dot(np.array([comp]), np.array([ray_source_direction]).T)
+
+					# given faces' normals and sun direction (normal as well)
+					# if the dot product is negative means shadow
+					if(proj > 0.):
+
+						#ray_tracing
+						inf = self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
+															ray_directions=np.array([ray_source_direction]))
+			else:
+
+				inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+														ray_directions=ray_direction)
+		
 			current_data += datetime.timedelta(seconds=self.timestep)
 			current_second += self.timestep
 
@@ -95,12 +111,7 @@ class Simulation:
 
 	def show_one_timestep(self, date, show_result=True):
 		#this just to visualize
-		date_to_vis = datetime.datetime(date[0],
-											date[1],
-											date[2],
-											date[3],
-											date[4],
-											date[5])
+		date_to_vis = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
