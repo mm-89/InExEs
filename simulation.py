@@ -62,6 +62,9 @@ class Simulation:
 		current_data = self.start_date
 		current_day = self.day_of_beginning
 		current_second = self.start_second
+
+		if(self.start_date > self.end_date):
+			print("End date must me after of start date!")
 	
 		print("Start simulation...")
 		print("")
@@ -161,3 +164,15 @@ class Simulation:
 						])
 
 		if(show_result): scene.show()
+
+#IMPORTANT
+
+#output_dir = "output"
+#file_out = "my_test_mesh"
+#extension = "ply"
+
+#to export a mesh - it works
+#tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
+
+#other important thing:
+#face_nohit = np.nonzero(~inf)[0]
