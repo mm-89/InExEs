@@ -36,6 +36,28 @@ class Sun_ray_direction:
 
 		return x_comp, y_comp, z_comp
 
+	def get_sun_irradiance_in_a_day(self, day):
+		"""
+		Irradiance is W/m2...
+		"""
+		#solar_constant
+		s0 = 1362 # W/m2 at the top of the atmosphere
+		return s0*(1 + 0.0339*mt.cos(2*pi*day/365.25))
+
+
+	def get_daily_sun_irradiance(self, day, second):
+		"""
+		Irradiance is W/m2...
+		"""
+		#solar_constant
+		norm_time = mt.pi*(second/43200. - 1.)
+		total_day = get_sun_irradiance_in_a_day(day)
+		sza =	mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
+					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
+
+		return total_day*sza
+
+
 def sun_zenith_angle(day):
 	"""
 	day is a int from 1 to 365
