@@ -34,7 +34,7 @@ class Sun_ray_direction:
 
 		#in trimesh axis are inverted like: x->z, y->x, z->y
 
-		return z_comp, x_comp, y_comp
+		return x_comp, y_comp, z_comp
 
 def sun_zenith_angle(day):
 	"""

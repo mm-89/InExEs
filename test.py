@@ -1,5 +1,4 @@
 import simulation as sim
-import posture as ps
 import sun_ray_direction as srd
 
 #NAMELIST---------------------------------------------------------------
@@ -7,17 +6,22 @@ import sun_ray_direction as srd
 #POSTURE PARAMETERS--------------------------
 #charging the posture by path
 
-my_posture_file = "postures/body_low_res/BabyLowRes_01.ply"
+my_posture_file = "postures/head_high_res/head.ply"
 
 #LIGHT SOURCE PARAMETERS---------------------
 #to be defined
 
-sun_ray_source = srd.Sun_ray_direction(latitude=45)
+sun_ray_source = srd.Sun_ray_direction(latitude=20)
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
 
 timestep = 60.
+
+#POSTURE PARAMETERS--------------------------
+#need start angle
+
+start_angle = 180.
 
 #DATA PARAMETERS------------------------------
 #set start date
@@ -25,7 +29,7 @@ timestep = 60.
 s_year = 2014
 s_month = 9
 s_day = 15
-s_hour = 0
+s_hour = 12
 s_minute = 0
 s_second = 0
 
@@ -51,6 +55,9 @@ my_simulation = sim.Simulation(start_date,
 								end_date, 
 								timestep, 
 								my_posture_file, 
-								sun_ray_source)
+								sun_ray_source,
+								start_angle)
 
-my_simulation.make_simulation()
+my_simulation.show_one_timestep(start_date)
+
+#my_simulation.make_simulation()

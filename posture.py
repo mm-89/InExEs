@@ -2,8 +2,6 @@ import trimesh as tm
 import math_refl_diff as mrd
 import numpy as np
 
-np.set_printoptions(suppress=True) #I dunno if now it is necessary
-
 class Posture:
 
 	def __init__(self, my_file):
@@ -22,6 +20,7 @@ class Posture:
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
 
+
 	@property
 	def get_posture(self):
 		return self.my_file
@@ -37,6 +36,7 @@ class Posture:
 
 	def get_total_area(self):
 		return self.my_file.area
+
 
 	@property
 	def get_normals_minimized(self):
@@ -87,11 +87,11 @@ class Posture:
 
 		return beta
 
-
+	@property
 	def get_faces(self):
 		return self.my_file.faces
 
-
+	@property
 	def get_vertices(self):
 		return self.my_file.vertices
 
@@ -104,8 +104,10 @@ class Posture:
 	def get_angles_from_normals(self):
 		return self.angles_normals
 
+
 	def set_normals_minimized(self, fact=0.001):
 		return self.face_normals*fact
+
 
 	def show_posture(self):
 		self.my_file.show()
