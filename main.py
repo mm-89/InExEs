@@ -1,93 +1,65 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import trimesh as tm
-
+import simulation as sim
 import sun_ray_direction as srd
-import posture as ps
-import math_refl_diff as mrd
 
-import time
+#NAMELIST---------------------------------------------------------------
 
-#PARAMETER ----------------------------------
-my_file = "postures/head_high_res/head.ply"
+#POSTURE PARAMETERS--------------------------
+#charging the posture by path
 
-output_dir = "output"
-file_out = "my_test_mesh"
-extension = "ply"
-#--------------------------------------------
+my_posture_file = "postures/head_high_res/head.ply"
 
-#POSTURES SETUP ----------------------------------
-#define and charge a posture
-posture = ps.Posture(my_file)
+#LIGHT SOURCE PARAMETERS---------------------
+#it has to be defined
 
-#need normals
-normals = posture.get_normals
+sun_ray_source = srd.Sun_ray_direction(latitude=20)
 
-#minimized them to avoid extra intersections
-normals_minimized = posture.get_normals_minimized
-#--------------------------------------------
+#SIMULATION PARAMETERS------------------------
+#timestep of simulation
 
-#SUNRAYS SETUP ----------------------------------
-#set the sun ray direction (one step for now)
-sun_ray = srd.Sun_ray_direction(second=400)
-sun_direction = sun_ray.get_sun_direction()
-#--------------------------------------------
+timestep = 60.
 
+#POSTURE PARAMETERS--------------------------
+#need start angle
 
-#SHADOW MAPPING ----------------------------------
-#look for intersections
-ray_origins = posture.get_vertices_barycenter() + normals_minimized
-ray_direction = [sun_direction for i in range(len(ray_origins))]
+start_angle = 180.
 
-#just to check
-if not len(ray_origins)==len(ray_direction):
-	print("Some problems occured")
+#DATA PARAMETERS------------------------------
+#set start date
 
-#try to evaluate intersections
-inf = posture.get_posture.ray.intersects_any(ray_origins=ray_origins, ray_directions=ray_direction)
+s_year = 2014
+s_month = 9
+s_day = 15
+s_hour = 12
+s_minute = 0
+s_second = 0
 
-#take only non-zero components (non-zero=not hit)
-face_nohit = np.nonzero(~inf)[0]
+#----------------------------------------
+#set end date
 
-#to highlithg illuminated comparet to in shadow faces
-black_col = [0, 0, 0]
-white_col = [255, 255, 255]
+e_year = 2014
+e_month = 9
+e_day = 15
+e_hour = 12
+e_minute = 30
+e_second = 0
 
-col_ver = []
-for comp in inf:
-	if not comp:
-		col_ver.append(white_col)
-	else:
-		col_ver.append(black_col)
+#-------------------------------------------------------------------------
+#vector of current data
 
-if(len(col_ver)==len(posture.get_faces())):
-	print("Program is working")
+start_date = [s_year, s_month, s_day, s_hour, s_minute, s_second]
+end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 
-#try to re-write a mesh
-my_new_mesh = tm.Trimesh(vertices=posture.get_vertices(), faces=posture.get_faces(), \
-				process=True, face_colors=col_ver)
+#-----------------------------------------
 
-#to export a mesh - it works
-tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
-#--------------------------------------------
+my_simulation = sim.Simulation(start_date, 
+								end_date, 
+								timestep, 
+								my_posture_file, 
+								sun_ray_source,
+								start_angle)
 
-#BETA COEFICIENT ----------------------------------
-#try to compute beta coefficient
+#to visualize a particular timestep
+#my_simulation.show_one_timestep(start_date)
 
-
-#--------------------------------------------
-
-
-#DISPLAY 3D VISUALISATION ----------------------------------
-"""
-#visualize current mesh
-ray_visualize = tm.load_path(np.hstack((
-        ray_origins[100],
-        ray_origins[100] + ray_direction[100])).reshape(-1, 2, 3))
-
-scene = tm.Scene([
-        my_new_mesh,
-        ray_visualize])
-
-scene.show()
-"""
+#to do a whole simulation
+my_simulation.make_simulation()
