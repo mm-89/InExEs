@@ -42,7 +42,7 @@ class Sun_ray_direction:
 		"""
 		#solar_constant
 		s0 = 1362 # W/m2 at the top of the atmosphere
-		return s0*(1 + 0.0339*mt.cos(2*pi*day/365.25))
+		return s0*(1 + 0.0339*mt.cos(2*mt.pi*day/365.25))
 
 
 	def get_daily_sun_irradiance(self, day, second):
