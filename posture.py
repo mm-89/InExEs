@@ -16,7 +16,7 @@ class Posture:
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
 		start = time.time()
-		self.compute_beta(random=False)
+		self.compute_beta(my_file,random=False)
 		print(time.time() - start)
 
 
@@ -49,31 +49,36 @@ class Posture:
 
 	@property
 	def get_normals_minimized(self):
-		return self.normals_minimized
+    		return self.normals_minimized
 
 	#PARAMS : self, random value
 	#OUTPUT : nothing
 	#DESCRIPTION : Define the array of beta values by an existing file 
 	#			   Or by calculation --> create the beta coeff file
-	def compute_beta(self, random=True):
+	def compute_beta(self, path, random=True):
+		path = path.split('/')
+		mesh_name = path[-1]
+		print("You will need to choose a N value, press enter for default value (default value N = 5)")
+		value = input("N value : ")
+		if value == '': 
+			N = 5 #DEFAULT VALUE OF BETA
+			value = "5"
+		else:
+			N = int(value)
+		print("You choose N =", N)
     	#Try to find a beta_coefficient file
+		fileName = "input/beta_coefficient_" + value + "_" + mesh_name + ".txt"
 		try:
-			with open('input/beta_coefficient.txt') as f:
-				print(f.readlines())
+			with open("input/beta_coefficient_" + value + "_" + mesh_name + ".txt") as f:
+				print("Beta file found")
+				#print(f.readlines())
 				#We put the file content = to beta coeff value
 				self.betaCoeff = f.readlines()
-				print(self.betaCoeff)
+				#print(self.betaCoeff)
 				return
 		except IOError:
 			#If not we ask user for an N value, compute beta and create a beta coeff file
-			print("No beta file found")
-			print("You will need to define a N value, press enter for default value (default value N = 5)")
-			value = input("N value : ")
-			if value == '': 
-				N = 5 #DEFAULT VALUE OF BETA
-			else:
-				N = int(value)
-			print("You choose N =", N)
+			print("No beta file found for this N value, a new beta file will be created please wait")
 					
 			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
 
@@ -117,7 +122,7 @@ class Posture:
 						" percent complete", end="\r")
 
 			print(beta)
-			with open('input/beta_coefficient.txt', 'w+') as f:
+			with open("input/beta_coefficient_" + value + "_" + mesh_name + ".txt", 'w+') as f:
 				for line in beta:
 						f.write(str(line))
 

@@ -1,12 +1,19 @@
 import simulation as sim
 import sun_ray_direction as srd
+import os
 
 #NAMELIST---------------------------------------------------------------
 
 #POSTURE PARAMETERS--------------------------
-#charging the posture by path
+#choosing and charging the posture by path
+meshes = os.listdir("postures/head_high_res")
+for i in range(len(meshes)):
+	print("(", i, ")", meshes[i])
 
-my_posture_file = "postures/head_high_res/head.ply"
+file_number = input("Choose the mesh with the associate number ( x )")
+my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]
+
+# = "postures/head_high_res/head.ply"
 
 #LIGHT SOURCE PARAMETERS---------------------
 #it has to be defined
@@ -40,7 +47,7 @@ e_year = 2014
 e_month = 9
 e_day = 15
 e_hour = 12
-e_minute = 30
+e_minute = 10
 e_second = 0
 
 #-------------------------------------------------------------------------
