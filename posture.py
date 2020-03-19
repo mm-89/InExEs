@@ -48,9 +48,6 @@ class Posture:
 
 
 	@property
-	#PARAMS : self
-	#OUTPUT : face's  minimized normals
-	#DESCRIPTION : return the face's  minimized normals of our mesh
 	def get_normals_minimized(self):
 		return self.normals_minimized
 
@@ -140,7 +137,7 @@ class Posture:
 	def get_vertices(self):
 		return self.my_file.vertices
 
-
+	@property
 	#PARAMS : self
 	#OUTPUT : array of barycenters
 	#DESCRIPTION : get the barycenter of each triangle

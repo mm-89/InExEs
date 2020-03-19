@@ -40,7 +40,7 @@ class Simulation:
 	    self.start_second = start_date[5]
 	    self.timestep = timestep
 	    self.posture = ps.Posture(posture)
-	    self.source_light = source_light 
+	    self.source_light = source_light
 	    self.start_angle = start_angle
 
 	    self.ray_origins = self.posture.get_vertices_barycenter + \
