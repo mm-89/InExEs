@@ -65,6 +65,9 @@ class Simulation:
 
 		if(self.start_date > self.end_date):
 			print("End date must me after of start date!")
+
+		file_out = open("output/my_output_file.txt", "w+")
+		file_out.close()
 	
 		print("Start simulation...")
 		print("")
@@ -76,31 +79,34 @@ class Simulation:
 
 			#compute source rays direction
 			ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
+			
+			#check if it is daylight or not
+			if(self.source_light.is_day(current_day, current_second)):
 
-			ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
+				ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
-			#just to check
-			if not len(self.ray_origins)==len(ray_direction):
-				print("Some problems occured")
-				break
+				#just to check
+				if not len(self.ray_origins)==len(ray_direction):
+					print("Some problems occured")
+					break
 
-			if(method_red):
+				if(method_red):
 
-				for j, comp in enumerate(self.posture.get_normals):
+					for j, comp in enumerate(self.posture.get_normals):
 
-					proj = np.dot(np.array([comp]), np.array([ray_source_direction]).T)
+						proj = np.dot(np.array([comp]), np.array([ray_source_direction]).T)
 
-					# given faces' normals and sun direction (normal as well)
-					# if the dot product is negative means shadow
-					if(proj > 0.):
+						# given faces' normals and sun direction (normal as well)
+						# if the dot product is negative means shadow
+						if(proj > 0.):
 
-						#ray_tracing
-						inf = self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
-															ray_directions=np.array([ray_source_direction]))
-			else:
+							#ray_tracing
+							inf = self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
+																ray_directions=np.array([ray_source_direction]))
+				else:
 
-				inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-														ray_directions=ray_direction)
+					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+															ray_directions=ray_direction)
 		
 			current_data += datetime.timedelta(seconds=self.timestep)
 			current_second += self.timestep

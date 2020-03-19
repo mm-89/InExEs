@@ -34,6 +34,7 @@ class Posture:
 	def get_normals(self):
 		return self.my_file.face_normals
 
+	@property
 	#PARAMS : self
 	#OUTPUT : face's areas
 	#DESCRIPTION : return the face's areas of our mesh
