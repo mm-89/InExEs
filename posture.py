@@ -11,7 +11,7 @@ class Posture:
 		normals = self.my_file.face_normals
 		angles_normals = []
 		for comp in normals:
-			angles_normals.append(mrd.polar_transform(comp))
+			angles_normals.append(mrd.from_cartesian_to_polar(comp))
 		
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
