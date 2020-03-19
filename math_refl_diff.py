@@ -5,7 +5,7 @@ import random
 #PARAMS : comp
 #OUTPUT : array of theta and phi value 
 #DESCRIPTION : get theta and phi values for ?
-def polar_transform(comp):
+def from_cartesian_to_polar(comp):
 
     #compute theta
     theta = acos(comp[2])
@@ -14,6 +14,18 @@ def polar_transform(comp):
     phi = np.arctan2(comp[1], comp[0])
 
     return np.array([theta, phi])
+
+
+def from_polar_to_cartesian(comp):
+    """
+    Note: comp[0] has to be zenith angle
+    while comp[1] has to be azimuth angle
+    """
+    x = sin(comp[0])*cos(comp[1])
+    y = sin(comp[0])*sin(comp[1])
+    z = cos([comp[0]])
+    
+    return x, y, z
 
 #PARAMS : theta, phi
 #OUTPUT : 
