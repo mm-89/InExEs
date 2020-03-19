@@ -29,7 +29,7 @@ start_angle = 180.
 s_year = 2014
 s_month = 9
 s_day = 15
-s_hour = 12
+s_hour = 18
 s_minute = 0
 s_second = 0
 
@@ -38,8 +38,8 @@ s_second = 0
 
 e_year = 2014
 e_month = 9
-e_day = 15
-e_hour = 12
+e_day = 16
+e_hour = 0
 e_minute = 30
 e_second = 0
 

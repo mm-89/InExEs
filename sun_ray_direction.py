@@ -36,6 +36,16 @@ class Sun_ray_direction:
 
 		return x_comp, y_comp, z_comp
 
+	def is_day(self, day, second):
+		norm_time = mt.pi*(second/43200. - 1.)
+
+		sza = mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
+					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
+		if(sza>0.): res = True 
+		else: res = False
+		return res
+		
+
 	def get_sun_irradiance_in_a_day(self, day):
 		"""
 		Irradiance is W/m2...
