@@ -8,42 +8,42 @@ import time
 
 class Simulation:
 
-	def __init__(self, 
-                start_date, 
-		    	end_date, 
+	def __init__(self,
+				start_date, 
+				end_date, 
 				timestep, 
 				posture, 
 				source_light,
 				start_angle
 				):
 
-	    self.start_date = datetime.datetime(start_date[0],  
-                                                start_date[1],
+		self.start_date = datetime.datetime(start_date[0],
+												start_date[1],
 												start_date[2],
 												start_date[3],
 												start_date[4],
 												start_date[5])
-	    self.end_date = datetime.datetime(end_date[0],									
-	    										end_date[1],
+		self.end_date = datetime.datetime(end_date[0],									
+												end_date[1],
 												end_date[2],
 												end_date[3],
 												end_date[4],
 												end_date[5])
 
-	    self.day_of_beginning = (datetime.date(start_date[0],
+		self.day_of_beginning = (datetime.date(start_date[0],
 												start_date[1],
-		        								start_date[2]) - \
-												datetime.date(start_date[0], 							
-												1,
-												1)).days
+												start_date[2]) - \
+												datetime.date(start_date[0], 1,	1)).days
 
-	    self.start_second = start_date[5]
-	    self.timestep = timestep
-	    self.posture = ps.Posture(posture)
-	    self.source_light = source_light
-	    self.start_angle = start_angle
+		self.start_second = start_date[5]
+		self.timestep = timestep
+		self.posture = ps.Posture(posture)
+		self.source_light = source_light
+		self.start_angle = start_angle
 
-	    self.ray_origins = self.posture.get_vertices_barycenter + \
+		self.name = posture
+
+		self.ray_origins = self.posture.get_vertices_barycenter + \
 	    					self.posture.get_normals_minimized
 
 
@@ -55,7 +55,7 @@ class Simulation:
 		print("")
 		print("start date is: ", self.start_date.strftime("%b %d %Y %H:%M:%S"))
 		print("end date is:   ", self.end_date.strftime("%b %d %Y %H:%M:%S"))
-		print("Posture that has to be simulated is: ", self.posture)
+		print("Posture that has to be simulated is: ", self.name)
 		print("")
 
 		#reference data
@@ -65,10 +65,17 @@ class Simulation:
 
 		if(self.start_date > self.end_date):
 			print("End date must me after of start date!")
-
+		
+		"""maybe it will be useful
+		#initialize t zero the output file
 		file_out = open("output/my_output_file.txt", "w+")
-		file_out.close()
-	
+		#for i in range(len(self.ray_origins)):
+		#	file_out.write('%d  \n' % 0)
+		"""
+
+		#irradiance_data
+		data = np.zeros(shape=len(self.ray_origins))
+
 		print("Start simulation...")
 		print("")
 
@@ -82,6 +89,8 @@ class Simulation:
 			
 			#check if it is daylight or not
 			if(self.source_light.is_day(current_day, current_second)):
+
+				print("sunlight")
 
 				ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
@@ -103,6 +112,12 @@ class Simulation:
 							#ray_tracing
 							inf = self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
 																ray_directions=np.array([ray_source_direction]))
+							
+							#means the face j
+							#this is cumulative irradiance
+							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+															proj*self.posture.get_area_faces[j]
+		
 				else:
 
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
@@ -116,6 +131,12 @@ class Simulation:
 				current_day = 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
+		with open("output/irradiance.txt",'w') as file_out:
+			for comp in data:
+				file_out.write("%.10f \n" % comp)
+	
+		file_out.close()
+		return data
 
 
 	def show_one_timestep(self, date, show_result=True):
