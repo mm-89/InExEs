@@ -1,8 +1,51 @@
 import simulation as sim
 import sun_ray_direction as srd
 import os
+import csv
+import time
 
 #NAMELIST---------------------------------------------------------------
+#TESTS FOR CSV FILES---------------------------------------------------------------
+annee = []
+mois = []
+jours = []
+heures =  []
+minutes = []
+seconds = []
+zeniths = []
+azimuts = []
+uvglobals = []
+uvdiffuses = []
+uvdirects = []
+uvreflects = []
+
+start = time.time()
+with open('input/csv_data/irradiance 2009 example.csv', mode='r') as csv_file:
+	csv_reader = csv.DictReader(csv_file)
+	line_count = 0
+	for row in csv_reader:
+		if line_count == 0:
+			print(f'Column names are {", ".join(row)}')
+			line_count += 1
+		annee.append({row["anne"]})
+		mois.append({row["mois"]})
+		jours.append({row["jour"]})
+		heures.append({row["heure"]})
+
+		minutes.append({row["min"]})
+		seconds.append({row["sec"]})
+		zeniths.append({row["zenith"]})
+		azimuts.append({row["azimut"]})
+
+		uvglobals.append({row["uvglobal"]})
+		uvdiffuses.append({row["uvdiffuse"]})
+		uvdirects.append({row["uvdirect"]})
+		uvreflects.append({row["uvreflected"]})
+		line_count += 1
+	print(f'Processed {line_count} lines.')
+
+print("Time taken to get all informations from CSV file : ",time.time() - start)
+
 
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture by path
@@ -10,7 +53,7 @@ meshes = os.listdir("postures/head_high_res")
 for i in range(len(meshes)):
 	print("(", i, ")", meshes[i])
 
-file_number = input("Choose the mesh with the associate number ( x )")
+file_number = input("Choose the mesh with the associate number ( x ) ")
 my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]
 
 # = "postures/head_high_res/head.ply"
