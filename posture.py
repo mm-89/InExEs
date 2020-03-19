@@ -125,13 +125,14 @@ class Posture:
 			self.betaCoeff = beta
 			
 
-
+	@property
 	#PARAMS : self
 	#OUTPUT : mesh faces as array
 	#DESCRIPTION : return the mesh faces 
 	def get_faces(self):
 		return self.my_file.faces
-
+	
+	@property
 	#PARAMS : self
 	#OUTPUT : mesh vertices as array
 	#DESCRIPTION : return the mesh vertices
