@@ -3,9 +3,6 @@ import math_refl_diff as mrd
 import numpy as np
 import time
 
-
-np.set_printoptions(suppress=True) #I dunno if now it is necessary
-
 class Posture:
 
 	def __init__(self, my_file):
@@ -21,6 +18,7 @@ class Posture:
 		start = time.time()
 		self.compute_beta(random=False)
 		print(time.time() - start)
+
 
 	@property
 	#PARAMS : self
@@ -47,6 +45,7 @@ class Posture:
 	#DESCRIPTION : return mesh's area
 	def get_total_area(self):
 		return self.my_file.area
+
 
 	@property
 	#PARAMS : self
