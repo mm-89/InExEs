@@ -90,8 +90,6 @@ class Simulation:
 			#check if it is daylight or not
 			if(self.source_light.is_day(current_day, current_second)):
 
-				print("sunlight")
-
 				ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
 				#just to check
