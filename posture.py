@@ -15,9 +15,9 @@ class Posture:
 		
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
-		start = time.time()
+		#start = time.time()
 		self.compute_beta(random=False)
-		print(time.time() - start)
+		#print(time.time() - start)
 
 
 	@property
@@ -60,10 +60,10 @@ class Posture:
     	#Try to find a beta_coefficient file
 		try:
 			with open('input/beta_coefficient.txt') as f:
-				print(f.readlines())
+				#print(f.readlines())
 				#We put the file content = to beta coeff value
 				self.betaCoeff = f.readlines()
-				print(self.betaCoeff)
+				#print(self.betaCoeff)
 				return
 		except IOError:
 			#If not we ask user for an N value, compute beta and create a beta coeff file
@@ -117,7 +117,7 @@ class Posture:
 						round(counter/len(ray_ori_all)*100,1), 
 						" percent complete", end="\r")
 
-			print(beta)
+			#print(beta)
 			with open('input/beta_coefficient.txt', 'w+') as f:
 				for line in beta:
 						f.write(str(line))
