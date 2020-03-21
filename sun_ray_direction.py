@@ -21,6 +21,12 @@ class Sun_ray_direction:
 
 
 	def get_sun_direction(self, day, second):
+		""""
+		reference: ...
+		z -> zenith
+		y -> towards North pole
+		x -> towards East
+		"""
 
 		#in this way the noon is exactely in the mid
 		#of the day (43200 s)

@@ -26,8 +26,8 @@ timestep = 60.
 #POSTURE PARAMETERS--------------------------
 #need start angle
 
-start_angle_theta = 180.
-start_angle_phi = 180.
+start_angle_theta = 0.
+start_angle_phi = 0.
 
 #DATA PARAMETERS------------------------------
 #set start date
@@ -35,7 +35,7 @@ start_angle_phi = 180.
 s_year = 2014
 s_month = 3
 s_day = 21
-s_hour = 15
+s_hour = 12
 s_minute = 0
 s_second = 0
 
