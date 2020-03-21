@@ -14,7 +14,8 @@ class Simulation:
 				timestep, 
 				posture, 
 				source_light,
-				start_angle,
+				start_angle_theta,
+				start_angle_phi,
 				output_name
 				):
 
@@ -121,9 +122,9 @@ class Simulation:
 							inf.append(False)
 										
 						#means the face j
-						#this is cumulative irradiance
+						#this is cumulative irradiance dose (energy -> J/Hz)
 						data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											abs(proj[j])*self.posture.get_area_faces[j]
+											abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 		
 				else:
 
@@ -133,7 +134,7 @@ class Simulation:
 					for j, comp in enumerate(inf):
 						if not comp:
 							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											abs(proj[j])*self.posture.get_area_faces[j]
+											abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 
 		
 			current_data += datetime.timedelta(seconds=self.timestep)
@@ -166,8 +167,10 @@ class Simulation:
 											date[2]) - \
 											datetime.date(date[0], 1, 1)).days
 
+		current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+
 		#make rays of sun (direction)
-		ray_source_direction = self.source_light.get_sun_direction(number_of_days, date[5])
+		ray_source_direction = self.source_light.get_sun_direction(number_of_days, current_second)
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
 		if(method_red):
