@@ -1,8 +1,10 @@
 import posture as ps
 import sun_ray_direction as srd
+import math_refl_diff as mrd
 
 import trimesh as tm
 import numpy as np
+import math as mt
 import datetime
 import time
 
@@ -43,7 +45,8 @@ class Simulation:
 		self.timestep = timestep
 		self.posture = ps.Posture(posture)
 		self.source_light = source_light
-		self.start_angle = start_angle
+		self.start_angle_theta = start_angle_theta*mt.pi/180.
+		self.start_angle_phi = start_angle_phi*mt.pi/180.
 
 		self.name = posture
 
@@ -91,7 +94,8 @@ class Simulation:
 			print("Current date of simulation: ", current_data.strftime("%b %d %Y %H:%M:%S"))
 
 			#compute source rays direction
-			ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
+			ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
+								self.source_light.get_sun_direction(current_day, current_second))
 			
 			#check if it is daylight or not
 			if(self.source_light.is_day(current_day, current_second)):
@@ -168,9 +172,12 @@ class Simulation:
 											datetime.date(date[0], 1, 1)).days
 
 		current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)
-		ray_source_direction = self.source_light.get_sun_direction(number_of_days, current_second)
+		ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
+								self.source_light.get_sun_direction(current_day, current_second))
+
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
 		if(method_red):
