@@ -3,11 +3,11 @@ import math as mt
 class Sun_ray_direction:
 
 	def __init__(self, latitude=45.):
-		self.latitude = float(latitude)
+		self.latitude = latitude*mt.pi/180.
 
 
 	def set_latitude(self, latitude):
-		self.latitude = float(latitude)
+		self.latitude = latitude*mt.pi/180.
 
 
 	def get_sun_zenith_angle(self, day, radiant=True):
@@ -41,9 +41,10 @@ class Sun_ray_direction:
 
 		sza = mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
 					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
-		if(sza>0.): res = True 
-		else: res = False
-		return res
+		if(sza>0.): 
+			return True 
+		else: 
+			return False
 		
 
 	def get_sun_irradiance_in_a_day(self, day):
@@ -72,7 +73,8 @@ def sun_zenith_angle(day):
 	if(day<1 or day>365):
 		print("Please, insert a valid value of DAY variable")
 
-	return mt.asin(0.39795*mt.cos(0.98563*(day - 173)*mt.pi/180.))
+	#return mt.asin(0.39795*mt.cos(0.98563*(day - 173)*mt.pi/180.))
+	return -23.44*mt.pi/180.*mt.cos(mt.pi/180.*360./365.*(day + 10))
 
 def sun_irradiance_in_a_day(s0, day):
 	return s0*(1 + 0.0339*mt.cos(2*mt.pi*day/365.25))
