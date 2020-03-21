@@ -14,7 +14,8 @@ class Simulation:
 				timestep, 
 				posture, 
 				source_light,
-				start_angle
+				start_angle,
+				output_name
 				):
 
 		self.start_date = datetime.datetime(start_date[0],
@@ -35,6 +36,8 @@ class Simulation:
 												start_date[2]) - \
 												datetime.date(start_date[0], 1,	1)).days
 
+		self.start_hour = start_date[3]
+		self.start_minute = start_date[4]
 		self.start_second = start_date[5]
 		self.timestep = timestep
 		self.posture = ps.Posture(posture)
@@ -46,10 +49,12 @@ class Simulation:
 		self.ray_origins = self.posture.get_vertices_barycenter + \
 	    					self.posture.get_normals_minimized
 
+		self.output_name = output_name
+
 
 	def make_simulation(self):
 
-		method_red = True
+		method_red = False
 
 		#some information for users
 		print("")
@@ -61,7 +66,7 @@ class Simulation:
 		#reference data
 		current_data = self.start_date
 		current_day = self.day_of_beginning
-		current_second = self.start_second
+		current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
 
 		if(self.start_date > self.end_date):
 			print("End date must me after of start date!")
@@ -97,29 +102,39 @@ class Simulation:
 					print("Some problems occured")
 					break
 
+				#compute dot product between ray direction and face normals
+				proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
+
 				if(method_red):
 
-					for j, comp in enumerate(self.posture.get_normals):
+					inf = []
+						
+					for j, lis in enumerate(proj):
 
-						proj = np.dot(np.array([comp]), np.array([ray_source_direction]).T)
-
-						# given faces' normals and sun direction (normal as well)
-						# if the dot product is negative means shadow
-						if(proj > 0.):
-
+							# given faces' normals and sun direction (normal as well)
+							# if the dot product is negative means shadow
+						if(lis > 0.):
 							#ray_tracing
-							inf = self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
-																ray_directions=np.array([ray_source_direction]))
-							
-							#means the face j
-							#this is cumulative irradiance
-							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-															proj*self.posture.get_area_faces[j]
+							inf.append( self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
+																	ray_directions=np.array([ray_source_direction])) )
+						else:
+							inf.append(False)
+										
+						#means the face j
+						#this is cumulative irradiance
+						data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+											abs(proj[j])*self.posture.get_area_faces[j]
 		
 				else:
 
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 															ray_directions=ray_direction)
+
+					for j, comp in enumerate(inf):
+						if not comp:
+							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+											abs(proj[j])*self.posture.get_area_faces[j]
+
 		
 			current_data += datetime.timedelta(seconds=self.timestep)
 			current_second += self.timestep
@@ -129,15 +144,18 @@ class Simulation:
 				current_day = 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
-		with open("output/irradiance.txt",'w') as file_out:
+		with open("output/" + self.output_name + ".txt",'w') as file_out:
 			for comp in data:
-				file_out.write("%.10f \n" % comp)
+				file_out.write("%.10f \n" % comp)	
 	
 		file_out.close()
 		return data
 
 
 	def show_one_timestep(self, date, show_result=True):
+
+		method_red = False
+
 		#this just to visualize
 		date_to_vis = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
 
@@ -152,12 +170,30 @@ class Simulation:
 		ray_source_direction = self.source_light.get_sun_direction(number_of_days, date[5])
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
-		#rays tracing
-		inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-														ray_directions=ray_direction)
+		if(method_red):
+
+			inf = []
+			proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
+			
+			for j, lis in enumerate(proj):
+
+				# given faces' normals and sun direction (normal as well)
+				# if the dot product is negative means shadow
+				if(lis < 0.):
+					#ray_tracing
+					inf.append( self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
+														ray_directions=np.array([ray_source_direction])) )
+				else:
+					inf.append(False)
+
+		else:
+
+			#rays tracing
+			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+															ray_directions=ray_direction)
 
 		#take only non-zero components (non-zero=not hit)
-		face_nohit = np.nonzero(~inf)[0]
+		#face_nohit = np.nonzero(~inf)[0]
 
 		#to highlithg illuminated comparet to in shadow faces
 		black_col = [0, 0, 0]
