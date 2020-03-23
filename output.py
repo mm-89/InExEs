@@ -19,7 +19,7 @@ class Output:
 		#the the matrix of data
 		#rows are faces
 		#columns are timesteps
-		self.data_matrix = np.reshape(self.data, (dim_x, dim_y)) 
+		self.data_matrix = np.reshape(self.data, (dim_y, dim_x)) 
 
 		print("Selected data contains: \n")
 		print(dim_x, " 	total number of faces")
