@@ -10,14 +10,14 @@ class Sun_ray_direction:
 		self.latitude = latitude*mt.pi/180.
 
 
-	def get_sun_zenith_angle(self, day, radiant=True):
+	def get_sun_declination_angle(self, day, radiant=True):
 		"""
 		if False it gives sexagesimal angle
 		"""
 		k = 1.
 		if not radiant:
 			k = 180./mt.pi
-		return sun_zenith_angle(day)*k
+		return sun_declination_angle(day)*k
 
 
 	def get_sun_direction(self, day, second):
@@ -32,11 +32,11 @@ class Sun_ray_direction:
 		#of the day (43200 s)
 		norm_time = mt.pi*(second/43200. - 1.)
 
-		x_comp = - mt.cos(sun_zenith_angle(day))*mt.sin(norm_time)
-		y_comp = mt.sin(sun_zenith_angle(day))*mt.cos(self.latitude) - \
-					mt.cos(sun_zenith_angle(day))*mt.sin(self.latitude)*mt.cos(norm_time)
-		z_comp = mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
-					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
+		x_comp = - mt.cos(sun_declination_angle(day))*mt.sin(norm_time)
+		y_comp = mt.sin(sun_declination_angle(day))*mt.cos(self.latitude) - \
+					mt.cos(sun_declination_angle(day))*mt.sin(self.latitude)*mt.cos(norm_time)
+		z_comp = mt.cos(sun_declination_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
+					mt.sin(sun_declination_angle(day))*mt.sin(self.latitude)
 
 		#in trimesh axis are inverted like: x->z, y->x, z->y
 
@@ -45,8 +45,8 @@ class Sun_ray_direction:
 	def is_day(self, day, second):
 		norm_time = mt.pi*(second/43200. - 1.)
 
-		sza = mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
-					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
+		sza = mt.cos(sun_declination_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
+					mt.sin(sun_declination_angle(day))*mt.sin(self.latitude)
 		if(sza>0.): 
 			return True 
 		else: 
@@ -66,13 +66,13 @@ class Sun_ray_direction:
 		s0 = 1362
 		norm_time = mt.pi*(second/43200. - 1.)
 		total_day = sun_irradiance_in_a_day(s0, day)
-		sza =	mt.cos(sun_zenith_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
-					mt.sin(sun_zenith_angle(day))*mt.sin(self.latitude)
+		sza =	mt.cos(sun_declination_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
+					mt.sin(sun_declination_angle(day))*mt.sin(self.latitude)
 
 		return total_day*sza
 
 
-def sun_zenith_angle(day):
+def sun_declination_angle(day):
 	"""
 	day is a int from 1 to 365
 	"""
