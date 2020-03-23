@@ -39,6 +39,8 @@ class Simulation:
 												start_date[2]) - \
 												datetime.date(start_date[0], 1,	1)).days
 
+		self.total_timestep_of_simulation = (self.end_date - self.start_date).total_seconds()/timestep
+		
 		self.start_hour = start_date[3]
 		self.start_minute = start_date[4]
 		self.start_second = start_date[5]
@@ -83,18 +85,25 @@ class Simulation:
 		#	file_out.write('%d  \n' % 0)
 		"""
 
-		#irradiance_data
-		data = np.zeros(shape=len(self.ray_origins))
-
 		file_out = open("output/" + self.output_name + ".txt",'w+')
 
 		print("Start simulation...")
 		print("")
 
+		k = 0
+
 		start = time.time()
 		while(current_data < self.end_date):
 
-			print("Current date of simulation: ", current_data.strftime("%b %d %Y %H:%M:%S"))
+			#irradiance_data
+			#BE CAREFUL! if the data will be cumulative, 
+			#you have to move this vector outside this cycle!
+			data = np.zeros(shape=len(self.ray_origins))
+
+			print("Current date of simulation: ", 
+				current_data.strftime("%b %d %Y %H:%M:%S"))
+			
+			print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 			#compute source rays direction
 			ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
@@ -140,8 +149,14 @@ class Simulation:
 
 					for j, comp in enumerate(inf):
 						if not comp:
+							#data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+							#				abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 							data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
+											abs(proj[j])*self.timestep
+
+
+					print(data[166], data[167], data[168], data[169], data[170], data[171])
+					#print(data[80], data[81], data[82], data[83], data[84], data[85])
 
 					file_out.writelines("%.10f \n" % item for item in data)
 		
@@ -151,6 +166,8 @@ class Simulation:
 			if(current_second > 86400): 
 				current_second = 86400 - current_second
 				current_day = 1
+
+			k += 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
 		"""
