@@ -68,8 +68,10 @@ class Sun_ray_direction:
 		total_day = sun_irradiance_in_a_day(s0, day)
 		sza =	mt.cos(sun_declination_angle(day))*mt.cos(self.latitude)*mt.cos(norm_time) + \
 					mt.sin(sun_declination_angle(day))*mt.sin(self.latitude)
-
-		return total_day*sza
+		if(sza<0.):
+			return 0.
+		else:
+			return total_day*sza
 
 
 def sun_declination_angle(day):

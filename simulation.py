@@ -58,6 +58,7 @@ class Simulation:
 
 	def make_simulation(self):
 
+		#note: True for now doesn't well work
 		method_red = False
 
 		#some information for users
@@ -84,6 +85,8 @@ class Simulation:
 
 		#irradiance_data
 		data = np.zeros(shape=len(self.ray_origins))
+
+		file_out = open("output/" + self.output_name + ".txt",'w+')
 
 		print("Start simulation...")
 		print("")
@@ -137,9 +140,10 @@ class Simulation:
 
 					for j, comp in enumerate(inf):
 						if not comp:
-							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+							data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 											abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 
+					file_out.writelines("%.10f \n" % item for item in data)
 		
 			current_data += datetime.timedelta(seconds=self.timestep)
 			current_second += self.timestep
@@ -149,12 +153,12 @@ class Simulation:
 				current_day = 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
+		"""
 		with open("output/" + self.output_name + ".txt",'w') as file_out:
 			for comp in data:
 				file_out.write("%.10f \n" % comp)	
-	
 		file_out.close()
-		return data
+		"""
 
 
 	def show_one_timestep(self, date, show_result=True):
