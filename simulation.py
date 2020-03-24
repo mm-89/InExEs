@@ -154,10 +154,6 @@ class Simulation:
 							data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 											abs(proj[j])*self.timestep
 
-
-					print(data[166], data[167], data[168], data[169], data[170], data[171])
-					#print(data[80], data[81], data[82], data[83], data[84], data[85])
-
 					file_out.writelines("%.10f \n" % item for item in data)
 		
 			current_data += datetime.timedelta(seconds=self.timestep)
