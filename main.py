@@ -107,7 +107,7 @@ end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
-								my_posture_folder + "/" + my_posture_file, 
+								my_posture_file, 
 								sun_ray_source,
 								start_angle_theta,
 								start_angle_phi,
