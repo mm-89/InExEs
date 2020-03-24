@@ -58,12 +58,12 @@ for i in range(len(meshes)):
 file_number = input("Choose the mesh with the associate number ( x ) ")
 my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]
 
-output_name = "my_data_head"
+output_name = "data"
 
 #LIGHT SOURCE PARAMETERS---------------------
 #it has to be defined
 
-sun_ray_source = srd.Sun_ray_direction(latitude=45)
+sun_ray_source = srd.Sun_ray_direction(latitude=8.1)
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
@@ -74,26 +74,26 @@ timestep = 60.
 #need start angle
 
 start_angle_theta = 0.
-start_angle_phi = 0.
+start_angle_phi = 180.
 
 #DATA PARAMETERS------------------------------
 #set start date
 
-s_year = 2014
-s_month = 3
-s_day = 21
-s_hour = 12
+s_year = 2010
+s_month = 7
+s_day = 11
+s_hour = 7
 s_minute = 0
 s_second = 0
 
 #----------------------------------------
 #set end date
 
-e_year = 2014
-e_month = 6
-e_day = 15
-e_hour = 5
-e_minute = 30
+e_year = 2010
+e_month = 7
+e_day = 11
+e_hour = 17
+e_minute = 0
 e_second = 0
 
 #-------------------------------------------------------------------------
@@ -114,13 +114,11 @@ my_simulation = sim.Simulation(start_date,
 								output_name)
 
 #to visualize a particular timestep
-my_simulation.show_one_timestep(start_date)
+#my_simulation.show_one_timestep(start_date)
 
 #to do a whole simulation
-#data = my_simulation.make_simulation()
-#
-#analysis = op.Output(my_posture_folder + "/" + my_posture_file, data)
-#analysis.show_data()
+my_simulation.make_simulation()
+
 
 #TO GIVE UP
 #one day
