@@ -60,7 +60,6 @@ my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
 my_posture_file = "postures/head_high_res/head.ply"
 
 output_name = "data"
-
 #LIGHT SOURCE PARAMETERS---------------------
 #it has to be defined
 

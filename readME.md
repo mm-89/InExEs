@@ -34,3 +34,9 @@ You may face some problems reguarding libraries installation. Where is some solu
 ## Start the simulation
 
 * `python3 main.py`
+
+## Docker user guide :
+	* First of all make sure to have [docker](https://hub.docker.com/search?q=&type=edition&offering=community&sort=updated_at&order=desc) setup on your computer
+	* Go on project folder
+	* BUILD : `docker build -t python:simulation .`
+	* RUN : `docker run --rm -ti python:simulation`

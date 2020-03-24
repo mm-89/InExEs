@@ -1,0 +1,7 @@
+matplotlib
+trimesh
+shapely
+scipy
+networkx
+piglet
+dockerpty
