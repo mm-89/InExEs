@@ -11,13 +11,13 @@ class Posture:
 		normals = self.my_file.face_normals
 		angles_normals = []
 		for comp in normals:
-			angles_normals.append(mrd.polar_transform(comp))
+			angles_normals.append(mrd.from_cartesian_to_polar(comp))
 		
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
-		start = time.time()
+		#start = time.time()
 		self.compute_beta(my_file,random=False)
-		print(time.time() - start)
+		#print(time.time() - start)
 
 
 	@property
@@ -34,6 +34,7 @@ class Posture:
 	def get_normals(self):
 		return self.my_file.face_normals
 
+	@property
 	#PARAMS : self
 	#OUTPUT : face's areas
 	#DESCRIPTION : return the face's areas of our mesh
@@ -129,13 +130,14 @@ class Posture:
 			self.betaCoeff = beta
 			
 
-
+	@property
 	#PARAMS : self
 	#OUTPUT : mesh faces as array
 	#DESCRIPTION : return the mesh faces 
 	def get_faces(self):
 		return self.my_file.faces
-
+	
+	@property
 	#PARAMS : self
 	#OUTPUT : mesh vertices as array
 	#DESCRIPTION : return the mesh vertices
