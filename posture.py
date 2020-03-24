@@ -16,7 +16,7 @@ class Posture:
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
 		#start = time.time()
-		self.compute_beta(random=False)
+		self.compute_beta(my_file,random=False)
 		#print(time.time() - start)
 
 
