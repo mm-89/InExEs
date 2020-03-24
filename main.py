@@ -51,12 +51,13 @@ print("Time taken to get all informations from CSV file : ",time.time() - start)
 
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture by path
-meshes = os.listdir("postures/head_high_res")
+"""meshes = os.listdir("postures/head_high_res")
 for i in range(len(meshes)):
 	print("(", i, ")", meshes[i])
 
 file_number = input("Choose the mesh with the associate number ( x ) ")
-my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]
+my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
+my_posture_file = "postures/head_high_res/head.ply"
 
 output_name = "data"
 
