@@ -6,47 +6,7 @@ import time
 import output as op
 import matplotlib.pyplot as plt
 
-#NAMELIST---------------------------------------------------------------
-#TESTS FOR CSV FILES---------------------------------------------------------------
-annee = []
-mois = []
-jours = []
-heures =  []
-minutes = []
-seconds = []
-zeniths = []
-azimuts = []
-uvglobals = []
-uvdiffuses = []
-uvdirects = []
-uvreflects = []
-
-start = time.time()
-with open('input/csv_data/irradiance 2009 example.csv', mode='r') as csv_file:
-	csv_reader = csv.DictReader(csv_file)
-	line_count = 0
-	for row in csv_reader:
-		if line_count == 0:
-			print(f'Column names are {", ".join(row)}')
-			line_count += 1
-		annee.append({row["anne"]})
-		mois.append({row["mois"]})
-		jours.append({row["jour"]})
-		heures.append({row["heure"]})
-
-		minutes.append({row["min"]})
-		seconds.append({row["sec"]})
-		zeniths.append({row["zenith"]})
-		azimuts.append({row["azimut"]})
-
-		uvglobals.append({row["uvglobal"]})
-		uvdiffuses.append({row["uvdiffuse"]})
-		uvdirects.append({row["uvdirect"]})
-		uvreflects.append({row["uvreflected"]})
-		line_count += 1
-	print(f'Processed {line_count} lines.')
-
-print("Time taken to get all informations from CSV file : ",time.time() - start)
+#NAMELIST------------------------------------
 
 
 #POSTURE PARAMETERS--------------------------
@@ -57,10 +17,10 @@ for i in range(len(meshes)):
 
 file_number = input("Choose the mesh with the associate number ( x ) ")
 my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
+my_data_file = "input/csv_data/irradiance 2009 example.csv"
+
 my_posture_file = "postures/head_high_res/head.ply"
-
 output_name = "data"
-
 #LIGHT SOURCE PARAMETERS---------------------
 #it has to be defined
 

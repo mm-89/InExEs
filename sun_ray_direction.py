@@ -2,12 +2,56 @@ import math as mt
 
 class Sun_ray_direction:
 
-	def __init__(self, latitude=45.):
+	def __init__(self, read_data= False, latitude=45.):
 		self.latitude = latitude*mt.pi/180.
+		self.read_data = read_data
+		if(self.read_data):
+			annee = []
+			mois = []
+			jours = []
+			heures =  []
+			minutes = []
+			seconds = []
+			zeniths = []
+			azimuts = []
+			uvglobals = []
+			uvdiffuses = []
+			uvdirects = []
+			uvreflects = []
+
+			start = time.time()
+			with open('input/csv_data/irradiance 2009 example.csv', mode='r') as csv_file:
+				csv_reader = csv.DictReader(csv_file)
+				line_count = 0
+				for row in csv_reader:
+					if line_count == 0:
+						print(f'Column names are {", ".join(row)}')
+						line_count += 1
+					annee.append({row["anne"]})
+					mois.append({row["mois"]})
+					jours.append({row["jour"]})
+					heures.append({row["heure"]})
+
+					minutes.append({row["min"]})
+					seconds.append({row["sec"]})
+					zeniths.append({row["zenith"]})
+					azimuts.append({row["azimut"]})
+
+					uvglobals.append({row["uvglobal"]})
+					uvdiffuses.append({row["uvdiffuse"]})
+					uvdirects.append({row["uvdirect"]})
+					uvreflects.append({row["uvreflected"]})
+					line_count += 1
+				print(f'Processed {line_count} lines.')
+
+			print("Time taken to get all informations from CSV file : ",time.time() - start)
 
 
 	def set_latitude(self, latitude):
-		self.latitude = latitude*mt.pi/180.
+		if(self.read_data):
+			print("You must select read_data=False to select latitude!")
+		else:
+			self.latitude = latitude*mt.pi/180.
 
 
 	def get_sun_declination_angle(self, day, radiant=True):
