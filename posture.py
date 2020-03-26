@@ -2,6 +2,7 @@ import trimesh as tm
 import math_refl_diff as mrd
 import numpy as np
 import time
+import sys
 
 class Posture:
 
@@ -178,7 +179,14 @@ class Posture:
 		self.my_file.remove_duplicate_faces()
 		self.my_file.remove_infinite_values()
 		self.my_file.remove_unreferenced_vertices()
-		self.my_file.fill_holes()
+		v = self.my_file.is_volume
+		w = self.my_file.is_winding_consistent
+		wa = self.my_file.is_watertight
+		if(not v) or (not w) or (not wa):
+			self.my_file.fill_holes()
+			if(not v) or (not w) or (not wa):
+				print("Mesh is corrupted")
+				sys.exit()
     	
 
 

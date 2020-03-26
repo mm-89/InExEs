@@ -5,9 +5,24 @@ import csv
 import time
 import output as op
 import matplotlib.pyplot as plt
+import trimesh as tm
 
 #NAMELIST------------------------------------
 N = 10
+
+#POSTURE HOLES TEST--------------------------
+mesh = tm.load("postures/head_high_res/head_holes.ply")
+print(mesh.is_watertight)
+print(mesh.is_volume)
+print(mesh.is_winding_consistent)
+mesh.faces = mesh.faces[:-1]
+print(mesh.is_watertight)
+print(mesh.is_volume)
+print(mesh.is_winding_consistent)
+mesh.fill_holes()
+print(mesh.is_watertight)
+print(mesh.is_volume)
+print(mesh.is_winding_consistent)
 
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture by path
