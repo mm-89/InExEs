@@ -178,6 +178,7 @@ class Posture:
 		self.my_file.remove_duplicate_faces()
 		self.my_file.remove_infinite_values()
 		self.my_file.remove_unreferenced_vertices()
+		self.my_file.fill_holes()
     	
 
 
