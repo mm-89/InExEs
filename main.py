@@ -7,7 +7,7 @@ import output as op
 import matplotlib.pyplot as plt
 
 #NAMELIST------------------------------------
-
+N = 10
 
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture by path
@@ -17,6 +17,9 @@ for i in range(len(meshes)):
 
 file_number = input("Choose the mesh with the associate number ( x ) ")
 my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
+
+
+
 my_data_file = "input/csv_data/irradiance 2009 example.csv"
 
 my_posture_file = "postures/head_high_res/head.ply"
@@ -72,7 +75,8 @@ my_simulation = sim.Simulation(start_date,
 								sun_ray_source,
 								start_angle_theta,
 								start_angle_phi,
-								output_name)
+								output_name,
+								N)
 
 #to visualize a particular timestep
 #my_simulation.show_one_timestep(start_date)
