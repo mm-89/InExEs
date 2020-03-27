@@ -1,5 +1,6 @@
-import trimesh as tm
 import math_refl_diff as mrd
+
+import trimesh as tm
 import numpy as np
 import time
 import sys
@@ -60,17 +61,8 @@ class Posture:
 	def compute_beta(self, path, N, random=True):
 		path = path.split('/')
 		mesh_name = path[-1]
-		"""print("You will need to choose a N value, press enter for default value (default value N = 5)")
-		value = input("N value : ")
-		if value == '': 
-			N = 5 #DEFAULT VALUE OF BETA
-			value = "5"
-		else:
-			N = int(value)
-		print("You choose N =", N)
-		"""
-    	#Try to find a beta_coefficient file
 		fileName = "input/beta_" + mesh_name + "_" + str(N) + ".txt"
+
 		try:
 			with open("input/beta_" + mesh_name + "_" + str(N) + ".txt") as f:
 				print("Beta file found")

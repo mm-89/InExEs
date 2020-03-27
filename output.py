@@ -1,6 +1,8 @@
+import posture as ps
+
 import trimesh as tm
 import numpy as np
-import posture as ps
+
 
 class Output:
 	

@@ -18,8 +18,7 @@ class Simulation:
 				source_light,
 				start_angle_theta,
 				start_angle_phi,
-				output_name,
-				N
+				output_name
 				):
 
 		self.start_date = datetime.datetime(start_date[0],
@@ -46,7 +45,7 @@ class Simulation:
 		self.start_minute = start_date[4]
 		self.start_second = start_date[5]
 		self.timestep = timestep
-		self.posture = ps.Posture(posture,N)
+		self.posture = posture
 		self.source_light = source_light
 		self.start_angle_theta = start_angle_theta*mt.pi/180.
 		self.start_angle_phi = start_angle_phi*mt.pi/180.

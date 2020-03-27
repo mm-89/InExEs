@@ -1,5 +1,7 @@
 import simulation as sim
 import sun_ray_direction as srd
+import posture as ps
+
 import os
 import csv
 import time
@@ -7,47 +9,27 @@ import output as op
 import matplotlib.pyplot as plt
 import trimesh as tm
 
-#NAMELIST------------------------------------
-N = 10
-
-#POSTURE HOLES TEST--------------------------
-mesh = tm.load("postures/head_high_res/head_holes.ply")
-print(mesh.is_watertight)
-print(mesh.is_volume)
-print(mesh.is_winding_consistent)
-mesh.faces = mesh.faces[:-1]
-print(mesh.is_watertight)
-print(mesh.is_volume)
-print(mesh.is_winding_consistent)
-mesh.fill_holes()
-print(mesh.is_watertight)
-print(mesh.is_volume)
-print(mesh.is_winding_consistent)
+#-------------------------------------------
+#------------------NAMELIST-----------------
+#-------------------------------------------
 
 #POSTURE PARAMETERS--------------------------
-#choosing and charging the posture by path
-"""meshes = os.listdir("postures/head_high_res")
-for i in range(len(meshes)):
-	print("(", i, ")", meshes[i])
+#choosing and charging the posture
 
-file_number = input("Choose the mesh with the associate number ( x ) ")
-my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
-
-
-
-my_data_file = "input/csv_data/irradiance 2009 example.csv"
+my_data_file = "input/irradiance_2009.csv"
 
 my_posture_file = "postures/head_high_res/head.ply"
-output_name = "data"
-#LIGHT SOURCE PARAMETERS---------------------
-#it has to be defined
 
-sun_ray_source = srd.Sun_ray_direction(latitude=8.1)
+output_name = "data"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
 
 timestep = 60.
+
+#GEO PARAMETERS----------------------------
+
+latitude = 8.1
 
 #POSTURE PARAMETERS--------------------------
 #need start angle
@@ -75,23 +57,34 @@ e_hour = 17
 e_minute = 0
 e_second = 0
 
+#BETA COEFFICIENT
+#spread point on a hemisphere
+
+N = 2
+
 #-------------------------------------------------------------------------
 #vector of current data
 
 start_date = [s_year, s_month, s_day, s_hour, s_minute, s_second]
 end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 
+#Initialize classes ------------------------------------------------------
+
+posture = ps.Posture(my_posture_file,N)
+
+sun_ray_source = srd.Sun_ray_direction(latitude=latitude)
+
 #-----------------------------------------
 
 my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
-								my_posture_file, 
+								posture, 
 								sun_ray_source,
 								start_angle_theta,
 								start_angle_phi,
-								output_name,
-								N)
+								output_name
+								)
 
 #to visualize a particular timestep
 #my_simulation.show_one_timestep(start_date)
