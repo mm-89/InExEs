@@ -5,21 +5,25 @@ class Sun_ray_direction:
 	def __init__(self, read_data= False, latitude=45.):
 		self.latitude = latitude*mt.pi/180.
 		self.read_data = read_data
-		if(self.read_data):
-			annee = []
-			mois = []
-			jours = []
-			heures =  []
-			minutes = []
-			seconds = []
-			zeniths = []
-			azimuts = []
-			uvglobals = []
-			uvdiffuses = []
-			uvdirects = []
-			uvreflects = []
 
-			start = time.time()
+		if(self.read_data):
+
+			self.year = []
+			self.month = []
+			self.day = []
+			self.hour =  []
+			self.minute = []
+			self.second = []
+			
+			self.zenith = []
+			self.azimuth = []
+
+			self.uvglobal = []
+			self.uvdiffuse = []
+			self.uvdirect = []
+			self.uvreflect = []
+
+
 			with open('input/csv_data/irradiance 2009 example.csv', mode='r') as csv_file:
 				csv_reader = csv.DictReader(csv_file)
 				line_count = 0
@@ -27,24 +31,21 @@ class Sun_ray_direction:
 					if line_count == 0:
 						print(f'Column names are {", ".join(row)}')
 						line_count += 1
-					annee.append({row["anne"]})
-					mois.append({row["mois"]})
-					jours.append({row["jour"]})
-					heures.append({row["heure"]})
+					self.year.append({row["anne"]})
+					self.month.append({row["mois"]})
+					self.day.append({row["jour"]})
+					self.hour.append({row["heure"]})
+					self.minute.append({row["min"]})
+					self.second.append({row["sec"]})
+					
+					self.zenith.append({row["zenith"]})
+					self.azimuth.append({row["azimut"]})
 
-					minutes.append({row["min"]})
-					seconds.append({row["sec"]})
-					zeniths.append({row["zenith"]})
-					azimuts.append({row["azimut"]})
-
-					uvglobals.append({row["uvglobal"]})
-					uvdiffuses.append({row["uvdiffuse"]})
-					uvdirects.append({row["uvdirect"]})
-					uvreflects.append({row["uvreflected"]})
+					self.uvglobal.append({row["uvglobal"]})
+					self.uvdiffuse.append({row["uvdiffuse"]})
+					self.uvdirect.append({row["uvdirect"]})
+					self.uvreflect.append({row["uvreflected"]})
 					line_count += 1
-				print(f'Processed {line_count} lines.')
-
-			print("Time taken to get all informations from CSV file : ",time.time() - start)
 
 
 	def set_latitude(self, latitude):
