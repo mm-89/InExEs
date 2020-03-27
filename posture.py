@@ -8,7 +8,9 @@ import sys
 class Posture:
 
 	def __init__(self, my_file, N):
+		self.path = my_file
 		self.my_file = tm.load(my_file)
+		self.N = N
 
 		normals = self.my_file.face_normals
 		angles_normals = []
@@ -18,7 +20,7 @@ class Posture:
 		self.angles_normals = angles_normals
 		self.normals_minimized = self.my_file.face_normals/1000.
 		#start = time.time()
-		self.compute_beta(my_file, N, random=False)
+		self.compute_beta(random=False)
 		#print(time.time() - start)
 
 
@@ -58,68 +60,72 @@ class Posture:
 	#OUTPUT : nothing
 	#DESCRIPTION : Define the array of beta values by an existing file 
 	#			   Or by calculation --> create the beta coeff file
-	def compute_beta(self, path, N, random=True):
-		path = path.split('/')
-		mesh_name = path[-1]
-		fileName = "input/beta_" + mesh_name + "_" + str(N) + ".txt"
+	def compute_beta(self, random=True):
+			path = self.path.split('/')
+			mesh_name = path[-1]
+			fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(self.N) + ".txt"
+			try:
+				with open(fileName) as f:
+					print("Beta file found")
+					#We put the file content = to beta coeff value
+					self.betaCoeff = f.readlines()
+					return
+			except IOError:
+				#If not we ask user for an N value, compute beta and create a beta coeff file
+				print("No beta file found for this N value, a new beta file will be created please wait")
+						
+				ray_ori_all = self.my_file.triangles_center + self.normals_minimized
 
-		try:
-			with open("input/beta_" + mesh_name + "_" + str(N) + ".txt") as f:
-				print("Beta file found")
-				#We put the file content = to beta coeff value
-				self.betaCoeff = f.readlines()
-				return
-		except IOError:
-			#If not we ask user for an N value, compute beta and create a beta coeff file
-			print("No beta file found for this N value, a new beta file will be created please wait")
-					
-			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
+				ray_dir = []
+				beta = []
 
-			ray_dir = []
-			beta = []
-
-			angles = self.angles_normals
-			
-			if(random):
-				for counter, t in enumerate(ray_ori_all):
-
-					ray_ori = [t for i in range(N)]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0],
-																angles[counter][1], random=True)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
-															ray_directions=ray_dir)
-					cpt_false = np.nonzero(~res)[0]
-					beta.append(len(cpt_false)/N)
-
-					print("Computing beta ... ", 
-						round(counter/len(ray_ori_all)*100,1), 
-						" percent complete", end="\r")
-
-			else:
-
-				for counter, comp in enumerate(ray_ori_all):
-
-					ray_ori = [comp for i in range(N)]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], 
-																angles[counter][1], random=False)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori, 
-															ray_directions=ray_dir)
+				angles = self.angles_normals
 				
-					cpt_false = np.nonzero(~res)[0]
-					beta.append(len(cpt_false)/N)
+				if(random):
+					for counter, t in enumerate(ray_ori_all):
 
-					print("Computing beta ... ", 
-						round(counter/len(ray_ori_all)*100,1), 
-						" percent complete", end="\r")
+						ray_ori = [t for i in range(self.N)]
+						ray_dir = mrd.make_rays_in_a_hemisphere(self.N, angles[counter][0],
+																	angles[counter][1], random=True)
 
-			with open("input/beta_" + mesh_name + "_" + str(N) + ".txt", 'w+') as f:
-				for line in beta:
-						f.write(str(line))
+						res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
+																ray_directions=ray_dir)
+						cpt_false = np.nonzero(~res)[0]
+						beta.append(len(cpt_false)/self.N)
 
-			self.betaCoeff = beta
-			
+						print("Computing beta ... ", 
+							round(counter/len(ray_ori_all)*100,1), 
+							" percent complete", end="\r")
+
+				else:
+
+					for counter, comp in enumerate(ray_ori_all):
+
+						ray_ori = [comp for i in range(self.N)]
+						ray_dir = mrd.make_rays_in_a_hemisphere(self.N, angles[counter][0], 
+																	angles[counter][1], random=False)
+
+						res = self.my_file.ray.intersects_any(ray_origins=ray_ori, 
+																ray_directions=ray_dir)
+					
+						cpt_false = np.nonzero(~res)[0]
+						beta.append(len(cpt_false)/self.N)
+
+						print("Computing beta ... ", 
+							round(counter/len(ray_ori_all)*100,1), 
+							" percent complete", end="\r")
+
+				with open(fileName, 'w+') as f:
+					for line in beta:
+							#remember: now the order is up till e-10
+							f.write("%.10f \n" % line)
+
+				self.betaCoeff = beta
+
+
+	@property
+	def get_beta(self):
+		return self.betaCoeff
 
 	@property
 	#PARAMS : self
