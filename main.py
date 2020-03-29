@@ -1,11 +1,9 @@
 import simulation as sim
 import sun_ray_direction as srd
 import posture as ps
+import output as op
 
 import os
-import csv
-import time
-import output as op
 import matplotlib.pyplot as plt
 import trimesh as tm
 
@@ -18,7 +16,8 @@ import trimesh as tm
 
 my_data_file = "input/irradiance_2009.csv"
 
-my_posture_file = "postures/head_high_res/head.ply"
+#my_posture_file = "postures/head_high_res/head.ply"
+my_posture_file = "face_final.ply"
 
 output_name = "data"
 
@@ -58,9 +57,9 @@ e_minute = 0
 e_second = 0
 
 #BETA COEFFICIENT
-#spread point on a hemisphere
+#spread points on a hemisphere
 
-N = 2
+N = 3
 
 #-------------------------------------------------------------------------
 #vector of current data
@@ -72,14 +71,15 @@ end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 
 posture = ps.Posture(my_posture_file,N)
 
-sun_ray_source = srd.Sun_ray_direction(latitude=latitude)
+sun_ray_source = srd.Sun_ray_direction(read_data=False,	data_path=my_data_file,
+										latitude=latitude)
 
 #-----------------------------------------
 
-my_simulation = sim.Simulation(start_date, 
+my_simulation = sim.Simulation(	start_date, 
 								end_date, 
 								timestep, 
-								posture, 
+								posture,
 								sun_ray_source,
 								start_angle_theta,
 								start_angle_phi,
@@ -91,18 +91,3 @@ my_simulation = sim.Simulation(start_date,
 
 #to do a whole simulation
 my_simulation.make_simulation()
-
-
-#TO GIVE UP
-#one day
-"""
-data = []
-for i in range(86400):
-	projz = sun_ray_source.get_sun_direction(1,i)
-	data.append(projz)
-
-time = [i for i in range(len(data))]
-
-plt.plot(time, data)
-plt.show()
-"""
