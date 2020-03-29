@@ -161,7 +161,9 @@ class Simulation:
 
 			if(current_second > 86400): 
 				current_second = 86400 - current_second
-				current_day = 1
+
+				#REMEBER: same thing for day update after a year
+				current_day += 1
 
 			k += 1
 
