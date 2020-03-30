@@ -6,8 +6,8 @@ import numpy as np
 
 class Output:
 	
-	def __init__(self, posture, data_file):
-		self.posture = ps.Posture(posture)
+	def __init__(self, posture, data_file, N):
+		self.posture = ps.Posture(posture, N)
 
 		self.data = []
 		with open(data_file, 'r') as f:
