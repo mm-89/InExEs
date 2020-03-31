@@ -16,14 +16,16 @@ def from_cartesian_to_polar(comp):
     return np.array([theta, phi])
 
 
-def from_polar_to_cartesian(comp):
+def from_polar_to_cartesian(zenith, azimuth):
     """
     Note: comp[0] has to be zenith angle
     while comp[1] has to be azimuth angle
     """
-    x = sin(comp[0])*cos(comp[1])
-    y = sin(comp[0])*sin(comp[1])
-    z = cos([comp[0]])
+    zenith = zenith*pi/180.
+    azimuth = azimuth*pi/180.
+    x = sin(zenith)*cos(azimuth)
+    y = sin(zenith)*sin(azimuth)
+    z = cos(zenith)
     
     return x, y, z
 
@@ -83,7 +85,7 @@ def point_hemisphere_random(N):
 
         x = sin(theta)*cos(phi)
         y = sin(theta)*sin(phi)
-        z = (cos(theta))
+        z = cos(theta)
     
         res.append(np.array([x, y, z]))
 
