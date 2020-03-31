@@ -1,50 +1,15 @@
 import math as mt
+import numpy as np
+import datetime
+import time
 
 class Sun_ray_direction:
 
-	def __init__(self, read_data= False, latitude=45.):
-		self.latitude = latitude*mt.pi/180.
-		self.read_data = read_data
-		if(self.read_data):
-			annee = []
-			mois = []
-			jours = []
-			heures =  []
-			minutes = []
-			seconds = []
-			zeniths = []
-			azimuts = []
-			uvglobals = []
-			uvdiffuses = []
-			uvdirects = []
-			uvreflects = []
+	def __init__(self, latitude):
+		self.latitude = latitude
 
-			start = time.time()
-			with open('input/csv_data/irradiance 2009 example.csv', mode='r') as csv_file:
-				csv_reader = csv.DictReader(csv_file)
-				line_count = 0
-				for row in csv_reader:
-					if line_count == 0:
-						print(f'Column names are {", ".join(row)}')
-						line_count += 1
-					annee.append({row["anne"]})
-					mois.append({row["mois"]})
-					jours.append({row["jour"]})
-					heures.append({row["heure"]})
 
-					minutes.append({row["min"]})
-					seconds.append({row["sec"]})
-					zeniths.append({row["zenith"]})
-					azimuts.append({row["azimut"]})
-
-					uvglobals.append({row["uvglobal"]})
-					uvdiffuses.append({row["uvdiffuse"]})
-					uvdirects.append({row["uvdirect"]})
-					uvreflects.append({row["uvreflected"]})
-					line_count += 1
-				print(f'Processed {line_count} lines.')
-
-			print("Time taken to get all informations from CSV file : ",time.time() - start)
+		#is_data_exists_in_file(self.start_date, self.end_date, self.data)
 
 
 	def set_latitude(self, latitude):
@@ -98,6 +63,9 @@ class Sun_ray_direction:
 		
 
 	def get_sun_irradiance_in_a_day(self, day):
+		"""
+		Irradiance at the top of the atmosphere
+		"""
 		#Irradiance is W/m2...
 		#solar_constant
 		s0 = 1362 # W/m2 at the top of the atmosphere

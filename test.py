@@ -1,4 +1,5 @@
 import sun_ray_direction as srd
+
 import matplotlib.pyplot as plt
 
 
