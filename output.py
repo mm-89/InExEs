@@ -1,11 +1,13 @@
+import posture as ps
+
 import trimesh as tm
 import numpy as np
-import posture as ps
+
 
 class Output:
 	
-	def __init__(self, posture, data_file):
-		self.posture = ps.Posture(posture)
+	def __init__(self, posture, data_file, N):
+		self.posture = ps.Posture(posture, N)
 
 		self.data = []
 		with open(data_file, 'r') as f:
