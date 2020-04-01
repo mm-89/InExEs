@@ -12,26 +12,35 @@ ax = fig.add_subplot(111, projection='3d')
 N = 1000
 
 #theta has to be in interval 0 - pi
-theta = pi/2.
+theta = pi/9.
 
 #phi has to be in interval 0 - 2pi
-phi =  0.
+phi =  pi/3.
 
-values = mrd.make_rays_in_a_hemisphere(N, theta, phi, random=False)
+my_points_new_diff, my_points_new_refl, N_dif, N_ref = mrd.make_rays_in_a_hemisphere(N, theta, phi, random=False)
 #values = mrd.point_hemisphere_lebedev(N)
 
-x = []
-y = []
-z = []
-res = []
+x_diff = []
+y_diff = []
+z_diff = []
 
-for comp in values:
-    x.append(comp[0])
-    y.append(comp[1])
-    z.append(comp[2])
+x_refl = []
+y_refl = []
+z_refl = []
 
-ax.scatter(x, y, z, c='r', marker='o')
 
+for comp in my_points_new_diff:
+    x_diff.append(comp[0])
+    y_diff.append(comp[1])
+    z_diff.append(comp[2])
+
+for comp in my_points_new_refl:
+    x_refl.append(comp[0])
+    y_refl.append(comp[1])
+    z_refl.append(comp[2])
+
+ax.scatter(x_diff, y_diff, z_diff, c='r', marker='o')
+#ax.scatter(x_refl, y_refl, z_refl, c='r', marker='o')
 
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')

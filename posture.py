@@ -25,80 +25,67 @@ class Posture:
     		
     		
 	def compute_beta(self, random):
-			path = self.path.split('/')
-			mesh_name = path[-1]
-			fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(self.N) + ".txt"
-			try:
-				with open(fileName) as f:
-					print("Beta file found")
+		path = self.path.split('/')
+		mesh_name = path[-1]
+		fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(self.N) + ".txt"
+		try:
+			with open(fileName) as f:
+				print("Beta file found")
+				#We put the file content = to beta coeff value
+				self.betaCoeff = f.readlines()
 
-					#We put the file content = to beta coeff value
-					self.betaCoeff = f.readlines()
+				if(len(self.betaCoeff)==0):
+					print("File of Beta coefficient corrupeted")
+					print("Total number of read lines are: ", len(self.betaCoeff))
+				return
+		except IOError:
+			#If not we ask user for an N value, compute beta and create a beta coeff file
+			print("No beta file found for this N value, a new beta file will be created please wait")
+				
+			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
+			ray_dir = []
 
-					if(len(self.betaCoeff)==0):
-						print("File of Beta coefficient corrupeted")
-						print("Total number of read lines are: ", len(self.betaCoeff))
-					return
-			except IOError:
-				#If not we ask user for an N value, compute beta and create a beta coeff file
-				print("No beta file found for this N value, a new beta file will be created please wait")
+			#[0] is diffused, [1] is reflecte
+			beta = []
+
+			angles = self.angles_normals
+
+			for counter, comp in enumerate(ray_ori_all):
 						
-				ray_ori_all = self.my_file.triangles_center + self.normals_minimized
+				ray_dir_diff, ray_dir_refl, N_diff, N_refl = mrd.make_rays_in_a_hemisphere(self.N, 
+																angles[counter][0], 
+																angles[counter][1], random=random)
 
-				ray_dir = []
 
-				#[0] is diffused, [1] is reflecte
-				beta = []
+				tmp_coeff_solid_angle = (1 + mt.cos(angles[counter][0]))/2.
 
-				angles = self.angles_normals
-
-				for counter, comp in enumerate(ray_ori_all):
-
-					if(random):
-						
-						ray_dir_diff, ray_dir_refl, N_diff, N_refl = mrd.make_rays_in_a_hemisphere(self.N, 
-																			angles[counter][0], 
-																			angles[counter][1], random=True)
-
-					else:
-
-						ray_dir_diff, ray_dir_refl, N_diff, N_refl = mrd.make_rays_in_a_hemisphere(self.N, 
-																			angles[counter][0], 
-																			angles[counter][1], random=False)
-
-					tmp_coeff_solid_angle = (1 + mt.cos(angles[counter][0]))/2.
-
-					if(N_diff>0):
-						ray_ori_diff = [comp for i in range(N_diff)]
-						res_diff = self.my_file.ray.intersects_any(ray_origins=ray_ori_diff, 
+				if(N_diff>0):
+					ray_ori_diff = [comp for i in range(N_diff)]
+					res_diff = self.my_file.ray.intersects_any(ray_origins=ray_ori_diff, 
 																		ray_directions=ray_dir_diff)
-						cpt_false_diff = np.nonzero(~res_diff)[0]
-					else:
-						cpt_false_diff = []
+					cpt_false_diff = np.nonzero(~res_diff)[0]
 
-					if(N_refl>0):
-						ray_ori_refl = [comp for i in range(N_refl)]
-						res_refl = self.my_file.ray.intersects_any(ray_origins=ray_ori_refl, 
+				if(N_refl>0):
+					ray_ori_refl = [comp for i in range(N_refl)]
+					res_refl = self.my_file.ray.intersects_any(ray_origins=ray_ori_refl, 
 																		ray_directions=ray_dir_refl)
-						cpt_false_refl = np.nonzero(~res_refl)[0]
-					else:
-						cpt_false_refl = []
+					cpt_false_refl = np.nonzero(~res_refl)[0]
 
-					if(N_diff>0 and N_refl>0):
-						beta.append(np.array([len(cpt_false_diff)/N_diff, 
-												len(cpt_false_diff)*(1 - tmp_coeff_solid_angle)/N_refl]))
-					elif(N_diff==0):
-						beta.append(np.array([0, len(cpt_false_diff)*(1 - tmp_coeff_solid_angle)/N_refl]))
+				if(N_diff>0 and N_refl>0):
+					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 
+												len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
+				elif(N_diff==0):
+					beta.append(np.array([0, len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
 
-					elif(N_refl==0):
-						beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 0]))
+				elif(N_refl==0):
+					beta.append(np.array([len(cpt_false_refl)*tmp_coeff_solid_angle/N_diff, 0]))
 
-					print("Computing beta ... ", 
-						round(counter/len(ray_ori_all)*100,1), 
-						" percent complete", end="\r")
+				print("Computing beta ... ", 
+					round(counter/len(ray_ori_all)*100,1), 
+					" percent complete", end="\r")
 
-				np.savetxt(fileName, beta, fmt="%.10f")
-				self.betaCoeff = beta
+			np.savetxt(fileName, beta, fmt="%.10f")
+			self.betaCoeff = beta
 				
 
 	def get_angles_from_normals(self):

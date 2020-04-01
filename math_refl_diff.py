@@ -134,7 +134,7 @@ def make_rays_in_a_hemisphere(N, theta, phi, random):
 
     for i in my_points:
         tmp = np.dot(matrix_rotation(theta, phi), i)
-        if(tmp[2]>0.):
+        if(tmp[2]>=0.):
             my_points_new_diff.append(tmp)
             N_dif += 1
         else:
