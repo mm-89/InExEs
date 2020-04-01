@@ -3,7 +3,6 @@ import sun_ray_direction as srd
 import posture as ps
 import output as op
 
-import os
 import matplotlib.pyplot as plt
 import trimesh as tm
 
@@ -17,7 +16,7 @@ import trimesh as tm
 my_data_file = "input/irradiance_2009.csv"
 
 #my_posture_file = "postures/head_high_res/head.ply"
-my_posture_file = "male_eyesballs_reduced_faces.ply"
+my_posture_file = "postures/cube.ply"
 
 output_name = "data"
 
@@ -59,7 +58,7 @@ e_second = 0
 #BETA COEFFICIENT
 #spread points on a hemisphere
 
-N = 3
+N = 1000
 
 #-------------------------------------------------------------------------
 #vector of current data
