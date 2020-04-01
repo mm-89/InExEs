@@ -180,10 +180,6 @@ class Simulation:
 	
 							data[j] = self.data[current_line, data_map["uvdirect"]]*abs(proj[j])*self.timestep
 
-					print(self.data[current_line, data_map["uvdirect"]])
-					print(mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
-									 self.data[current_line, data_map["azimuth"]]))
-
 					file_out.writelines("%.10f \n" % item for item in data)
 			
 				data_update += datetime.timedelta(seconds=self.timestep)
@@ -258,8 +254,6 @@ class Simulation:
 								#				abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 								data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 												abs(proj[j])*self.timestep
-
-						print(self.source_light.get_sun_direction(current_day, current_second))
 
 						file_out.writelines("%.10f \n" % item for item in data)
 			
