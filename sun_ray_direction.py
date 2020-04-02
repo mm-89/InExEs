@@ -44,9 +44,11 @@ class Sun_ray_direction:
 					mt.sin(sun_declination_angle(day))*mt.sin(self.latitude)
 
 		#in trimesh axis are inverted like: x->z, y->x, z->y
-		#but just to show meshes
+		#for such reference frame
+		#we need x -> x; y -> z; z -> -y
+		#IMPORTANT: so, mesh faces towards South
 
-		return x_comp, y_comp, z_comp
+		return x_comp, z_comp, -y_comp
 
 	def is_day(self, day, second):
 		norm_time = mt.pi*(second/43200. - 1.)
