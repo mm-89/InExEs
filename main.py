@@ -59,7 +59,7 @@ e_second = 0
 #BETA COEFFICIENT
 #spread points on a hemisphere
 
-N = 3
+N = 2
 
 #-------------------------------------------------------------------------
 #vector of current data
