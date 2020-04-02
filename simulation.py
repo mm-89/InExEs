@@ -266,7 +266,7 @@ class Simulation:
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
 		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
-		self.day_of_beginning = self.start_date - first_day_of_year.days + 1
+		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
 
 		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 		current_day = self.day_of_beginning
