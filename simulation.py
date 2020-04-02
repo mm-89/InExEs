@@ -16,8 +16,6 @@ class Simulation:
 				end_date, 
 				timestep, 
 				posture,
-				start_angle_theta,
-				start_angle_phi,
 				output_name,
 				latitude=None,
 				read_data= False, 
@@ -33,8 +31,8 @@ class Simulation:
 
 		self.posture = posture
 
-		self.start_angle_theta = start_angle_theta*mt.pi/180.
-		self.start_angle_phi = start_angle_phi*mt.pi/180.
+		self.start_angle_theta = 0.
+		self.start_angle_phi = 0.
 
 		self.read_data = read_data
 
@@ -332,6 +330,11 @@ class Simulation:
 						])
 
 		if(show_result): scene.show()
+
+
+	def set_start_angles(self, theta, phi):
+		self.start_angle_theta = theta*mt.pi/180.
+		self.start_angle_phi = phi*mt.pi/180.
 
 #IMPORTANT
 
