@@ -120,15 +120,20 @@ class Simulation:
 
 		if(self.start_date > self.end_date):
 			print("End date must me after of start date!")
-		
-		"""maybe it will be useful
-		#initialize t zero the output file
-		file_out = open("output/my_output_file.txt", "w+")
-		#for i in range(len(self.ray_origins)):
-		#	file_out.write('%d  \n' % 0)
-		"""
 
-		file_out = open("output/" + self.output_name + ".txt",'w+')
+
+		#irradiance_data
+		#BE CAREFUL! if the data will be cumulative, 
+		#you have to move this vector outside this cycle!
+		data = np.zeros(shape=len(self.ray_origins))
+		
+
+		file_out = open("output/" + self.output_name + ".csv", mode='a')
+		file_writer = csv.writer(file_out, delimiter=",",
+    										quoting=csv.QUOTE_NONNUMERIC)
+
+		#write the header
+		file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
 
 		print("Start simulation...")
 		print("")
@@ -143,11 +148,6 @@ class Simulation:
 			data_update = self.start_date
 
 			while(current_line < self.end_row_data + 1):
-
-				#irradiance_data
-				#BE CAREFUL! if the data will be cumulative, 
-				#you have to move this vector outside this cycle!
-				data = np.zeros(shape=len(self.ray_origins))
 
 				print("Current date of simulation: ", 
 					data_update.strftime("%b %d %Y %H:%M:%S"))
@@ -180,7 +180,7 @@ class Simulation:
 	
 							data[j] = self.data[current_line, data_map["uvdirect"]]*abs(proj[j])*self.timestep
 
-					file_out.writelines("%.10f \n" % item for item in data)
+				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), *data] )
 			
 				data_update += datetime.timedelta(seconds=self.timestep)
 				current_line += 1
@@ -195,11 +195,6 @@ class Simulation:
 			current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
 
 			while(current_data < self.end_date):
-
-				#irradiance_data
-				#BE CAREFUL! if the data will be cumulative, 
-				#you have to move this vector outside this cycle!
-				data = np.zeros(shape=len(self.ray_origins))
 
 				print("Current date of simulation: ", 
 					current_data.strftime("%b %d %Y %H:%M:%S"))
@@ -255,8 +250,10 @@ class Simulation:
 								data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 												abs(proj[j])*self.timestep
 
-						file_out.writelines("%.10f \n" % item for item in data)
-			
+
+				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), *data] )
+				
+
 				current_data += datetime.timedelta(seconds=self.timestep)
 				current_second += self.timestep
 
