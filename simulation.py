@@ -24,28 +24,12 @@ class Simulation:
 				data_path=None,
 				):
 
-		self.start_date = datetime.datetime(start_date[0],
-												start_date[1],
-												start_date[2],
-												start_date[3],
-												start_date[4],
-												start_date[5])
-		self.end_date = datetime.datetime(end_date[0],									
-												end_date[1],
-												end_date[2],
-												end_date[3],
-												end_date[4],
-												end_date[5])
-
-		self.day_of_beginning = (datetime.date(start_date[0],
-												start_date[1],
-												start_date[2]) - \
-												datetime.date(start_date[0], 1,	1)).days + 1
-
-	
-		self.start_hour = start_date[3]
-		self.start_minute = start_date[4]
-		self.start_second = start_date[5]
+		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
+		self.end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
+    
+		
+		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
+		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
 
 		self.posture = posture
 
@@ -59,18 +43,18 @@ class Simulation:
 			self.data = []
 			self.timestep = 60.
 
-			try:
+		try:
 
-				with open(data_path, mode='r') as csv_file:
+			with open(data_path, mode='r') as csv_file:
 
-					#to avoid to read header
-					next(csv_file)
+				#to avoid to read header
+				next(csv_file)
 
-					#charge data line numpy array
-					self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
+				#charge data line numpy array
+				self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
 														 quoting=csv.QUOTE_NONNUMERIC)])
 
-				#check if the data exists
+	    		#check if the data exists
 				if(is_data_exists_in_file(self.start_date, self.data)==False or \
 					is_data_exists_in_file(self.end_date, self.data)==False):
 					print("Selected dates does not exist in the file ", data_path)
@@ -81,10 +65,10 @@ class Simulation:
 					self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
 		
 
-			except IOError:
+		except IOError:
 
-				print("File ", data_path, " don't found or don't exist.")
-				print("With read data=True the file MUST be specified")
+			print("File ", data_path, " don't found or don't exist.")
+			print("With read data=True the file MUST be specified")
 
 
 
@@ -192,7 +176,7 @@ class Simulation:
 			#reference data
 			current_data = self.start_date
 			current_day = self.day_of_beginning
-			current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+			current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 
 			while(current_data < self.end_date):
 
@@ -277,16 +261,14 @@ class Simulation:
 		method_red = False
 
 		#this just to visualize
-		date_to_vis = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
+		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		number_of_days = (datetime.date(date[0],
-											date[1],
-											date[2]) - \
-											datetime.date(date[0], 1, 1)).days
+		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
+		self.day_of_beginning = self.start_date - first_day_of_year.days + 1
 
-		current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)

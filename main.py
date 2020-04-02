@@ -38,22 +38,9 @@ start_angle_phi = 0.
 #DATA PARAMETERS------------------------------
 #set start date
 
-s_year = 2009
-s_month = 1
-s_day = 1
-s_hour = 12
-s_minute = 1
-s_second = 0
-
-#----------------------------------------
-#set end date
-
-e_year = 2009
-e_month = 1
-e_day = 1
-e_hour = 12
-e_minute = 40
-e_second = 0
+#--------------mm-dd-yyyy-hh-mm-ss
+start_date  = '01/01/2009 12:01:00'
+end_date    = '01/01/2009 12:40:00'
 
 #BETA COEFFICIENT
 #spread points on a hemisphere
@@ -61,10 +48,6 @@ e_second = 0
 N = 1000
 
 #-------------------------------------------------------------------------
-#vector of current data
-
-start_date = [s_year, s_month, s_day, s_hour, s_minute, s_second]
-end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
 
 #Initialize classes ------------------------------------------------------
 
