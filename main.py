@@ -61,13 +61,13 @@ my_simulation = sim.Simulation(start_date,
 								end_date, 
 								timestep, 
 								posture,
-								start_angle_theta,
-								start_angle_phi,
 								output_name,
 								latitude=latitude,
 								read_data=False,
 								data_path=my_data_file,
 								)
+
+my_simulation.set_start_angles(start_angle_theta, start_angle_phi)
 
 #to visualize a particular timestep
 #my_simulation.show_one_timestep(start_date)
