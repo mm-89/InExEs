@@ -303,6 +303,7 @@ class Simulation:
 
 		#to highlithg illuminated comparet to in shadow faces
 		
+		black_col = [0, 0, 0]
 		white_col = [255, 255, 255]
 
 		#set white if the component is false (no hit)
