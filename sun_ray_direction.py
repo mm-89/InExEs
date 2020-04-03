@@ -24,7 +24,7 @@ class Sun_ray_direction:
 
 
 	def get_sun_direction(self, day, second):
-		""""
+		"""
 		reference frame:
 		z -> zenith
 		y -> towards North pole
