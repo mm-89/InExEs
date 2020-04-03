@@ -17,6 +17,7 @@ class Simulation:
 				end_date, 
 				timestep, 
 				posture,
+				N,
 				output_name,
 				latitude=None,
 				read_data= False, 
@@ -30,7 +31,7 @@ class Simulation:
 		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
 		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
 
-		self.posture = posture
+		self.posture = ps.Posture(posture, N)
 
 		self.start_angle_azimuth = 0.
 
@@ -41,31 +42,31 @@ class Simulation:
 			self.data = []
 			self.timestep = 60.
 
-		try:
+			try:
 
-			with open(data_path, mode='r') as csv_file:
+				with open(data_path, mode='r') as csv_file:
 
-				#to avoid to read header
-				next(csv_file)
+					#to avoid to read header
+					next(csv_file)
 
-				#charge data line numpy array
-				self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
-														 quoting=csv.QUOTE_NONNUMERIC)])
+					#charge data line numpy array
+					self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
+															 quoting=csv.QUOTE_NONNUMERIC)])
 
-	    		#check if the data exists
-				if(is_data_exists_in_file(self.start_date, self.data)==False or \
-					is_data_exists_in_file(self.end_date, self.data)==False):
-					print("Selected dates does not exist in the file ", data_path)
-				else:
-					self.start_row_data = select_rows_in_file(self.start_date, self.data)
-					self.end_row_data = select_rows_in_file(self.end_date, self.data)
-					self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
-		
+		    		#check if the data exists
+					if(is_data_exists_in_file(self.start_date, self.data)==False or \
+						is_data_exists_in_file(self.end_date, self.data)==False):
+						print("Selected dates does not exist in the file ", data_path)
+					else:
+						self.start_row_data = select_rows_in_file(self.start_date, self.data)
+						self.end_row_data = select_rows_in_file(self.end_date, self.data)
+						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
+			
 
-		except IOError:
+			except IOError:
 
-			print("File ", data_path, " don't found or don't exist.")
-			print("With read data=True the file MUST be specified")
+				print("File ", data_path, " don't found or don't exist.")
+				print("With read data=True the file MUST be specified")
 
 
 
@@ -301,7 +302,7 @@ class Simulation:
 		#face_nohit = np.nonzero(~inf)[0]
 
 		#to highlithg illuminated comparet to in shadow faces
-		black_col = [0, 0, 0]
+		
 		white_col = [255, 255, 255]
 
 		#set white if the component is false (no hit)
@@ -331,6 +332,40 @@ class Simulation:
 
 		if(show_result): scene.show()
 
+
+	def export_reference_frame(self):
+
+		path = self.name.split('/')
+		mesh_name = path[-1]
+		fileName = mesh_name.rsplit(".", -1)[0]
+
+		centre = [[0, 0, 0] for i in range(len(self.ray_origins))]
+		info_map = {"zenith": [0, 1, 0],
+					"south": [0, 0, 1],
+					"east": [1, 0, 0]}
+
+		black_col = [0, 0, 0]
+		other_color = [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
+
+		for k, item in enumerate(info_map):
+			ray_direction = [info_map.get(item) for i in range(len(self.ray_origins))]
+			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+																ray_directions=ray_direction)
+
+			col_ver = []
+			for comp in inf:
+				if not comp:
+					col_ver.append(other_color[k])
+				else:
+					col_ver.append(black_col)
+
+			my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
+									faces=self.posture.get_faces,
+									process=True, 
+									face_colors=col_ver)
+
+			tm.exchange.export.export_mesh(my_new_mesh, "output/" + fileName + \
+												"_" + item + ".ply")
 
 	def set_start_angles(self, angle):
 		self.start_angle_azimuth = angle*mt.pi/180.
