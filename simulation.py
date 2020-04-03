@@ -8,6 +8,7 @@ import math as mt
 import datetime
 import time
 import csv
+import os
 
 class Simulation:
 
@@ -31,8 +32,7 @@ class Simulation:
 
 		self.posture = posture
 
-		self.start_angle_theta = 0.
-		self.start_angle_phi = 0.
+		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
 
@@ -59,7 +59,6 @@ class Simulation:
 				else:
 					self.start_row_data = select_rows_in_file(self.start_date, self.data)
 					self.end_row_data = select_rows_in_file(self.end_date, self.data)
-					print(self.start_row_data, self.end_row_data)
 					self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
 		
 
@@ -109,6 +108,8 @@ class Simulation:
 		#you have to move this vector outside this cycle!
 		data = np.zeros(shape=len(self.ray_origins))
 		
+		if os.path.exists("output/" + self.output_name + ".csv"):
+			os.remove("output/" + self.output_name + ".csv")
 
 		file_out = open("output/" + self.output_name + ".csv", mode='a')
 		file_writer = csv.writer(file_out, delimiter=",",
@@ -137,9 +138,8 @@ class Simulation:
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-									mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
-									 self.data[current_line, data_map["azimuth"]]))
+				ray_source_direction = from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
+									self.data[current_line, data_map["azimuth"]] - self.start_angle_azimuth)
 				
 				#Here put the algorithm to split at te next light day
 				if(True):
@@ -184,8 +184,7 @@ class Simulation:
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-									self.source_light.get_sun_direction(current_day, current_second))
+				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
 				
 				#check if it is daylight or not
 				if(self.source_light.is_day(current_day, current_second)):
@@ -270,8 +269,9 @@ class Simulation:
 		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)
-		ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-								self.source_light.get_sun_direction(current_day, current_second))
+		ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
+
+		#ay_source_direction = [0, 1, 0]
 
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
@@ -332,9 +332,8 @@ class Simulation:
 		if(show_result): scene.show()
 
 
-	def set_start_angles(self, theta, phi):
-		self.start_angle_theta = theta*mt.pi/180.
-		self.start_angle_phi = phi*mt.pi/180.
+	def set_start_angles(self, angle):
+		self.start_angle_azimuth = angle*mt.pi/180.
 
 #IMPORTANT
 

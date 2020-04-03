@@ -15,8 +15,8 @@ import trimesh as tm
 
 my_data_file = "input/irradiance_2009.csv"
 
-#my_posture_file = "postures/head_high_res/head.ply"
-my_posture_file = "postures/cube.ply"
+my_posture_file = "postures/head_high_res/head.ply"
+#my_posture_file = "postures/head_high_res/male_eyeballs_meshlab.ply"
 
 output_name = "data"
 
@@ -32,20 +32,19 @@ latitude = 46.8
 #POSTURE PARAMETERS--------------------------
 #need start angle
 
-start_angle_theta = 0.
-start_angle_phi = 0.
+start_angle_azimuth = 0.
 
 #DATA PARAMETERS------------------------------
 #set start date
 
 #--------------mm-dd-yyyy-hh-mm-ss
-start_date  = '01/01/2009 12:01:00'
-end_date    = '01/01/2009 12:40:00'
+start_date  = '01/01/2010 12:00:00'
+end_date    = '01/02/2010 12:00:00'
 
 #BETA COEFFICIENT
 #spread points on a hemisphere
 
-N = 1000
+N = 2
 
 #-------------------------------------------------------------------------
 
@@ -67,7 +66,7 @@ my_simulation = sim.Simulation(start_date,
 								data_path=my_data_file,
 								)
 
-my_simulation.set_start_angles(start_angle_theta, start_angle_phi)
+#my_simulation.set_start_angle(start_angle_azimuth)
 
 #to visualize a particular timestep
 #my_simulation.show_one_timestep(start_date)
