@@ -60,6 +60,7 @@ class Simulation:
 					else:
 						self.start_row_data = select_rows_in_file(self.start_date, self.data)
 						self.end_row_data = select_rows_in_file(self.end_date, self.data)
+						print(type(self.start_row_data), type(self.end_row_data))
 						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
 			
 
@@ -139,7 +140,7 @@ class Simulation:
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
+				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
 									self.data[current_line, data_map["azimuth"]] - self.start_angle_azimuth)
 				
 				#Here put the algorithm to split at te next light day
@@ -270,7 +271,13 @@ class Simulation:
 		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)
-		ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
+		if(self.read_data):
+			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, data_map["zenith"]], \
+									self.data[self.start_row_data, data_map["azimuth"]] - self.start_angle_azimuth)
+			print(ray_source_direction)
+		else:
+			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
+			print(ray_source_direction)
 
 		#ay_source_direction = [0, 1, 0]
 

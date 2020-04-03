@@ -22,11 +22,18 @@ def from_polar_to_cartesian(zenith, azimuth):
     """
     zenith = zenith*pi/180.
     azimuth = azimuth*pi/180.
-    x = sin(zenith)*cos(azimuth)
-    y = sin(zenith)*sin(azimuth)
+    x = sin(zenith)*cos(azimuth + pi/2.)
+    y = sin(zenith)*sin(azimuth + pi/2)
     z = cos(zenith)
     
-    return x, y, z
+    #according to the trimesh reference
+    #frame we have the following modification:
+
+    #  x -> x; y -> z; z -> -y
+
+    #azimuth = 0 towards north
+
+    return x, z, -y
 
 
 def matrix_rotation(theta, phi):
