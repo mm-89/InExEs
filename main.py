@@ -48,18 +48,11 @@ N = 2
 
 #-------------------------------------------------------------------------
 
-#Initialize classes ------------------------------------------------------
-
-posture = ps.Posture(my_posture_file,N)
-
-#sun_ray_source = srd.Sun_ray_direction(latitude=latitude)
-
-#-----------------------------------------
-
 my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
-								posture,
+								my_posture_file,
+								N,
 								output_name,
 								latitude=latitude,
 								read_data=False,
@@ -67,6 +60,8 @@ my_simulation = sim.Simulation(start_date,
 								)
 
 #my_simulation.set_start_angle(start_angle_azimuth)
+
+#my_simulation.export_reference_frame()
 
 #to visualize a particular timestep
 #my_simulation.show_one_timestep(start_date)
