@@ -54,11 +54,13 @@ class Posture:
 						
 				ray_dir_diff, ray_dir_refl, N_diff, N_refl = mrd.make_rays_in_a_hemisphere(self.N, 
 																angles[counter][0], 
-																angles[counter][1], random=random)
+																angles[counter][1], 
+																random=random)
 
-
+				#necessary to cut solid angle on face horizon
 				tmp_coeff_solid_angle = (1 + mt.cos(angles[counter][0]))/2.
 
+				#to avoid singularities
 				if(N_diff>0):
 					ray_ori_diff = [comp for i in range(N_diff)]
 					res_diff = self.my_file.ray.intersects_any(ray_origins=ray_ori_diff, 
@@ -158,4 +160,10 @@ class Posture:
 	@property
 	def get_vertices_barycenter(self):
 		return self.my_file.triangles_center
+
+
+	@property
+	def get_faces_color(self):
+		return self.my_file.faces_color
+	
 
