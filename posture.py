@@ -78,7 +78,7 @@ class Posture:
 					beta.append(np.array([0, len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
 
 				elif(N_refl==0):
-					beta.append(np.array([len(cpt_false_refl)*tmp_coeff_solid_angle/N_diff, 0]))
+					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 0]))
 
 				print("Computing beta ... ", 
 					round(counter/len(ray_ori_all)*100,1), 
