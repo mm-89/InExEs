@@ -52,6 +52,7 @@ class Simulation:
 					#charge data line numpy array
 					self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
 															 quoting=csv.QUOTE_NONNUMERIC)])
+					#REMEBER: probably this last matrix is a string
 
 		    		#check if the data exists
 					if(is_data_exists_in_file(self.start_date, self.data)==False or \
@@ -247,12 +248,7 @@ class Simulation:
 				k += 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
-		"""
-		with open("output/" + self.output_name + ".txt",'w') as file_out:
-			for comp in data:
-				file_out.write("%.10f \n" % comp)	
-		file_out.close()
-		"""
+
 
 
 	def show_one_timestep(self, date, show_result=True):
