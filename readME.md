@@ -36,12 +36,12 @@ You may face some problems reguarding libraries installation. Where is some solu
 * `python3 main.py`
 
 ## Docker user guide :
-	* First of all make sure to have [docker](https://hub.docker.com/search?q=&type=edition&offering=community&sort=updated_at&order=desc) setup on your computer
-	* Go on project folder
-	* BUILD : `docker build -t python:simulation .`
-	* RUN : `docker run --name CONTAINER_NAME -ti python:simulation`
-	* Copy the beta file from the container : sudo docker cp CONTAINER_NAME:/app/input/beta_"MESH_NAME"_"N_VALUE".txt DESTINATION_PATH
+* First of all make sure to have [docker](https://hub.docker.com/search?q=&type=edition&offering=community&sort=updated_at&order=desc) setup on your computer
+* Go on project folder
+* BUILD : `docker build -t python:simulation .`
+* RUN : `docker run --name CONTAINER_NAME -ti python:simulation`
+* Copy the beta file from the container : `sudo docker cp CONTAINER_NAME:/app/input/beta_"MESH_NAME"_"N_VALUE".txt DESTINATION_PATH`
 
-	*Warnings about the beta file copy :
-		* Be sure to know which N value and mesh name you're using. Exemple of complete beta file name : `beta_head_2.txt`
-		* Destination path must be the complete path ! 
+* Warnings about the beta file copy :
+	* Be sure to know which N value and mesh name you're using. Exemple of complete beta file name : `beta_head_2.txt`
+	* Destination path must be the complete path ! 
