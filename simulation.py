@@ -8,6 +8,7 @@ import math as mt
 import datetime
 import time
 import csv
+import os
 
 class Simulation:
 
@@ -16,41 +17,23 @@ class Simulation:
 				end_date, 
 				timestep, 
 				posture,
-				start_angle_theta,
-				start_angle_phi,
+				N,
 				output_name,
 				latitude=None,
 				read_data= False, 
 				data_path=None,
 				):
 
-		self.start_date = datetime.datetime(start_date[0],
-												start_date[1],
-												start_date[2],
-												start_date[3],
-												start_date[4],
-												start_date[5])
-		self.end_date = datetime.datetime(end_date[0],									
-												end_date[1],
-												end_date[2],
-												end_date[3],
-												end_date[4],
-												end_date[5])
+		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
+		self.end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
+    
+		
+		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
+		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
 
-		self.day_of_beginning = (datetime.date(start_date[0],
-												start_date[1],
-												start_date[2]) - \
-												datetime.date(start_date[0], 1,	1)).days + 1
+		self.posture = ps.Posture(posture, N)
 
-	
-		self.start_hour = start_date[3]
-		self.start_minute = start_date[4]
-		self.start_second = start_date[5]
-
-		self.posture = posture
-
-		self.start_angle_theta = start_angle_theta*mt.pi/180.
-		self.start_angle_phi = start_angle_phi*mt.pi/180.
+		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
 
@@ -68,18 +51,19 @@ class Simulation:
 
 					#charge data line numpy array
 					self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
-														 quoting=csv.QUOTE_NONNUMERIC)])
+															 quoting=csv.QUOTE_NONNUMERIC)])
+					#REMEBER: probably this last matrix is a string
 
-				#check if the data exists
-				if(is_data_exists_in_file(self.start_date, self.data)==False or \
-					is_data_exists_in_file(self.end_date, self.data)==False):
-					print("Selected dates does not exist in the file ", data_path)
-				else:
-					self.start_row_data = select_rows_in_file(self.start_date, self.data)
-					self.end_row_data = select_rows_in_file(self.end_date, self.data)
-					print(self.start_row_data, self.end_row_data)
-					self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
-		
+		    		#check if the data exists
+					if(is_data_exists_in_file(self.start_date, self.data)==False or \
+						is_data_exists_in_file(self.end_date, self.data)==False):
+						print("Selected dates does not exist in the file ", data_path)
+					else:
+						self.start_row_data = select_rows_in_file(self.start_date, self.data)
+						self.end_row_data = select_rows_in_file(self.end_date, self.data)
+						print(type(self.start_row_data), type(self.end_row_data))
+						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
+			
 
 			except IOError:
 
@@ -120,15 +104,22 @@ class Simulation:
 
 		if(self.start_date > self.end_date):
 			print("End date must me after of start date!")
-		
-		"""maybe it will be useful
-		#initialize t zero the output file
-		file_out = open("output/my_output_file.txt", "w+")
-		#for i in range(len(self.ray_origins)):
-		#	file_out.write('%d  \n' % 0)
-		"""
 
-		file_out = open("output/" + self.output_name + ".txt",'w+')
+
+		#irradiance_data
+		#BE CAREFUL! if the data will be cumulative, 
+		#you have to move this vector outside this cycle!
+		data = np.zeros(shape=len(self.ray_origins))
+		
+		if os.path.exists("output/" + self.output_name + ".csv"):
+			os.remove("output/" + self.output_name + ".csv")
+
+		file_out = open("output/" + self.output_name + ".csv", mode='a')
+		file_writer = csv.writer(file_out, delimiter=",",
+    										quoting=csv.QUOTE_NONNUMERIC)
+
+		#write the header
+		file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
 
 		print("Start simulation...")
 		print("")
@@ -144,20 +135,14 @@ class Simulation:
 
 			while(current_line < self.end_row_data + 1):
 
-				#irradiance_data
-				#BE CAREFUL! if the data will be cumulative, 
-				#you have to move this vector outside this cycle!
-				data = np.zeros(shape=len(self.ray_origins))
-
 				print("Current date of simulation: ", 
 					data_update.strftime("%b %d %Y %H:%M:%S"))
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-									mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
-									 self.data[current_line, data_map["azimuth"]]))
+				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
+									self.data[current_line, data_map["azimuth"]] - self.start_angle_azimuth)
 				
 				#Here put the algorithm to split at te next light day
 				if(True):
@@ -180,11 +165,7 @@ class Simulation:
 	
 							data[j] = self.data[current_line, data_map["uvdirect"]]*abs(proj[j])*self.timestep
 
-					print(self.data[current_line, data_map["uvdirect"]])
-					print(mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
-									 self.data[current_line, data_map["azimuth"]]))
-
-					file_out.writelines("%.10f \n" % item for item in data)
+				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), *data] )
 			
 				data_update += datetime.timedelta(seconds=self.timestep)
 				current_line += 1
@@ -196,14 +177,9 @@ class Simulation:
 			#reference data
 			current_data = self.start_date
 			current_day = self.day_of_beginning
-			current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+			current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 
 			while(current_data < self.end_date):
-
-				#irradiance_data
-				#BE CAREFUL! if the data will be cumulative, 
-				#you have to move this vector outside this cycle!
-				data = np.zeros(shape=len(self.ray_origins))
 
 				print("Current date of simulation: ", 
 					current_data.strftime("%b %d %Y %H:%M:%S"))
@@ -211,8 +187,7 @@ class Simulation:
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-									self.source_light.get_sun_direction(current_day, current_second))
+				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
 				
 				#check if it is daylight or not
 				if(self.source_light.is_day(current_day, current_second)):
@@ -259,10 +234,10 @@ class Simulation:
 								data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 												abs(proj[j])*self.timestep
 
-						print(self.source_light.get_sun_direction(current_day, current_second))
 
-						file_out.writelines("%.10f \n" % item for item in data)
-			
+				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), *data] )
+				
+
 				current_data += datetime.timedelta(seconds=self.timestep)
 				current_second += self.timestep
 
@@ -273,12 +248,7 @@ class Simulation:
 				k += 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
-		"""
-		with open("output/" + self.output_name + ".txt",'w') as file_out:
-			for comp in data:
-				file_out.write("%.10f \n" % comp)	
-		file_out.close()
-		"""
+
 
 
 	def show_one_timestep(self, date, show_result=True):
@@ -286,21 +256,26 @@ class Simulation:
 		method_red = False
 
 		#this just to visualize
-		date_to_vis = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
+		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		number_of_days = (datetime.date(date[0],
-											date[1],
-											date[2]) - \
-											datetime.date(date[0], 1, 1)).days
+		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
+		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
 
-		current_second = self.start_second + self.start_minute*60 + self.start_hour*3600
+		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)
-		ray_source_direction = np.dot(mrd.matrix_rotation(self.start_angle_theta, self.start_angle_phi),
-								self.source_light.get_sun_direction(current_day, current_second))
+		if(self.read_data):
+			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, data_map["zenith"]], \
+									self.data[self.start_row_data, data_map["azimuth"]] - self.start_angle_azimuth)
+			print(ray_source_direction)
+		else:
+			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
+			print(ray_source_direction)
+
+		#ay_source_direction = [0, 1, 0]
 
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
@@ -330,6 +305,7 @@ class Simulation:
 		#face_nohit = np.nonzero(~inf)[0]
 
 		#to highlithg illuminated comparet to in shadow faces
+		
 		black_col = [0, 0, 0]
 		white_col = [255, 255, 255]
 
@@ -359,6 +335,44 @@ class Simulation:
 						])
 
 		if(show_result): scene.show()
+
+
+	def export_reference_frame(self):
+
+		path = self.name.split('/')
+		mesh_name = path[-1]
+		fileName = mesh_name.rsplit(".", -1)[0]
+
+		centre = [[0, 0, 0] for i in range(len(self.ray_origins))]
+		info_map = {"zenith": [0, 1, 0],
+					"south": [0, 0, 1],
+					"east": [1, 0, 0]}
+
+		black_col = [0, 0, 0]
+		other_color = [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
+
+		for k, item in enumerate(info_map):
+			ray_direction = [info_map.get(item) for i in range(len(self.ray_origins))]
+			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+																ray_directions=ray_direction)
+
+			col_ver = []
+			for comp in inf:
+				if not comp:
+					col_ver.append(other_color[k])
+				else:
+					col_ver.append(black_col)
+
+			my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
+									faces=self.posture.get_faces,
+									process=True, 
+									face_colors=col_ver)
+
+			tm.exchange.export.export_mesh(my_new_mesh, "output/" + fileName + \
+												"_" + item + ".ply")
+
+	def set_start_angles(self, angle):
+		self.start_angle_azimuth = angle*mt.pi/180.
 
 #IMPORTANT
 

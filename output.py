@@ -2,36 +2,43 @@ import posture as ps
 
 import trimesh as tm
 import numpy as np
+import csv
 
 
 class Output:
 	
 	def __init__(self, posture, data_file, N):
+
 		self.posture = ps.Posture(posture, N)
+		self.data_file = data_file
 
 		self.data = []
-		with open(data_file, 'r') as f:
-		    for line in f:
-		        if line: #avoid blank lines
-		            self.data.append(float(line.strip()))
-		
-		dim_x = int(len(self.posture.get_faces))
-		dim_y = int(len(self.data)/dim_x)
+		with open(self.data_file, mode='r') as csv_file:
 
-		#the the matrix of data
-		#rows are faces
-		#columns are timesteps
-		self.data_matrix = np.reshape(self.data, (dim_y, dim_x)) 
+			#to avoid to read header
+			next(csv_file)
 
-		print("Selected data contains: \n")
-		print(dim_x, " 	total number of faces")
-		print(dim_y, "	total number of timesteps")
+			#charge data line numpy array STR
+			self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
+															 quoting=csv.QUOTE_NONNUMERIC)])
+
+		#delete first column and transform matrix of all floating points
+		self.data = np.delete(self.data, 0, 1)
+		self.data = self.data.astype(np.float)
+
+		print("")
+		print("********************")
+		print("")
+		print("Total vertices: \t %s" % len(self.data[0,:]))
+		print("Total timesteps: \t %s" % len(self.data))
+		print("")
+		print("********************")
 		print("")
 
 
 	@property
 	def get_data_matrix(self):
-		return self.data_matrix
+		return self.data
 
 
 	def show_selected_faces(self, vec_of_faces):
@@ -54,13 +61,13 @@ class Output:
 
 	def show_one_timestep(self, timestep):
 
-		my_personal_data = self.data_matrix[:, timestep]
+		my_data = self.data[timestep]
 		
-		max_value = max(my_personal_data)
-		new_personal_data = my_personal_data/max_value
+		max_value = max(my_data)
+		my_data_norm = my_personal_data/max_value
 
 		data_rgb = []
-		for item in new_personal_data:
+		for item in my_data_norm:
 			data_rgb.append([int(item*255), 0, 0])
 
 		new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
