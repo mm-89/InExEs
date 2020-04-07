@@ -109,7 +109,9 @@ class Simulation:
 		#irradiance_data
 		#BE CAREFUL! if the data will be cumulative, 
 		#you have to move this vector outside this cycle!
-		data_output = np.zeros(shape=len(self.ray_origins))
+		data_output_dir = np.zeros(shape=len(self.ray_origins))
+		data_output_dif = np.zeros(shape=len(self.ray_origins))
+		data_output_ref = np.zeros(shape=len(self.ray_origins))
 		
 		if os.path.exists("output/" + self.output_name + ".csv"):
 			os.remove("output/" + self.output_name + ".csv")
@@ -120,7 +122,11 @@ class Simulation:
 
 		#write the header
 		#file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
-		file_writer.writerow( ["datetime", "direct intensity [J/m²]" ])
+		file_writer.writerow(["datetime", 
+							"direct intensity [J/m²]",
+							"diffuse intensity [J/m²]",
+							"reflect intensity [J/m²]",
+							"total intensity [J/m²]"])
 
 		print("Start simulation...")
 		print("")
@@ -164,12 +170,22 @@ class Simulation:
 					for j, comp in enumerate(inf):
 						if not comp:
 	
-							data_output[j] = abs(self.data[current_line, data_map["uvdirect"]])*abs(proj[j])*self.timestep*\
+							data_output_dir[j] = abs(self.data[current_line, data_map["uvdirect"]])*abs(proj[j])*self.timestep*\
 											self.posture.get_area_faces[j]
+
+							data_output_dif[j] = abs(self.data[current_line, data_map["uvdiffuse"]])*abs(proj[j])*self.timestep*\
+											self.posture.get_area_faces[j]*self.posture.get_beta[j,0]
+
+							data_output_ref[j] = abs(self.data[current_line, data_map["uvdiffuse"]])*abs(proj[j])*self.timestep*\
+											self.posture.get_area_faces[j]*self.posture.get_beta[j,1]
 
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
-										sum(data_output)/self.posture.get_total_area] )
+									sum(data_output_dir)/self.posture.get_total_area,
+									sum(data_output_dif)/self.posture.get_total_area,
+									sum(data_output_ref)/self.posture.get_total_area,
+									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/self.posture.get_total_area
+									])
 			
 				data_update += datetime.timedelta(seconds=self.timestep)
 				current_line += 1
@@ -223,7 +239,7 @@ class Simulation:
 											
 							#means the face j
 							#this is cumulative irradiance dose (energy -> J/Hz)
-							data_output[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+							data_output_dir[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 												abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 			
 					else:
@@ -233,14 +249,25 @@ class Simulation:
 
 						for j, comp in enumerate(inf):
 							if not comp:
-								#data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-								#				abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
-								data_output[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+								
+								data_output_dir[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
 											abs(proj[j])*self.timestep*self.posture.get_area_faces[j]
+
+								data_output_dif[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+											0.2*abs(proj[j])*self.timestep*self.posture.get_area_faces[j]*\
+											self.posture.get_beta[j,0]
+
+								data_output_ref[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
+											0.05*abs(proj[j])*self.timestep*self.posture.get_area_faces[j]*\
+											self.posture.get_beta[j,1]
 
 
 				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), 
-								sum(data_output)/self.posture.get_total_area] )
+									sum(data_output_dir)/self.posture.get_total_area,
+									sum(data_output_dif)/self.posture.get_total_area,
+									sum(data_output_ref)/self.posture.get_total_area,
+									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/self.posture.get_total_area
+									])
 				
 
 				current_data += datetime.timedelta(seconds=self.timestep)

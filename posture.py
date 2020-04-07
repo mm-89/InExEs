@@ -10,7 +10,7 @@ class Posture:
 
 	def __init__(self, my_file, N):
 		self.path = my_file
-		self.my_file = tm.load(my_file)
+		self.my_file = tm.load(my_file, use_embree=True)
 		self.N = N
 
 		normals = self.my_file.face_normals
@@ -31,13 +31,14 @@ class Posture:
 		try:
 			with open(fileName) as f:
 				print("Beta file found")
-				#We put the file content = to beta coeff value
-				self.betaCoeff = f.readlines()
+
+				#upload data
+				self.betaCoeff = np.loadtxt(fileName)
 
 				if(len(self.betaCoeff)==0):
 					print("File of Beta coefficient corrupeted")
 					print("Total number of read lines are: ", len(self.betaCoeff))
-				return
+
 		except IOError:
 			#If not we ask user for an N value, compute beta and create a beta coeff file
 			print("No beta file found for this N value, a new beta file will be created please wait")
@@ -74,13 +75,13 @@ class Posture:
 					cpt_false_refl = np.nonzero(~res_refl)[0]
 
 				if(N_diff>0 and N_refl>0):
-					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 
-												len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
+					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff/mt.pi, 
+												len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl/mt.pi]))
 				elif(N_diff==0):
-					beta.append(np.array([0, len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
+					beta.append(np.array([0, len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl/mt.pi]))
 
 				elif(N_refl==0):
-					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 0]))
+					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff/mt.pi, 0]))
 
 				print("Computing beta ... ", 
 					round(counter/len(ray_ori_all)*100,1), 
