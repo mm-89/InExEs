@@ -13,12 +13,12 @@ import trimesh as tm
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture
 
-my_data_file = "input/try.csv"
+my_data_file = "input/irradiance_2009.csv"
 
+#my_posture_file = "postures/cube.ply"
 my_posture_file = "postures/cube.ply"
-#my_posture_file = "postures/head_high_res/male_eyeballs_meshlab.ply"
 
-output_name = "data"
+output_name = "test"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
@@ -38,8 +38,8 @@ start_angle_azimuth = 0.
 #set start date
 
 #--------------mm-dd-yyyy-hh-mm-ss
-start_date  = '01/01/2009 12:00:00'
-end_date    = '01/02/2009 12:00:00'
+start_date  = '01/01/2009 00:01:00'
+end_date    = '01/01/2009 07:30:00'
 
 #BETA COEFFICIENT
 #spread points on a hemisphere
@@ -55,7 +55,7 @@ my_simulation = sim.Simulation(start_date,
 								N,
 								output_name,
 								latitude=latitude,
-								read_data=False,
+								read_data=True,
 								data_path=my_data_file,
 								)
 
