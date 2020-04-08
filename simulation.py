@@ -63,6 +63,9 @@ class Simulation:
 						self.end_row_data = select_rows_in_file(self.end_date, self.data)
 						print(type(self.start_row_data), type(self.end_row_data))
 						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
+
+						#to avoid negative values
+						self.data = repair_data(self.data)
 			
 
 			except IOError:
@@ -465,3 +468,24 @@ def select_rows_in_file(date, data_read):
 		if np.array_equal(item[:5], my_vect_prop) :
 			val = j
 	return val
+
+def repair_data(data_read):
+	"""
+	Sometimes input data has negative values (WHY?)
+	If a value is negative I have to put to zero
+	"""
+	print("Start to repair data")
+
+	for j, item in enumerate(data_read[:, data_map["uvglobal"]]):
+		if(item < 0): data_read[j, data_map["uvglobal"]] = 0
+
+	for j, item in enumerate(data_read[:, data_map["uvdiffuse"]]):
+		if(item < 0): data_read[j, data_map["uvdiffuse"]] = 0
+
+	for j, item in enumerate(data_read[:, data_map["uvdirect"]]):
+		if(item < 0): data_read[j, data_map["uvdirect"]] = 0
+
+	for j, item in enumerate(data_read[:, data_map["uvreflect"]]):
+		if(item < 0): data_read[j, data_map["uvreflect"]] = 0
+
+	return data_read
