@@ -7,9 +7,9 @@ import csv
 
 class Output:
 	
-	def __init__(self, posture, data_file, N):
+	def __init__(self, posture, data_file):
 
-		self.posture = ps.Posture(posture, N)
+		self.posture = ps.Posture(posture)
 		self.data_file = data_file
 
 		self.data = []
