@@ -1,10 +1,4 @@
 import simulation as sim
-import sun_ray_direction as srd
-import posture as ps
-import output as op
-
-import matplotlib.pyplot as plt
-import trimesh as tm
 
 #-------------------------------------------
 #------------------NAMELIST-----------------
@@ -15,10 +9,9 @@ import trimesh as tm
 
 my_data_file = "input/irradiance_2009.csv"
 
-#my_posture_file = "postures/cube.ply"
 my_posture_file = "postures/cube.ply"
 
-output_name = "test"
+output_name = "SIMUVEX_january_with_eyebrows"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
@@ -27,9 +20,9 @@ timestep = 60.
 
 #GEO PARAMETERS----------------------------
 
-latitude = 40
+latitude = 40.
 
-#POSTURE PARAMETERS--------------------------
+#SIM POSTURE PARAMETERS--------------------------
 #need start angle
 
 start_angle_azimuth = 0.
@@ -39,12 +32,7 @@ start_angle_azimuth = 0.
 
 #--------------mm-dd-yyyy-hh-mm-ss
 start_date  = '01/01/2009 00:01:00'
-end_date    = '01/01/2009 07:30:00'
-
-#BETA COEFFICIENT
-#spread points on a hemisphere
-
-N = 2
+end_date    = '01/02/2009 00:01:00'
 
 #-------------------------------------------------------------------------
 
@@ -52,7 +40,6 @@ my_simulation = sim.Simulation(start_date,
 								end_date, 
 								timestep, 
 								my_posture_file,
-								N,
 								output_name,
 								latitude=latitude,
 								read_data=True,
@@ -62,10 +49,12 @@ my_simulation = sim.Simulation(start_date,
 #my_simulation.set_start_angle(start_angle_azimuth)
 
 #to make sure how your mesh is orientated in the space----
-my_simulation.export_reference_frame()
+#my_simulation.export_reference_frame()
 
 #to visualize a particular timestep-----------------------
 #my_simulation.show_one_timestep(start_date)
+
+#my_simulation.set_zone_to_simulate(id_vector)
 
 #to make a whole simulation---------------------------------
 my_simulation.make_simulation()
