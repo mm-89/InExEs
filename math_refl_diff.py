@@ -22,8 +22,9 @@ def from_polar_to_cartesian(zenith, azimuth):
     #pi/2 because of azimuth=0 is y axe
     zenith = zenith*pi/180.
     azimuth = azimuth*pi/180.
-    x = sin(zenith)*cos(azimuth + pi/2.)
-    y = sin(zenith)*sin(azimuth + pi/2)
+    cons = pi/2.
+    x = sin(zenith)*cos(azimuth - cons)
+    y = -sin(zenith)*sin(azimuth - cons)
     z = cos(zenith)
     
     #according to the trimesh reference
