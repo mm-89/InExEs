@@ -16,10 +16,10 @@ def from_cartesian_to_polar(comp):
 
 
 def from_polar_to_cartesian(zenith, azimuth):
-    """
-    Note: comp[0] has to be zenith angle
-    while comp[1] has to be azimuth angle
-    """
+    #Note: comp[0] has to be zenith angle
+    #while comp[1] has to be azimuth angle
+    
+    #pi/2 because of azimuth=0 is y axe
     zenith = zenith*pi/180.
     azimuth = azimuth*pi/180.
     x = sin(zenith)*cos(azimuth + pi/2.)
@@ -110,7 +110,6 @@ def point_hemisphere_random(N):
 	Simple Inverse transform sampling 
 	for pseudo-random number sampling
 	"""
-	
 	res = []
 
 	for i in range(N):
