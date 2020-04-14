@@ -26,6 +26,7 @@ class Output:
 		self.data = np.delete(self.data, 0, 1)
 		self.data = self.data.astype(np.float)
 
+		#to review
 		print("")
 		print("********************")
 		print("")
@@ -39,6 +40,13 @@ class Output:
 	@property
 	def get_data_matrix(self):
 		return self.data
+
+
+	def get_id_color(self, color_rgb):
+		vec_id = []
+		for k, item in enumerate(self.posture.get_faces_color):
+			if(np.array_equal(item,color_rgb)): vec_id.append(k)
+		return vec_id
 
 
 	def show_selected_faces(self, vec_of_faces):
