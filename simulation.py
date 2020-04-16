@@ -102,8 +102,8 @@ class Simulation:
 		print("Posture that has to be simulated is: ", self.name)
 		print("")
 
-		if(self.start_date > self.end_date):
-			print("End date must me after of start date!")
+		if(self.start_date >= self.end_date):
+			print("End date must me greater of start date!")
 
 
 		#irradiance_data
@@ -157,7 +157,7 @@ class Simulation:
 
 				#compute only light days
 				if(self.data[current_line, dm.data_map["zenith"]]<90.):
-
+				
 					ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
 					#just to check
@@ -335,7 +335,7 @@ class Simulation:
 		scene.show()
 
 
-	def set_start_angles(self, angle):
+	def set_start_angle(self, angle):
 		self.start_angle_azimuth = angle*mt.pi/180.
 
 
