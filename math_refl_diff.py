@@ -2,48 +2,74 @@ from math import *
 import numpy as np
 import random
 
-#PARAMS : comp
-#OUTPUT : array of theta and phi value 
-#DESCRIPTION : get theta and phi values for ?
+
 def from_cartesian_to_polar(comp):
-
+    """
+    Note: comp is a versor
+    Furthermore: the horizon here
+    is [0, 1, 0]
+    """
     #compute theta
-    theta = acos(comp[2])
-
+    theta = acos(comp[1])
     #compute phi
-    phi = np.arctan2(comp[1], comp[0])
+    phi = np.arctan2(comp[2], comp[0])
 
     return np.array([theta, phi])
 
 
-def from_polar_to_cartesian(comp):
+def from_polar_to_cartesian(zenith, azimuth):
     """
-    Note: comp[0] has to be zenith angle
-    while comp[1] has to be azimuth angle
+    Note: this is used to read
+    input data
     """
-    x = sin(comp[0])*cos(comp[1])
-    y = sin(comp[0])*sin(comp[1])
-    z = cos([comp[0]])
     
-    return x, y, z
-
-#PARAMS : theta, phi
-#OUTPUT : 
-#DESCRIPTION : 
-def matrix_rotation(theta, phi):
-    #first rotation in xy axis 
-    first = np.array([[cos(phi), -sin(phi), 0.],[sin(phi), cos(phi), 0.],[0., 0., 1.]])
+    #pi/2 because of azimuth=0 is y axe
+    zenith = zenith*pi/180.
+    azimuth = azimuth*pi/180.
+    x = sin(zenith)*cos(azimuth - pi/2.)
+    y = sin(zenith)*sin(azimuth - pi/2.)
+    z = cos(zenith)
     
-    #second rotation in xz axis
-    second = np.array([[cos(theta), 0., sin(theta)],[0., 1., 0.],[-sin(theta), 0., cos(theta)]])
+    #according to the trimesh reference
+    #frame we have the following modifications
 
-    return np.dot(first, second)
+    return x, z, y
+    
+
+def rotation_matrix_3D_xy(angle):
+	"""
+	Classical rotational 3D matrix around z-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[cos(angle), -sin(angle), 0],
+					[sin(angle), cos(angle), 0],
+					[0, 0, 1]])
 
 
-#PARAMS : N
-#OUTPUT : 
-#DESCRIPTION : perfectly uniform random point generation on a hemisphere
+def rotation_matrix_3D_yz(angle):
+	"""
+	Classical rotational 3D matrix around x-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[1, 0, 0],
+					[0, cos(angle), -sin(angle)],
+					[0, sin(angle), cos(angle)]])
+
+
+def rotation_matrix_3D_xz(angle):
+	"""
+	Classical rotational 3D matrix around y-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[cos(angle), 0, sin(angle)],
+					[0, 1, 0],
+					[-sin(angle), 0, cos(angle)]])
+
+
 def point_hemisphere_uniform(N):
+    """ 
+    Ref. Markus Deserno 2004
+    """
     res = []
 
     n_c = 0
@@ -69,40 +95,60 @@ def point_hemisphere_uniform(N):
     return res[:N]
 
 
-
-#PARAMS : N
-#OUTPUT : 
-#DESCRIPTION : random points generation on a hemisphere
 def point_hemisphere_random(N):
+	"""
+	Simple Inverse transform sampling 
+	for pseudo-random number sampling
+	"""
+	res = []
 
-    res = []
+	for i in range(N):
+		phi = 2*pi*random.uniform(0,1)
+		theta = np.arccos(random.uniform(0,1))
 
-    for i in range(N):  #just to have same dimensionality of uniform one
-        phi = 2*pi*random.uniform(0,1)
-        theta = np.arccos(random.uniform(0,1))
-
-        x = sin(theta)*cos(phi)
-        y = sin(theta)*sin(phi)
-        z = (cos(theta))
+		x = sin(theta)*cos(phi)
+		y = sin(theta)*sin(phi)
+		z = cos(theta)
     
-        res.append(np.array([x, y, z]))
+		res.append(np.array([x, y, z]))
 
-    return res
+	return res
 
 
-#PARAMS : N, theta, phi, random
-#OUTPUT : 
-#DESCRIPTION : 
-def make_rays_in_a_hemisphere(N, theta, phi, random=True):
+def make_rays_in_a_hemisphere(N, theta, phi, random):
+
     if(random):
         my_points = point_hemisphere_random(N)
     else:
         my_points = point_hemisphere_uniform(N)
   
-    my_points_new = []
+    my_points_new_diff = []
+    my_points_new_refl = []
+
+    N_dif = 0
+    N_ref = 0
 
     for i in my_points:
-        my_points_new.append(np.dot(matrix_rotation(theta, phi), i))
 
-    return my_points_new
-    
+        #alignment towards face normal in xyz frame
+        tmp_xyz = np.dot(rotation_matrix_3D_xy(phi),
+            np.dot(rotation_matrix_3D_xz(theta), i))
+
+        #changing from xyz to zxy frame
+        tmp_zxy = np.dot(rotation_matrix_3D_yz(-pi/2.),
+            np.dot(rotation_matrix_3D_xy(-pi/2.), tmp_xyz))
+
+        #note: the horizon is [0, 1, 0]
+        if(tmp_zxy[1]>=0.):
+            my_points_new_diff.append(tmp_zxy)
+            N_dif += 1
+        else:
+            my_points_new_refl.append(tmp_zxy)
+            N_ref += 1
+        
+    if((N_dif + N_ref) != N):
+        print("Some problem occured in BETA coefficient computing!")
+
+    print(N_dif, N_ref)
+
+    return my_points_new_diff, my_points_new_refl, N_dif, N_ref
