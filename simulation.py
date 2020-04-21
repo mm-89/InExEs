@@ -71,10 +71,8 @@ class Simulation:
 
 			except IOError:
 
-				print("File ", data_path, " don't found or don't exist.")
+				print("File ", data_path, " don't find or don't exist.")
 				print("With read data=True the file MUST be specified")
-
-
 
 		else:
 
@@ -88,7 +86,7 @@ class Simulation:
 
 		self.name = posture
 
-		self.ray_origins = self.posture.normals_minimized
+		self.ray_origins = self.posture.get_normals_minimized
 
 		self.output_name = output_name
 
