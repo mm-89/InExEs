@@ -1,0 +1,39 @@
+\documentclass[a4paper]{article}
+
+\title{Beta coefficients Concept}
+\author{Michele Marro}
+
+\begin{document}
+\maketitle
+
+Current diffuse and reflect input data of InExEs are taken from a horizontal device. Considering the diffuse source (reflect one is the same) as uniform on a hemisphere, for a horizontal plane we need to normalize this data with the integral of Lambert's law over the hemisphere itself. So,
+
+\begin{equation}
+I_{dif}^{inp} = \int_{0}^{2 \pi} \int_{0}^{\pi / 2} I_{dif} \cos \theta \sin \theta d \theta d \phi = \pi I_{dif} 
+\end{equation}
+
+Irradiance for every point over a hemisphere is so
+
+\begin{equation}
+I_{dif} = \frac{I_{dif}^{inp}}{\pi}
+\end{equation}
+
+The total amount of irradiance received from a surface with an angle $\gamma$ between its normal and the vector perpendicular with the horizon is
+
+\begin{equation}
+I_{dif}^{rec} = \alpha( \gamma )  \int_{A_f} I_{dif} \cos \theta d \Omega
+\end{equation}
+
+Where 
+
+\begin{equation}
+\alpha = \frac{1 + \cos \gamma}{2}
+\end{equation}
+
+takes into account the ratio of visible upper hemisphere and $A_f$ is the total free solid angle not covered from other surfaces. Solving the integral
+
+\begin{equation}
+I_{dif}^{rec} = I_{dif}^{inp} (1 + \cos \gamma) \int_{x \in f(A_f)} x d x
+\end{equation}
+
+\end{document}
