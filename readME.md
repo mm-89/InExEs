@@ -1,6 +1,6 @@
 # How to install InExES
 
-We suppose that InExES can work on every machine, but we only try on a Mac, Linux Ubuntu 16.04 and Linux Mint
+We suppose that InExES can work on every machine, but we only try on a Mac, Linux Ubuntu 16.04 and Linux Mint 19.3
 
 
 ## Prerequisite
