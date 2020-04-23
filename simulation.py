@@ -164,22 +164,23 @@ class Simulation:
 						break
 
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
+					proj = np.dot(self.ray_origins, np.array([ray_source_direction]).T)
 
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 																ray_directions=ray_direction)
 
 					for j, comp in enumerate(inf):
 						if not comp:
-	
+							
 							data_output_dir[j] = self.data[current_line, dm.data_map["uvdirect"]]*abs(proj[j])*self.timestep*\
 									self.areas[j]/mt.cos(self.data[current_line, dm.data_map["zenith"]]*mt.pi/180.)
-
+						
 						data_output_dif[j] = self.data[current_line, dm.data_map["uvdiffuse"]]*self.timestep*\
 										self.beta[j,0]*self.areas[j]
 
 						data_output_ref[j] = self.data[current_line, dm.data_map["uvreflect"]]*self.timestep*\
 										self.beta[j,1]*self.areas[j]
+							
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
 									sum(data_output_dir)/sum(self.areas),
@@ -269,8 +270,6 @@ class Simulation:
 
 	def show_one_timestep(self, date):
 
-		method_red = False
-
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
@@ -286,10 +285,8 @@ class Simulation:
 		if(self.read_data):
 			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
 									self.data[self.start_row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
-			print(ray_source_direction)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
-			print(ray_source_direction)
 
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
