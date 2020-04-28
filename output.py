@@ -49,6 +49,17 @@ class Output:
 		return vec_id
 
 
+	def show_area_of_selected_faces(self, vec_of_faces):
+		data_area = 0
+		for item in vec_of_faces:
+			data_area += self.posture.get_area_faces[item]
+		return data_area
+
+
+	def show_total_area(self):
+		return sum(self.posture.get_area_faces)
+
+
 	def show_selected_faces(self, vec_of_faces):
 		data_rgb = []
 		for i in range(len(self.posture.get_faces)):
@@ -64,7 +75,6 @@ class Output:
 		
 		scene = tm.Scene([new_mesh])
 		scene.show()
-
 
 
 	def show_one_timestep(self, timestep):
