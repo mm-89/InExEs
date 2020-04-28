@@ -11,7 +11,7 @@ my_data_file = "input/irradiance_2009.csv"
 
 my_posture_file = "postures/cube.ply"
 
-output_name = "SIMUVEX_january_with_eyebrows"
+output_name = "name_simulation"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation

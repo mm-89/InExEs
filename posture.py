@@ -9,23 +9,16 @@ class Posture:
 
 	def __init__(self, my_file):
 		self.path = my_file
-		self.my_file = tm.load(my_file)
+		self.my_file = tm.load(my_file, use_embree=True)
 
-		#this part will be in math_refl.py
-		normals = self.my_file.face_normals
-		angles_normals = []
-		for comp in normals:
-			angles_normals.append(mrd.from_cartesian_to_polar(comp))
-		#---------
-
-		self.angles_normals = angles_normals
+		#to avoid auto-intersection
 		self.normals_minimized = self.my_file.triangles_center + \
 								self.my_file.face_normals*sp.normalization_factor
 
 		self.beta_coeff = bc.compute_beta(self.path,
-									self.my_file,
-									self.normals_minimized,
-									self.angles_normals)
+										self.my_file,
+										self.my_file.face_normals,
+										self.normals_minimized)
 			
 
 	def get_angles_from_normals(self):
