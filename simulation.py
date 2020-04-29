@@ -146,6 +146,10 @@ class Simulation:
 				data_output_dir = np.zeros(shape=len(self.ray_origins))
 				data_output_dif = np.zeros(shape=len(self.ray_origins))
 				data_output_ref = np.zeros(shape=len(self.ray_origins))
+
+				rad_dir = 0
+				rad_dif = 0
+				rad_ref = 0 
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
@@ -172,21 +176,25 @@ class Simulation:
 					for j, comp in enumerate(inf):
 						if not comp:
 							
-							data_output_dir[j] = self.data[current_line, dm.data_map["uvdirect"]]*abs(proj[j])*self.timestep*\
-									self.areas[j]/mt.cos(self.data[current_line, dm.data_map["zenith"]]*mt.pi/180.)
+							data_output_dir[j] = abs(proj[j])*self.timestep*self.areas[j] #/\
+									#mt.cos(self.data[current_line, dm.data_map["zenith"]]*mt.pi/180.)
 						
-						data_output_dif[j] = self.data[current_line, dm.data_map["uvdiffuse"]]*self.timestep*\
-										self.beta[j,0]*self.areas[j]
+						data_output_dif[j] = self.timestep*self.beta[j,0]*self.areas[j]/mt.pi
 
-						data_output_ref[j] = self.data[current_line, dm.data_map["uvreflect"]]*self.timestep*\
-										self.beta[j,1]*self.areas[j]
-							
+
+						data_output_ref[j] = self.timestep*self.beta[j,1]*self.areas[j]/mt.pi
+					
+					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
+					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
+					rad_ref = self.data[current_line, dm.data_map["uvdirect"]]
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
-									sum(data_output_dir)/sum(self.areas),
-									sum(data_output_dif)/sum(self.areas),
-									sum(data_output_ref)/sum(self.areas),
-									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/sum(self.areas)
+							rad_dir*sum(data_output_dir)/sum(self.areas),
+							rad_dif*sum(data_output_dif)/sum(self.areas),
+							rad_ref*sum(data_output_ref)/sum(self.areas),
+							(rad_dir*sum(data_output_dir) + \
+							rad_dif*sum(data_output_dif) + \
+							rad_ref*sum(data_output_ref))/sum(self.areas)
 									])
 				
 			
@@ -210,6 +218,8 @@ class Simulation:
 				data_output_dir = np.zeros(shape=len(self.ray_origins))
 				data_output_dif = np.zeros(shape=len(self.ray_origins))
 				data_output_ref = np.zeros(shape=len(self.ray_origins))
+
+				rad_dir = 0
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
@@ -235,22 +245,18 @@ class Simulation:
 					for j, comp in enumerate(inf):
 						if not comp:
 								
-							data_output_dir[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											abs(proj[j])*self.timestep*self.areas[j]
+							data_output_dir[j] = abs(proj[j])*self.timestep*self.areas[j]
 
-						data_output_dif[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											0.2*self.timestep*self.areas[j]*\
-											self.beta[j,0]
+						data_output_dif[j] = self.timestep*self.areas[j]*self.beta[j,0]
 
-						data_output_ref[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											0.05*self.timestep*self.areas[j]*\
-											self.beta[j,1]
+						data_output_ref[j] = self.timestep*self.areas[j]*self.beta[j,1]
 
-
+						rad_dir = source_light.get_daily_sun_irradiance(current_day, current_second)
+					
 				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), 
-									sum(data_output_dir)/sum(self.areas),
-									sum(data_output_dif)/sum(self.areas),
-									sum(data_output_ref)/sum(self.areas),
+							rad_dir*sum(data_output_dir)/sum(self.areas),
+							0.2*rad_dir*sum(data_output_dif)/sum(self.areas),
+							0.05*rad_dir*sum(data_output_ref)/sum(self.areas),
 									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/sum(self.areas)
 									])
 				
