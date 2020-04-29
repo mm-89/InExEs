@@ -146,6 +146,7 @@ def uniform_points_hemisphere(N):
             z = - mt.sin(theta)*mt.cos(phi)
     
             res.append(np.array([x, y, z]))
+            res_theta.append(mt.sin(theta))
             n_c += 1
     
     return np.array(res[:N])
@@ -174,18 +175,24 @@ def random_points_hemisphere(N):
 	Note: it needs to be well orientated
 	"""
 	res = []
+	res_theta = []
 
 	for i in range(N):
-		phi = 2*mt.pi*random.uniform(0, 1)
-		theta = np.arccos(random.uniform(0, 1))
+
+		prn = random.uniform(0, 1)
+		trn = random.uniform(0, 1)
+
+		phi = 2*mt.pi*prn
+		theta = np.arccos(trn)
 
 		x = mt.sin(theta)*mt.sin(phi)
 		y = mt.cos(theta)
 		z = - mt.sin(theta)*mt.cos(phi)
-    
-		res.append(np.array([x, y, z]))
 
-	return np.array(res)
+		res.append(np.array([x, y, z]))
+		res_theta.append(trn)
+
+	return np.array(res), res_theta
 
 
 def make_rays_in_a_hemisphere(theta, phi):
@@ -235,7 +242,7 @@ def make_rays_in_a_hemisphere(theta, phi):
 
 	N_dif = 0
 	N_ref = 0
-	ciao = []
+	
 	for i in my_points:
 
 		# rotate in the new reference frame

@@ -62,41 +62,44 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 		#[0] is diffused, [1] is reflecte
 		beta = []
 
-		# transform face normal vectors from cartesian to polar
-		angles_normals = [mrd.from_cartesian_to_polar(item) for item in face_normals]
+		# N rays on upper hemisphere
+		ray_diff_hem, theta = mrd.random_points_hemisphere(sp.N)
 
-		for counter, comp in enumerate(faces_normals_minimized):
-						
-			ray_dir_diff, ray_dir_refl, \
-			N_diff, N_refl = mrd.make_rays_in_a_hemisphere(angles_normals[counter][0], 
-															angles_normals[counter][1], 
-																)
+		# N rays on lower hemisphere
+		ray_refl_hem = [-i for i in ray_diff_hem]
 
-			frac_solid_angle_diff = solid_angle_factor(angles_normals[counter][0])
-			frac_solid_angle_refl = 1 - frac_solid_angle_diff
+		for counter, item in enumerate(faces_normals_minimized):
 
-			#to avoid singularities
-			if(N_diff>0):
-				ray_ori_diff = [comp for i in range(N_diff)]
-				res_diff = file.ray.intersects_any(ray_origins=ray_ori_diff, 
-													ray_directions=ray_dir_diff)
-				cpt_false_diff = np.nonzero(~res_diff)[0]
+			# set current ray origin lenght to N
+			ray_origin = [item for i in range(sp.N)]
 
-			if(N_refl>0):
-				ray_ori_refl = [comp for i in range(N_refl)]
-				res_refl = file.ray.intersects_any(ray_origins=ray_ori_refl, 
-															ray_directions=ray_dir_refl)
-				cpt_false_refl = np.nonzero(~res_refl)[0]
+			# compute beta for diffuse part
+			# check the intersecptions
+			res_diff = file.ray.intersects_any(ray_origins=ray_origin, 
+												ray_directions=ray_diff_hem)
+			
+			integer_count_diff = 0
+			for j, i in enumerate(res_diff):
+				if not i:
+					integer_count_diff += theta[j]
+			
+			integer_tot_diff = 2*mt.pi*integer_count_diff/sp.N
 
-			if(N_diff>0 and N_refl>0):
-				beta.append(np.array([len(cpt_false_diff)*frac_solid_angle_diff/N_diff/mt.pi, 
-										len(cpt_false_refl)*frac_solid_angle_refl/N_refl/mt.pi]))
+			# compute beta for reflect part
+			# check the intersecptions
+			res_refl = file.ray.intersects_any(ray_origins=ray_origin, 
+												ray_directions=ray_refl_hem)
+			
+			integer_count_refl = 0
+			for j, i in enumerate(res_refl):
+				if not i:
+					integer_count_refl += theta[j]
+								
+			integer_tot_refl = 2*mt.pi*integer_count_refl/sp.N
 
-			elif(N_diff==0):
-				beta.append(np.array([0, len(cpt_false_refl)*frac_solid_angle_refl/N_refl/mt.pi]))
 
-			elif(N_refl==0):
-				beta.append(np.array([len(cpt_false_diff)*frac_solid_angle_diff/N_diff/mt.pi, 0]))
+			beta.append(np.array([integer_tot_diff, integer_tot_refl]))
+
 
 			print("Computing beta ... ", 
 				round(counter/len(faces_normals_minimized)*100,1), 
@@ -107,28 +110,27 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 
 	return np.array(res), res_theta
 
+	def solid_angle_factor(angle):
+		"""
+		Fraction of upper hemisphere
+		visible from a surface
+		of normal inclined of an
+		angle "angle" compare 
+		to the horizon.
 
-def solid_angle_factor(angle):
-	"""
-	Fraction of upper hemisphere
-	visible from a surface
-	of normal inclined of an
-	angle "angle" compare 
-	to the horizon.
+		Parameters:
+		------------
+		angle : (, 1)   float
+			angle between the zenith
+			vector (horizon) and the 
+			normal of current plane
 
-	Parameters:
-	------------
-	angle : (, 1)   float
-		angle between the zenith
-		vector (horizon) and the 
-		normal of current plane
-
-	Returns:
-	-----------
-	factor : (, 1)   float
-		fraction of visible
-		hemisphere from 0 
-		to 1
-	"""
-	factor = (1 + mt.cos(angle))/2
-	return factor
+		Returns:
+		-----------
+		factor : (, 1)   float
+			fraction of visible
+			hemisphere from 0 
+			to 1
+		"""
+		factor = (1 + mt.cos(angle))/2
+		return factor
