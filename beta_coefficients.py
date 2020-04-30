@@ -66,7 +66,9 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 		ray_diff_hem, theta = mrd.random_points_hemisphere(sp.N)
 
 		# N rays on lower hemisphere
-		ray_refl_hem = [-i for i in ray_diff_hem]
+		ray_refl_hem = ray_diff_hem # just to initialize
+		for i in range(len(ray_diff_hem)):
+			ray_refl_hem[i, 1] = - ray_refl_hem[i, 1]
 
 		for counter, item in enumerate(faces_normals_minimized):
 
