@@ -45,3 +45,11 @@ You may face some problems reguarding libraries installation. Where is some solu
 * Warnings about the beta file copy :
 	* Be sure to know which N value and mesh name you're using. Exemple of complete beta file name : `beta_head_2.txt`
 	* Destination path must be the complete path ! 
+
+## Speed up simulation process (20 times faster) with conda :
+* Install [anaconda](https://www.anaconda.com/products/individual)
+* Create an conda environment : `conda create --name ENV_NAME`
+* Active the conda environment : `conda activate ENV_NAME`
+* Install pyembree and trimesh with conda : `conda install -c conda-forge pyembree` and `conda install -c conda-forge trimesh`
+* Then you may need to install some others librairies, like matplotlib networkx pyglet scipy : `pip install LIBRAIRY_NAME`
+* Launch the programm with : `python3 main.py` (make sure your conda env is activate)
