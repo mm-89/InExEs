@@ -9,6 +9,23 @@ import datetime
 import time
 import csv
 import os
+#--------------- IMPORT FOR PYEMBREE TESTS ---------------
+"""from copy import deepcopy
+
+from pyembree import __version__ as _ver
+from pyembree import rtcore_scene
+from pyembree.mesh_construction import TriangleMesh
+
+from pkg_resources import parse_version
+
+from .ray_util import contains_points
+
+from .. import util
+from .. import caching
+from .. import intersections
+
+from ..constants import log_time"""
+#--------------- IMPORT FOR PYEMBREE TESTS END ---------------
 
 class Simulation:
 
@@ -223,9 +240,19 @@ class Simulation:
 												abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
 			
 					else:
-
+						start_time = time.time()
 						inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 																ray_directions=ray_direction)
+						
+						print("INTERSECT ANY TIME : ")
+						print("--- %s seconds ---" % (time.time() - start_time))
+
+						start_time2 = time.time()
+						inf_pyembree = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+																ray_directions=ray_direction)
+
+						print("(PYEMBREE) INTERSECT FIRST TIME : ")
+						print("--- %s seconds ---" % (time.time() - start_time2))
 
 						for j, comp in enumerate(inf):
 							if not comp:

@@ -16,4 +16,4 @@ t_second = []
 for i in second:
     t_second.append(my_d.get_daily_sun_irradiance(1, i))
 
-print(t_day, "\n", t_second)s
+print(t_day, "\n", t_second)
