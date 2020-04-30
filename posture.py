@@ -10,7 +10,7 @@ class Posture:
 
 	def __init__(self, my_file, N):
 		self.path = my_file
-		self.my_file = tm.load(my_file)
+		self.my_file = tm.load(my_file, use_embree=True)
 		self.N = N
 
 		normals = self.my_file.face_normals
