@@ -2,30 +2,12 @@ import simulation as sim
 import sun_ray_direction as srd
 import posture as ps
 import output as op
+import gui
 
 import matplotlib.pyplot as plt
 import trimesh as tm
 
 from tkinter import *
-
-#-------------------------------------------
-#------------------GUI-----------------
-#-------------------------------------------
-
-window = Tk()
-
-window.title("Welcome to LikeGeeks app")
-
-lbl = Label(window, text="InExES", font=("Arial Bold", 32))
-
-window.geometry('500x500')
-
-lbl.grid(column=0, row=0)
-
-
-
-
-
 #-------------------------------------------
 #------------------NAMELIST-----------------
 #-------------------------------------------
@@ -88,16 +70,33 @@ my_simulation.export_reference_frame()
 #my_simulation.show_one_timestep(start_date)
 
 #to make a whole simulation---------------------------------
+#my_simulation.make_simulation() USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
+
+#-------------------------------------------
+#------------------GUI-----------------
+#-------------------------------------------
+window = gui.Root()
+
 def sim():
-	my_simulation.make_simulation()
+	my_simulationTEST = sim.Simulation(start_date, 
+							end_date, 
+							timestep, 
+							getattr(window,'mesh'),
+							N,
+							output_name,
+							latitude=latitude,
+							read_data=False,
+							data_path=my_data_file,
+							)
+	my_simulationTEST.make_simulation()
 
 def show_mesh():
 	mesh = tm.load(my_posture_file)
 	mesh.show()
 
 btn = Button(window, text="start simualation", bg ="green", command=sim)
-btn.grid(column=1, row=0)
+btn.grid(column=0, row=0)
 btn_show = Button(window, text="show mesh", bg ="green", command=show_mesh)
-btn_show.grid(column=1, row=1)
+btn_show.grid(column=1, row=0)
 window.mainloop()
 
