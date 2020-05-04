@@ -7,9 +7,9 @@ import csv
 
 class Output:
 	
-	def __init__(self, posture, data_file, N):
+	def __init__(self, posture, data_file):
 
-		self.posture = ps.Posture(posture, N)
+		self.posture = ps.Posture(posture)
 		self.data_file = data_file
 
 		self.data = []
@@ -26,6 +26,7 @@ class Output:
 		self.data = np.delete(self.data, 0, 1)
 		self.data = self.data.astype(np.float)
 
+		#to review
 		print("")
 		print("********************")
 		print("")
@@ -39,6 +40,24 @@ class Output:
 	@property
 	def get_data_matrix(self):
 		return self.data
+
+
+	def get_id_color(self, color_rgb):
+		vec_id = []
+		for k, item in enumerate(self.posture.get_faces_color):
+			if(np.array_equal(item,color_rgb)): vec_id.append(k)
+		return vec_id
+
+
+	def show_area_of_selected_faces(self, vec_of_faces):
+		data_area = 0
+		for item in vec_of_faces:
+			data_area += self.posture.get_area_faces[item]
+		return data_area
+
+
+	def show_total_area(self):
+		return sum(self.posture.get_area_faces)
 
 
 	def show_selected_faces(self, vec_of_faces):
@@ -56,7 +75,6 @@ class Output:
 		
 		scene = tm.Scene([new_mesh])
 		scene.show()
-
 
 
 	def show_one_timestep(self, timestep):
