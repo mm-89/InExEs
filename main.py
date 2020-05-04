@@ -77,7 +77,7 @@ my_simulation.export_reference_frame()
 #-------------------------------------------
 window = gui.Root()
 
-def sim():
+def start_simulation():
 	my_simulationTEST = sim.Simulation(start_date, 
 							end_date, 
 							timestep, 
@@ -94,7 +94,7 @@ def show_mesh():
 	mesh = tm.load(my_posture_file)
 	mesh.show()
 
-btn = Button(window, text="start simualation", bg ="green", command=sim)
+btn = Button(window, text="start simualation", bg ="green", command=start_simulation)
 btn.grid(column=0, row=0)
 btn_show = Button(window, text="show mesh", bg ="green", command=show_mesh)
 btn_show.grid(column=1, row=0)
