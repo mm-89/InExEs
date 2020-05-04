@@ -3,6 +3,7 @@ import sun_ray_direction as srd
 import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
+import color_map as cm
 
 import trimesh as tm
 import numpy as np
@@ -383,7 +384,7 @@ class Simulation:
 												fileName + "_" + item + ".ply")
 
 
-	def set_zone_to_simulate(self, my_array_id):
+	def set_zone_to_simulate(self, RGB_map):
 		"""
 		Prototype: with this instance I'd like to
 		select just a part f mesh (for example eyes)
@@ -392,22 +393,27 @@ class Simulation:
 		Need to re-initialize beta coefficients 
 		vector too - (previous error - TO TEST)
 		"""
+		vec_id = []
+		for k, item in enumerate(self.posture.get_faces_color):
+			if(np.array_equal(item,cm.color_map[RGB_map])): 
+				vec_id.append(k)
+				
 		new_vector = []
-		for item in my_array_id:
+		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
 		self.ray_origins = new_vector
 
 		new_normals_vector = []
-		for item in my_array_id:
+		for item in vec_id:
 			new_normals_vector.append(self.face_normals[item])
 		self.face_normals = new_normals_vector
 
-		new_beta_vector = np.zeros(shape=(len(my_array_id), 2))
-		for i, item in enumerate(my_array_id):
+		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
+		for i, item in enumerate(vec_id):
 			new_beta_vector[i, :] = self.beta[item]
 		self.beta = new_beta_vector
 
-		new_area_vector = np.zeros(shape=len(my_array_id))
-		for i, item in enumerate(my_array_id):
+		new_area_vector = np.zeros(shape=len(vec_id))
+		for i, item in enumerate(vec_id):
 			new_area_vector[i] = self.areas[item]
 		self.areas = new_area_vector
