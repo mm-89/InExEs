@@ -1,39 +1,75 @@
-from math import *
+import math as mt
 import numpy as np
 import random
+
+import shared_parameters as sp
 
 
 def from_cartesian_to_polar(comp):
     """
-    Note: comp is a versor
-    Furthermore: the horizon here
-    is [0, 1, 0]
-    """
-    #compute theta
-    theta = acos(comp[1])
-    #compute phi
-    phi = np.arctan2(comp[2], comp[0])
+    Convert cartesian coordinates
+    of InExEs referent frame
+    [x, y, z] into polar-spherical
+    coordinates [zenith, azimut].
 
-    return np.array([theta, phi])
+    Parameters:
+    ------------
+    comp :   (, 3) float
+        versor cartesian coordinates
+        in InExEs reference frame
+
+    Returns:
+    -----------
+    polar_coordinates :   (, 2) float
+        polar-spherical coordinates
+        in InExEs reference frame
+
+    """
+    polar_coordinates = np.array([mt.acos(comp[1]),
+                        np.arctan2(comp[0], -comp[2])])
+    return polar_coordinates
 
 
 def from_polar_to_cartesian(zenith, azimuth):
     """
-    Note: this is used to read
-    input data
-    """
-    
-    #pi/2 because of azimuth=0 is y axe
-    zenith = zenith*pi/180.
-    azimuth = azimuth*pi/180.
-    x = sin(zenith)*cos(azimuth - pi/2.)
-    y = sin(zenith)*sin(azimuth - pi/2.)
-    z = cos(zenith)
-    
-    #according to the trimesh reference
-    #frame we have the following modifications
+    Convert polar atronomical coordinates
+    [zenith, azimuth] into cartesian
+    coordinates [x, y, z].
 
-    return x, z, y
+    Parameters:
+    ------------
+    zenith :   (, 1) float
+        zenith angle in degree. 
+        Possible values from 0°
+        to 180°
+    azimuth :   (, 1) float
+        azimuth angle in degree. 
+        Possible values from 0°
+        to 360°
+
+    Returns:
+    -----------
+    x : cartesian coordinate x
+    y : cartesian coordinate y
+    z : cartesian coordinate z
+
+    [x, y, z] is a versor ==
+    x2 + y2 + z2 = 1
+    
+    Note: this function has been written 
+    to transform input data of the model
+    and it is used only for this
+    """
+ 
+    x = mt.sin(np.radians(zenith))*mt.sin(np.radians(azimuth))
+    y = mt.cos(np.radians(zenith))
+    z = - mt.sin(np.radians(zenith))*mt.cos(np.radians(azimuth))
+
+    if(x < sp.threshold): x = 0
+    if(y < sp.threshold): y = 0
+    if(z < sp.threshold): z = 0
+
+    return x, y, z
     
 
 def rotation_matrix_3D_xy(angle):
@@ -41,10 +77,9 @@ def rotation_matrix_3D_xy(angle):
 	Classical rotational 3D matrix around z-axis 
 	of angle "angle" (counterclockwise)
 	"""
-	return np.array([[cos(angle), -sin(angle), 0],
-					[sin(angle), cos(angle), 0],
+	return np.array([[mt.cos(angle), -mt.sin(angle), 0],
+					[mt.sin(angle), mt.cos(angle), 0],
 					[0, 0, 1]])
-
 
 def rotation_matrix_3D_yz(angle):
 	"""
@@ -52,8 +87,8 @@ def rotation_matrix_3D_yz(angle):
 	of angle "angle" (counterclockwise)
 	"""
 	return np.array([[1, 0, 0],
-					[0, cos(angle), -sin(angle)],
-					[0, sin(angle), cos(angle)]])
+					[0, mt.cos(angle), -mt.sin(angle)],
+					[0, mt.sin(angle), mt.cos(angle)]])
 
 
 def rotation_matrix_3D_xz(angle):
@@ -61,94 +96,169 @@ def rotation_matrix_3D_xz(angle):
 	Classical rotational 3D matrix around y-axis 
 	of angle "angle" (counterclockwise)
 	"""
-	return np.array([[cos(angle), 0, sin(angle)],
+	return np.array([[mt.cos(angle), 0, mt.sin(angle)],
 					[0, 1, 0],
-					[-sin(angle), 0, cos(angle)]])
+					[-mt.sin(angle), 0, mt.cos(angle)]])
 
 
-def point_hemisphere_uniform(N):
-    """ 
+def uniform_points_hemisphere(N):
+    """
+    Generate N points on the upper
+    hemisphere uniformly distribuited.
+
+
     Ref. Markus Deserno 2004
+
+    Parameters:
+    ------------
+    N :   int
+        total points number
+
+    Returns:
+    -----------
+    polar_coordinates :   (N, 3) float
+        cartesian coordinates of N
+        points uniformly distribuited
+        on upper hemisphere
+
+    Note1: it needs to be well orientated
+    Note2: this methos sometimes cannot
+    generated exaclty N points but some 
+    more or less.
     """
     res = []
 
     n_c = 0
-    m_theta = int(round((pi*N/4)**0.5))
+    m_theta = int(round((mt.pi*N/4)**0.5))
 
-    d_theta = pi/m_theta
-    d_phi = 4*pi/(d_theta*N)
+    d_theta = mt.pi/m_theta
+    d_phi = 4*mt.pi/(d_theta*N)
 
     for i in range(m_theta):
-        theta = pi*(i + 0.5)/(2*m_theta)
-        m_phi = int(round(2*pi*sin(theta)/d_phi))
+        theta = mt.pi*(i + 0.5)/(2*m_theta)
+        m_phi = int(round(2*mt.pi*mt.sin(theta)/d_phi))
 
         for j in range(m_phi):
-            phi = 2*pi*j/m_phi
+            phi = 2*mt.pi*j/m_phi
 
-            x = sin(theta)*cos(phi)
-            y = sin(theta)*sin(phi)
-            z = cos(theta)
+            x = mt.sin(theta)*mt.sin(phi)
+            y = mt.cos(theta)
+            z = - mt.sin(theta)*mt.cos(phi)
     
             res.append(np.array([x, y, z]))
+            res_theta.append(mt.sin(theta))
             n_c += 1
     
-    return res[:N]
+    return np.array(res[:N])
 
 
-def point_hemisphere_random(N):
+def random_points_hemisphere(N):
 	"""
-	Simple Inverse transform sampling 
-	for pseudo-random number sampling
+	Generate N points on the upper
+	hemisphere randomly distribuited.
+
+	Ref. any about Monte Carlo
+	inverse problem
+
+	Parameters:
+	------------
+	N :   int
+		total points number
+
+	Returns:
+	-----------
+	polar_coordinates :   (N, 3) float
+		cartesian coordinates of N
+		points randomly distribuited
+		on upper hemisphere
+
+	Note: it needs to be well orientated
 	"""
 	res = []
+	res_theta = []
 
 	for i in range(N):
-		phi = 2*pi*random.uniform(0,1)
-		theta = np.arccos(random.uniform(0,1))
 
-		x = sin(theta)*cos(phi)
-		y = sin(theta)*sin(phi)
-		z = cos(theta)
-    
+		prn = random.uniform(0, 1)
+		trn = random.uniform(0, 1)
+
+		phi = 2*mt.pi*prn
+		theta = np.arccos(trn)
+
+		x = mt.sin(theta)*mt.sin(phi)
+		y = mt.cos(theta)
+		z = - mt.sin(theta)*mt.cos(phi)
+
 		res.append(np.array([x, y, z]))
+		res_theta.append(trn)
 
-	return res
+	return np.array(res), res_theta
 
 
-def make_rays_in_a_hemisphere(N, theta, phi, random):
+def make_rays_in_a_hemisphere(theta, phi):
+	"""
+	Generate rays in a hemisphere
+	orientated towards an angle theta
+	(zenith) and an angle phi (azimuth)
+	compare to the usual horizon.
 
-    if(random):
-        my_points = point_hemisphere_random(N)
-    else:
-        my_points = point_hemisphere_uniform(N)
-  
-    my_points_new_diff = []
-    my_points_new_refl = []
+	Parameters:
+	------------
+	theta :   float
+		zenith angle
 
-    N_dif = 0
-    N_ref = 0
+	phi :   float
+		azimuth angle
 
-    for i in my_points:
+	Returns:
+	-----------
+	my_points_new_diff :   (N, 3) float
+		cartesian coordinates of N_diff points 
+		on the upper hemisphere
+		(diffused)
 
-        #alignment towards face normal in xyz frame
-        tmp_xyz = np.dot(rotation_matrix_3D_xy(phi),
-            np.dot(rotation_matrix_3D_xz(theta), i))
+	my_points_new_refl :   (N, 3) float
+		cartesian coordinates of N_refl points 
+		on the lower hemisphere
+		(reflected)
 
-        #changing from xyz to zxy frame
-        tmp_zxy = np.dot(rotation_matrix_3D_yz(-pi/2.),
-            np.dot(rotation_matrix_3D_xy(-pi/2.), tmp_xyz))
+	N_diff :   int
+		total number of points 
+		distribuited on upper 
+		hemisphere from initial N
 
-        #note: the horizon is [0, 1, 0]
-        if(tmp_zxy[1]>=0.):
-            my_points_new_diff.append(tmp_zxy)
-            N_dif += 1
-        else:
-            my_points_new_refl.append(tmp_zxy)
-            N_ref += 1
+	N_refl :   int
+		total number of points 
+		distribuited on lower 
+		hemisphere from initial N
+	"""
+	if(sp.hemispherical_random_generator):
+		my_points = random_points_hemisphere(sp.N)
+	else:
+		my_points = uniform_points_hemisphere(sp.N)
+
+	my_points_new_diff = []
+	my_points_new_refl = []
+
+	N_dif = 0
+	N_ref = 0
+	
+	for i in my_points:
+
+		# rotate in the new reference frame
+		current_vector = np.dot(rotation_matrix_3D_xz(-phi), 
+						np.dot(rotation_matrix_3D_yz(-theta), i))
+		
+		#note: the horizon is [0, 1, 0]
+		if(current_vector[1] >= 0.):
+			my_points_new_diff.append(current_vector)
+			N_dif += 1
+		else:
+			my_points_new_refl.append(current_vector)
+			N_ref += 1
         
-    if((N_dif + N_ref) != N):
-        print("Some problem occured in BETA coefficient computing!")
-
-    print(N_dif, N_ref)
-
-    return my_points_new_diff, my_points_new_refl, N_dif, N_ref
+	if((N_dif + N_ref) != sp.N):
+		print("Some problem occured in BETA coefficient computing!")
+		
+	return np.array(my_points_new_diff), \
+			np.array(my_points_new_refl), N_dif, N_ref
