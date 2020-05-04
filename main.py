@@ -9,9 +9,9 @@ import simulation as sim
 
 my_data_file = "input/irradiance_2009.csv"
 
-my_posture_file = "postures/cube.ply"
+my_posture_file = "special_postures/face_without_eyebrows.ply"
 
-output_name = "SIMUVEX_january_with_eyebrows"
+output_name = "face_may_with"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
@@ -31,8 +31,8 @@ start_angle_azimuth = 0.
 #set start date
 
 #--------------mm-dd-yyyy-hh-mm-ss
-start_date  = '01/01/2009 00:01:00'
-end_date    = '01/02/2009 00:01:00'
+start_date  = '05/01/2009 00:01:00'
+end_date    = '05/02/2009 00:01:00'
 
 #-------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ my_simulation = sim.Simulation(start_date,
 #to visualize a particular timestep-----------------------
 #my_simulation.show_one_timestep(start_date)
 
-#my_simulation.set_zone_to_simulate(id_vector)
+#my_simulation.set_zone_to_simulate("red")
 
 #to make a whole simulation---------------------------------
 my_simulation.make_simulation()

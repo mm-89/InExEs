@@ -3,6 +3,7 @@ import sun_ray_direction as srd
 import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
+import color_map as cm
 
 import trimesh as tm
 import numpy as np
@@ -87,6 +88,7 @@ class Simulation:
 		self.name = posture
 
 		self.ray_origins = self.posture.get_normals_minimized
+		self.face_normals = self.posture.get_normals
 
 		self.output_name = output_name
 
@@ -121,10 +123,10 @@ class Simulation:
 		#write the header
 		#file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
 		file_writer.writerow(["datetime", 
-							"direct intensity [J/m²]",
-							"diffuse intensity [J/m²]",
-							"reflect intensity [J/m²]",
-							"total intensity [J/m²]"])
+							"direct intensity [J/m^2]",
+							"diffuse intensity [J/m^2]",
+							"reflect intensity [J/m^2]",
+							"total intensity [J/m^2]"])
 
 		print("Start simulation...")
 		print("")
@@ -143,9 +145,13 @@ class Simulation:
 				print("Current date of simulation: ", 
 					data_update.strftime("%b %d %Y %H:%M:%S"))
 
-				data_output_dir = np.zeros(shape=len(self.ray_origins))
-				data_output_dif = np.zeros(shape=len(self.ray_origins))
-				data_output_ref = np.zeros(shape=len(self.ray_origins))
+				data_output_dir = 0
+				data_output_dif = 0
+				data_output_ref = 0
+
+				rad_dir = 0
+				rad_dif = 0
+				rad_ref = 0 
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
@@ -164,28 +170,32 @@ class Simulation:
 						break
 
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
-
+					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 																ray_directions=ray_direction)
 
-					for j, comp in enumerate(inf):
+					for j, comp in enumerate(inf):	
 						if not comp:
-	
-							data_output_dir[j] = self.data[current_line, dm.data_map["uvdirect"]]*abs(proj[j])*self.timestep*\
-									self.areas[j]/mt.cos(self.data[current_line, dm.data_map["zenith"]]*mt.pi/180.)
+							
+							data_output_dir += abs(proj[j][0])*self.areas[j]/\
+								mt.cos(np.radians(self.data[current_line, dm.data_map["zenith"]]))
+						
+						data_output_dif += self.beta[j,0]*self.areas[j]/mt.pi
 
-						data_output_dif[j] = self.data[current_line, dm.data_map["uvdiffuse"]]*self.timestep*\
-										self.beta[j,0]*self.areas[j]
 
-						data_output_ref[j] = self.data[current_line, dm.data_map["uvreflect"]]*self.timestep*\
-										self.beta[j,1]*self.areas[j]
+						data_output_ref += self.beta[j,1]*self.areas[j]/mt.pi
+					
+					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
+					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
+					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
-									sum(data_output_dir)/sum(self.areas),
-									sum(data_output_dif)/sum(self.areas),
-									sum(data_output_ref)/sum(self.areas),
-									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/sum(self.areas)
+							rad_dir*data_output_dir*self.timestep/sum(self.areas),
+							rad_dif*data_output_dif*self.timestep/sum(self.areas),
+							rad_ref*data_output_ref*self.timestep/sum(self.areas),
+							(rad_dir*data_output_dir + \
+							 rad_dif*data_output_dif + \
+							 rad_ref*data_output_ref)*self.timestep/sum(self.areas)
 									])
 				
 			
@@ -209,6 +219,8 @@ class Simulation:
 				data_output_dir = np.zeros(shape=len(self.ray_origins))
 				data_output_dif = np.zeros(shape=len(self.ray_origins))
 				data_output_ref = np.zeros(shape=len(self.ray_origins))
+
+				rad_dir = 0
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
@@ -226,7 +238,7 @@ class Simulation:
 						break
 
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
+					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
 
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 																		ray_directions=ray_direction)
@@ -234,23 +246,21 @@ class Simulation:
 					for j, comp in enumerate(inf):
 						if not comp:
 								
-							data_output_dir[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											abs(proj[j])*self.timestep*self.areas[j]
+							data_output_dir[j] = abs(proj[j])*self.timestep*self.areas[j]
 
-						data_output_dif[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											0.2*self.timestep*self.areas[j]*\
-											self.beta[j,0]
+						data_output_dif[j] = self.timestep*self.areas[j]*self.beta[j,0]
 
-						data_output_ref[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-											0.05*self.timestep*self.areas[j]*\
-											self.beta[j,1]
+						data_output_ref[j] = self.timestep*self.areas[j]*self.beta[j,1]
 
-
+						rad_dir = self.source_light.get_daily_sun_irradiance(current_day, current_second)
+					
 				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), 
-									sum(data_output_dir)/sum(self.areas),
-									sum(data_output_dif)/sum(self.areas),
-									sum(data_output_ref)/sum(self.areas),
-									(sum(data_output_dir) + sum(data_output_dif) + sum(data_output_ref))/sum(self.areas)
+							rad_dir*sum(data_output_dir)*self.timestep/sum(self.areas),
+							0.2*rad_dir*sum(data_output_dif)*self.timestep/sum(self.areas),
+							0.05*rad_dir*sum(data_output_ref)*self.timestep/sum(self.areas),
+									rad_dir*(sum(data_output_dir) + \
+									0.2*sum(data_output_dif) + \
+									0.05*sum(data_output_ref))*self.timestep/sum(self.areas)
 									])
 				
 
@@ -269,8 +279,6 @@ class Simulation:
 
 	def show_one_timestep(self, date):
 
-		method_red = False
-
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
@@ -286,10 +294,8 @@ class Simulation:
 		if(self.read_data):
 			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
 									self.data[self.start_row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
-			print(ray_source_direction)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
-			print(ray_source_direction)
 
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
@@ -378,7 +384,7 @@ class Simulation:
 												fileName + "_" + item + ".ply")
 
 
-	def set_zone_to_simulate(self, my_array_id):
+	def set_zone_to_simulate(self, RGB_map):
 		"""
 		Prototype: with this instance I'd like to
 		select just a part f mesh (for example eyes)
@@ -387,17 +393,27 @@ class Simulation:
 		Need to re-initialize beta coefficients 
 		vector too - (previous error - TO TEST)
 		"""
+		vec_id = []
+		for k, item in enumerate(self.posture.get_faces_color):
+			if(np.array_equal(item,cm.color_map[RGB_map])): 
+				vec_id.append(k)
+				
 		new_vector = []
-		for item in my_array_id:
+		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
 		self.ray_origins = new_vector
 
-		new_beta_vector = np.zeros(shape=(len(my_array_id), 2))
-		for i, item in enumerate(my_array_id):
+		new_normals_vector = []
+		for item in vec_id:
+			new_normals_vector.append(self.face_normals[item])
+		self.face_normals = new_normals_vector
+
+		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
+		for i, item in enumerate(vec_id):
 			new_beta_vector[i, :] = self.beta[item]
 		self.beta = new_beta_vector
 
-		new_area_vector = np.zeros(shape=len(my_array_id))
-		for i, item in enumerate(my_array_id):
+		new_area_vector = np.zeros(shape=len(vec_id))
+		for i, item in enumerate(vec_id):
 			new_area_vector[i] = self.areas[item]
 		self.areas = new_area_vector
