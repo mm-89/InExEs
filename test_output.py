@@ -1,25 +1,15 @@
-import posture as ps
-import sun_ray_direction as srd
 import output as oi
-
-import numpy as np
+import posture as ps
 import matplotlib.pyplot as plt
-import trimesh as tm
+
 
 #files previously simulated and mesh
-my_posture = "postures/cube.ply"
-my_file = "output/data.csv"
-N = 2
+my_posture = "special_postures/face_without_eyebrows.ply"
+my_file = "output/face_january_without_eyebrows.csv"
 
 #prepare to analisys
-my_file_to_analyse = oi.Output(my_posture, my_file, N)
+my_file_to_analyse = oi.Output(my_posture, my_file)
 
+vec_color_id = my_file_to_analyse.get_id_color([255, 0, 0, 255])
 
-
-
-
-
-#plt.plot(x, data_right, label="right")
-plt.plot(x, data_left, label="left")
-plt.legend()
-plt.show()
+#my_file_to_analyse.show_selected_faces(id_vector)

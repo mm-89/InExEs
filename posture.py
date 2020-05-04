@@ -1,101 +1,28 @@
+import beta_coefficients as bc
 import math_refl_diff as mrd
+import shared_parameters as sp
 
 import trimesh as tm
-import numpy as np
-import math as mt
-import time
 import sys
 
 class Posture:
 
-	def __init__(self, my_file, N):
+	def __init__(self, my_file):
 		self.path = my_file
 		self.my_file = tm.load(my_file, use_embree=True)
-		self.N = N
 
-		normals = self.my_file.face_normals
-		angles_normals = []
-		for comp in normals:
-			angles_normals.append(mrd.from_cartesian_to_polar(comp))
-		
-		self.angles_normals = angles_normals
-		self.normals_minimized = self.my_file.face_normals/1000.
-		
-		self.compute_beta(random=True)
-    		
-    		
-	def compute_beta(self, random):
-		path = self.path.split('/')
-		mesh_name = path[-1]
-		fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(self.N) + ".txt"
-		try:
-			with open(fileName) as f:
-				print("Beta file found")
-				#We put the file content = to beta coeff value
-				self.betaCoeff = f.readlines()
+		#to avoid auto-intersection
+		self.normals_minimized = self.my_file.triangles_center + \
+								self.my_file.face_normals*sp.normalization_factor
 
-				if(len(self.betaCoeff)==0):
-					print("File of Beta coefficient corrupeted")
-					print("Total number of read lines are: ", len(self.betaCoeff))
-				return
-		except IOError:
-			#If not we ask user for an N value, compute beta and create a beta coeff file
-			print("No beta file found for this N value, a new beta file will be created please wait")
-				
-			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
-			ray_dir = []
-
-			#[0] is diffused, [1] is reflecte
-			beta = []
-
-			angles = self.angles_normals
-
-			for counter, comp in enumerate(ray_ori_all):
-						
-				ray_dir_diff, ray_dir_refl, N_diff, N_refl = mrd.make_rays_in_a_hemisphere(self.N, 
-																angles[counter][0], 
-																angles[counter][1], 
-																random=random)
-
-				#necessary to cut solid angle on face horizon
-				tmp_coeff_solid_angle = (1 + mt.cos(angles[counter][0]))/2.
-
-				#to avoid singularities
-				if(N_diff>0):
-					ray_ori_diff = [comp for i in range(N_diff)]
-					res_diff = self.my_file.ray.intersects_any(ray_origins=ray_ori_diff, 
-																		ray_directions=ray_dir_diff)
-					cpt_false_diff = np.nonzero(~res_diff)[0]
-
-				if(N_refl>0):
-					ray_ori_refl = [comp for i in range(N_refl)]
-					res_refl = self.my_file.ray.intersects_any(ray_origins=ray_ori_refl, 
-																		ray_directions=ray_dir_refl)
-					cpt_false_refl = np.nonzero(~res_refl)[0]
-
-				if(N_diff>0 and N_refl>0):
-					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 
-												len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
-				elif(N_diff==0):
-					beta.append(np.array([0, len(cpt_false_refl)*(1 - tmp_coeff_solid_angle)/N_refl]))
-
-				elif(N_refl==0):
-					beta.append(np.array([len(cpt_false_diff)*tmp_coeff_solid_angle/N_diff, 0]))
-
-				print("Computing beta ... ", 
-					round(counter/len(ray_ori_all)*100,1), 
-					" percent complete", end="\r")
-
-			np.savetxt(fileName, beta, fmt="%.10f")
-			self.betaCoeff = beta
-				
+		self.beta_coeff = bc.compute_beta(self.path,
+										self.my_file,
+										self.my_file.face_normals,
+										self.normals_minimized)
+			
 
 	def get_angles_from_normals(self):
 		return self.angles_normals
-
-
-	def set_normals_minimized(self, fact=0.001):
-		return self.face_normals*fact
 
 
 	def show_posture(self):
@@ -144,7 +71,7 @@ class Posture:
 
 	@property
 	def get_beta(self):
-		return self.betaCoeff
+		return self.beta_coeff
 
 
 	@property
@@ -158,12 +85,10 @@ class Posture:
 
 
 	@property
-	def get_vertices_barycenter(self):
+	def get_triangles_center(self):
 		return self.my_file.triangles_center
 
 
 	@property
 	def get_faces_color(self):
-		return self.my_file.faces_color
-	
-
+		return self.my_file.visual.face_colors

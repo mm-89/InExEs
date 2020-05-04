@@ -1,7 +1,5 @@
 import math as mt
 import numpy as np
-import datetime
-import time
 
 class Sun_ray_direction:
 

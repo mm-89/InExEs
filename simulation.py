@@ -1,6 +1,9 @@
 import posture as ps
 import sun_ray_direction as srd
 import math_refl_diff as mrd
+import input_data_handle as idh
+import data_map as dm
+import color_map as cm
 
 import trimesh as tm
 import numpy as np
@@ -34,7 +37,6 @@ class Simulation:
 				end_date, 
 				timestep, 
 				posture,
-				N,
 				output_name,
 				latitude=None,
 				read_data= False, 
@@ -44,11 +46,12 @@ class Simulation:
 		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
 		self.end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
     
-		
-		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
-		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
+		self.day_of_beginning = (self.start_date.date() - \
+								datetime.date(self.start_date.year, 1, 1)).days + 1
 
-		self.posture = ps.Posture(posture, N)
+		self.posture = ps.Posture(posture)
+		self.beta = self.posture.get_beta
+		self.areas = self.posture.get_area_faces
 
 		self.start_angle_azimuth = 0.
 
@@ -72,22 +75,22 @@ class Simulation:
 					#REMEBER: probably this last matrix is a string
 
 		    		#check if the data exists
-					if(is_data_exists_in_file(self.start_date, self.data)==False or \
-						is_data_exists_in_file(self.end_date, self.data)==False):
+					if(idh.is_data_exists_in_file(self.start_date, self.data)==False or \
+						idh.is_data_exists_in_file(self.end_date, self.data)==False):
 						print("Selected dates does not exist in the file ", data_path)
 					else:
-						self.start_row_data = select_rows_in_file(self.start_date, self.data)
-						self.end_row_data = select_rows_in_file(self.end_date, self.data)
-						print(type(self.start_row_data), type(self.end_row_data))
+						self.start_row_data = idh.select_rows_in_file(self.start_date, self.data)
+						self.end_row_data = idh.select_rows_in_file(self.end_date, self.data)
 						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
+
+						#to avoid negative values
+						self.data = idh.repair_data(self.data)
 			
 
 			except IOError:
 
-				print("File ", data_path, " don't found or don't exist.")
+				print("File ", data_path, " don't find or don't exist.")
 				print("With read data=True the file MUST be specified")
-
-
 
 		else:
 
@@ -101,16 +104,13 @@ class Simulation:
 
 		self.name = posture
 
-		self.ray_origins = self.posture.get_vertices_barycenter + \
-	    					self.posture.get_normals_minimized
+		self.ray_origins = self.posture.get_normals_minimized
+		self.face_normals = self.posture.get_normals
 
 		self.output_name = output_name
 
 
 	def make_simulation(self):
-
-		#note: True for now doesn't well work
-		method_red = False
 
 		#some information for users
 		print("")
@@ -119,14 +119,16 @@ class Simulation:
 		print("Posture that has to be simulated is: ", self.name)
 		print("")
 
-		if(self.start_date > self.end_date):
-			print("End date must me after of start date!")
+		if(self.start_date >= self.end_date):
+			print("End date must me greater of start date!")
 
 
 		#irradiance_data
 		#BE CAREFUL! if the data will be cumulative, 
 		#you have to move this vector outside this cycle!
-		data = np.zeros(shape=len(self.ray_origins))
+		#data_output_dir = np.zeros(shape=len(self.ray_origins))
+		#data_output_dif = np.zeros(shape=len(self.ray_origins))
+		#data_output_ref = np.zeros(shape=len(self.ray_origins))
 		
 		if os.path.exists("output/" + self.output_name + ".csv"):
 			os.remove("output/" + self.output_name + ".csv")
@@ -136,7 +138,12 @@ class Simulation:
     										quoting=csv.QUOTE_NONNUMERIC)
 
 		#write the header
-		file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
+		#file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
+		file_writer.writerow(["datetime", 
+							"direct intensity [J/m^2]",
+							"diffuse intensity [J/m^2]",
+							"reflect intensity [J/m^2]",
+							"total intensity [J/m^2]"])
 
 		print("Start simulation...")
 		print("")
@@ -154,16 +161,24 @@ class Simulation:
 
 				print("Current date of simulation: ", 
 					data_update.strftime("%b %d %Y %H:%M:%S"))
+
+				data_output_dir = 0
+				data_output_dif = 0
+				data_output_ref = 0
+
+				rad_dir = 0
+				rad_dif = 0
+				rad_ref = 0 
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
-				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, data_map["zenith"]], \
-									self.data[current_line, data_map["azimuth"]] - self.start_angle_azimuth)
-				
-				#Here put the algorithm to split at te next light day
-				if(True):
+				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
+									self.data[current_line, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 
+				#compute only light days
+				if(self.data[current_line, dm.data_map["zenith"]]<90.):
+				
 					ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
 					#just to check
@@ -172,17 +187,34 @@ class Simulation:
 						break
 
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
-
+					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
 					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
 																ray_directions=ray_direction)
 
-					for j, comp in enumerate(inf):
+					for j, comp in enumerate(inf):	
 						if not comp:
-	
-							data[j] = self.data[current_line, data_map["uvdirect"]]*abs(proj[j])*self.timestep
+							
+							data_output_dir += abs(proj[j][0])*self.areas[j]/\
+								mt.cos(np.radians(self.data[current_line, dm.data_map["zenith"]]))
+						
+						data_output_dif += self.beta[j,0]*self.areas[j]/mt.pi
 
-				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), *data] )
+
+						data_output_ref += self.beta[j,1]*self.areas[j]/mt.pi
+					
+					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
+					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
+					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
+
+				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
+							rad_dir*data_output_dir*self.timestep/sum(self.areas),
+							rad_dif*data_output_dif*self.timestep/sum(self.areas),
+							rad_ref*data_output_ref*self.timestep/sum(self.areas),
+							(rad_dir*data_output_dir + \
+							 rad_dif*data_output_dif + \
+							 rad_ref*data_output_ref)*self.timestep/sum(self.areas)
+									])
+				
 			
 				data_update += datetime.timedelta(seconds=self.timestep)
 				current_line += 1
@@ -200,6 +232,12 @@ class Simulation:
 
 				print("Current date of simulation: ", 
 					current_data.strftime("%b %d %Y %H:%M:%S"))
+
+				data_output_dir = np.zeros(shape=len(self.ray_origins))
+				data_output_dif = np.zeros(shape=len(self.ray_origins))
+				data_output_ref = np.zeros(shape=len(self.ray_origins))
+
+				rad_dir = 0
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 
@@ -217,52 +255,30 @@ class Simulation:
 						break
 
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
+					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
 
-					if(method_red):
+					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+																		ray_directions=ray_direction)
 
-						inf = []
-							
-						for j, lis in enumerate(proj):
+					for j, comp in enumerate(inf):
+						if not comp:
+								
+							data_output_dir[j] = abs(proj[j])*self.timestep*self.areas[j]
 
-							# given faces' normals and sun direction (normal as well)
-							# if the dot product is negative means shadow
-							if(lis > 0.):
-								#ray_tracing
-								inf.append( self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
-																		ray_directions=np.array([ray_source_direction])) )
-							else:
-								inf.append(False)
-											
-							#means the face j
-							#this is cumulative irradiance dose (energy -> J/Hz)
-							data[j] += self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-												abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
-			
-					else:
-						start_time = time.time()
-						inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-																ray_directions=ray_direction)
-						
-						print("INTERSECT ANY TIME : ")
-						print("--- %s seconds ---" % (time.time() - start_time))
+						data_output_dif[j] = self.timestep*self.areas[j]*self.beta[j,0]
 
-						start_time2 = time.time()
-						inf_pyembree = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-																ray_directions=ray_direction)
+						data_output_ref[j] = self.timestep*self.areas[j]*self.beta[j,1]
 
-						print("(PYEMBREE) INTERSECT FIRST TIME : ")
-						print("--- %s seconds ---" % (time.time() - start_time2))
-
-						for j, comp in enumerate(inf):
-							if not comp:
-								#data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-								#				abs(proj[j])*self.posture.get_area_faces[j]*self.timestep
-								data[j] = self.source_light.get_daily_sun_irradiance(current_day, current_second)*\
-												abs(proj[j])*self.timestep
-
-
-				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), *data] )
+						rad_dir = self.source_light.get_daily_sun_irradiance(current_day, current_second)
+					
+				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), 
+							rad_dir*sum(data_output_dir)*self.timestep/sum(self.areas),
+							0.2*rad_dir*sum(data_output_dif)*self.timestep/sum(self.areas),
+							0.05*rad_dir*sum(data_output_ref)*self.timestep/sum(self.areas),
+									rad_dir*(sum(data_output_dir) + \
+									0.2*sum(data_output_dif) + \
+									0.05*sum(data_output_ref))*self.timestep/sum(self.areas)
+									])
 				
 
 				current_data += datetime.timedelta(seconds=self.timestep)
@@ -278,55 +294,31 @@ class Simulation:
 
 
 
-	def show_one_timestep(self, date, show_result=True):
-
-		method_red = False
+	def show_one_timestep(self, date):
 
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		first_day_of_year = datetime.date(self.start_date.year, 1, 1)
-		self.day_of_beginning = (self.start_date.date() - first_day_of_year).days + 1
+		self.day_of_beginning = (self.start_date.date() - \
+								datetime.date(self.start_date.year, 1, 1)).days + 1
 
 		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 		current_day = self.day_of_beginning
 
 		#make rays of sun (direction)
 		if(self.read_data):
-			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, data_map["zenith"]], \
-									self.data[self.start_row_data, data_map["azimuth"]] - self.start_angle_azimuth)
-			print(ray_source_direction)
+			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
+									self.data[self.start_row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
-			print(ray_source_direction)
-
-		#ay_source_direction = [0, 1, 0]
 
 		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
 
-		if(method_red):
-
-			inf = []
-			proj = np.dot(self.posture.get_normals, np.array([ray_source_direction]).T)
-			
-			for j, lis in enumerate(proj):
-
-				# given faces' normals and sun direction (normal as well)
-				# if the dot product is negative means shadow
-				if(lis < 0.):
-					#ray_tracing
-					inf.append( self.posture.get_posture.ray.intersects_any(ray_origins=np.array([self.ray_origins[j]]), 
-														ray_directions=np.array([ray_source_direction])) )
-				else:
-					inf.append(False)
-
-		else:
-
-			#rays tracing
-			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-															ray_directions=ray_direction)
+		#rays tracing
+		inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
+														ray_directions=ray_direction)
 
 		#take only non-zero components (non-zero=not hit)
 		#face_nohit = np.nonzero(~inf)[0]
@@ -361,7 +353,16 @@ class Simulation:
 						#ray_visualize
 						])
 
-		if(show_result): scene.show()
+		scene.show()
+
+
+	def set_start_angle(self, angle):
+		self.start_angle_azimuth = angle*mt.pi/180.
+
+
+	def show_one_timestep_input_irradiace(self, date):
+		pass
+
 
 
 	def export_reference_frame(self):
@@ -371,6 +372,7 @@ class Simulation:
 		fileName = mesh_name.rsplit(".", -1)[0]
 
 		centre = [[0, 0, 0] for i in range(len(self.ray_origins))]
+
 		info_map = {"zenith": [0, 1, 0],
 					"south": [0, 0, 1],
 					"east": [1, 0, 0]}
@@ -395,60 +397,40 @@ class Simulation:
 									process=True, 
 									face_colors=col_ver)
 
-			tm.exchange.export.export_mesh(my_new_mesh, "output/" + fileName + \
-												"_" + item + ".ply")
+			tm.exchange.export.export_mesh(my_new_mesh, "output/" + "ref_frame_" + \
+												fileName + "_" + item + ".ply")
 
-	def set_start_angles(self, angle):
-		self.start_angle_azimuth = angle*mt.pi/180.
 
-#IMPORTANT
+	def set_zone_to_simulate(self, RGB_map):
+		"""
+		Prototype: with this instance I'd like to
+		select just a part f mesh (for example eyes)
+		and avoid a simulation with 100% of original
+		mesh - TO TEST
+		Need to re-initialize beta coefficients 
+		vector too - (previous error - TO TEST)
+		"""
+		vec_id = []
+		for k, item in enumerate(self.posture.get_faces_color):
+			if(np.array_equal(item,cm.color_map[RGB_map])): 
+				vec_id.append(k)
+				
+		new_vector = []
+		for item in vec_id:
+			new_vector.append(self.ray_origins[item])
+		self.ray_origins = new_vector
 
-#output_dir = "output"
-#file_out = "my_test_mesh"
-#extension = "ply"
+		new_normals_vector = []
+		for item in vec_id:
+			new_normals_vector.append(self.face_normals[item])
+		self.face_normals = new_normals_vector
 
-#to export a mesh - it works
-#tm.exchange.export.export_mesh(my_new_mesh, file_out + "." + extension)
+		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
+		for i, item in enumerate(vec_id):
+			new_beta_vector[i, :] = self.beta[item]
+		self.beta = new_beta_vector
 
-#other important thing:
-#face_nohit = np.nonzero(~inf)[0]
-
-#global map for read data
-
-data_map = {"year": 0,
-			"month": 1,
-			"day": 2,
-			"hour": 3,
-			"minute": 4,
-			"zenith": 5,
-			"azimuth": 6,
-			"uvglobal": 7,
-			"uvdiffuse": 8,
-			"uvdirect": 9,
-			"uvreflect": 10}
-
-#------------------------------
-
-#to test if data selected exist in data file
-def is_data_exists_in_file(date, data_read):
-	#NEED to re-scale????????
-	if( date.year in data_read[:, data_map["year"]] \
-		and date.month in data_read[:, data_map["month"]] \
-		and date.day in data_read[:, data_map["day"]] \
-		and date.hour in data_read[:, data_map["hour"]] \
-		and date.minute in data_read[:, data_map["minute"]] ):
-		return True
-	else:
-		return False
-
-def select_rows_in_file(date, data_read):
-	val = None
-	my_vect_prop = np.array([date.year,
-							date.month,
-							date.day,
-							date.hour,
-							date.minute])
-	for j, item in enumerate(data_read):
-		if np.array_equal(item[:5], my_vect_prop) :
-			val = j
-	return val
+		new_area_vector = np.zeros(shape=len(vec_id))
+		for i, item in enumerate(vec_id):
+			new_area_vector[i] = self.areas[item]
+		self.areas = new_area_vector
