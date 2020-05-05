@@ -77,7 +77,6 @@ def start_simulation():
 							end_date, 
 							timestep, 
 							getattr(window,'mesh'),
-							N,
 							output_name,
 							latitude=latitude,
 							read_data=False,
