@@ -13,6 +13,7 @@ class Root(Tk):
         #self.wm_iconbitmap('blabla.ico') get an icon 
 
         # WIDGET CREATION ------------------------------------------
+
         self.labelFrame = ttk.LabelFrame(self, text = "Open a file")
         self.labelFrame.grid(column = 0, row = 2)
         # ----------------------------------------------------------
@@ -21,8 +22,8 @@ class Root(Tk):
         # ----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
-        self.startDate = ""
-        self.endDate = ""
+        self.startDate = '05/03/2009 00:01:00'
+        self.endDate = '05/02/2009 00:01:00'
         self.timestep = ""
         self.mesh = ""
         self.outputName = ""
@@ -62,7 +63,7 @@ class Root(Tk):
 
     #TESTS AND ERRORS USER -----------------------------------------
     def popupmsg(self,msg):
-        popup = self.Tk()
+        popup = Tk()
         popup.wm_title("Error found !")
         label = ttk.Label(popup, text=msg)
         label.pack(side="top", fill="x", pady=10)
@@ -72,8 +73,8 @@ class Root(Tk):
 
 
     def error_catch(self):
-        start = dt.strptime(self.startDate,"%b %d %Y %H:%M:%S")
-        end = dt.strptime(self.endDate,"%b %d %Y %H:%M:%S")
+        start = dt.strptime(self.startDate,"%d/%m/%Y %H:%M:%S")
+        end = dt.strptime(self.endDate,"%d/%m/%Y %H:%M:%S")
         if(start > end) :
             self.popupmsg("start date is posterior to end date !")
 
