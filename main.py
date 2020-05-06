@@ -83,6 +83,7 @@ def start_simulation():
 							data_path=my_data_file,
 							)
 	my_simulationTEST.make_simulation()
+	print(getattr(window,'mesh'))
 
 def show_mesh():
 	mesh = tm.load(my_posture_file)
