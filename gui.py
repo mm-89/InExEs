@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-import simulation
+import simulation as sim
 from datetime import datetime as dt
+import trimesh as tm
 
 
 class Root(Tk):
@@ -12,28 +13,38 @@ class Root(Tk):
         self.minsize(640,400)
         #self.wm_iconbitmap('blabla.ico') get an icon 
 
-        # WIDGET CREATION ------------------------------------------
-
-        self.labelFrame = ttk.LabelFrame(self, text = "Open a file")
-        self.labelFrame.grid(column = 0, row = 2)
-        # ----------------------------------------------------------
 
         # FRAMES ---------------------------------------------------
         # ----------------------------------------------------------
 
+
+        # WIDGET CREATION ------------------------------------------
+        self.labelFrame = ttk.LabelFrame(self, text = "Open a file")
+        self.labelFrame.grid(column = 0, row = 2)
+
+        btnShow = Button(self, text="show mesh", bg ="green", command=self.show_mesh)
+        btnStartSimulation = Button(self, text="start simualation", bg ="green", command=self.start_simulation)
+
+        
+        # ----------------------------------------------------------
+
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
-        self.startDate = '05/03/2009 00:01:00'
+        self.startDate = '05/01/2009 00:01:00'
         self.endDate = '05/02/2009 00:01:00'
-        self.timestep = ""
+        self.timestep = 60.
         self.mesh = ""
-        self.outputName = ""
-        self.latitude = ""
+        self.outputName = "face_may_with"
+        self.latitude = 40.
         self.readData = True
-        self.dataPath = ""
+        self.dataPath = "input/irradiance_2009.csv"
         #-----------------------------------------------------------
 
         # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
         self.load_mesh()
+        #Button to show mesh in new window
+        btnShow.grid(column=1, row=0)
+        #Button to start simulation 
+        btnStartSimulation.grid(column=0, row=0)
         #-----------------------------------------------------------
 
     #LOAD MESH FUNCTIONS -------------------------------------------
@@ -60,6 +71,23 @@ class Root(Tk):
 
     #USER INPUT FOR AUTOMATE DATA ----------------------------------
     #---------------------------------------------------------------
+    #SHOW MESH AND TESTS MESH FUNCTIONS ----------------------------
+    def show_mesh(self):
+        try :
+            meshToShow = tm.load(self.mesh)
+            meshToShow.show()
+        except IOError:
+            self.popupmsg("Error : Mesh file not found !")
+        
+    #---------------------------------------------------------------
+
+
+    #START SIMULATION ----------------------------------------------
+    def start_simulation(self):
+        self.error_catch()
+        simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+        simulation.make_simulation()
+    #---------------------------------------------------------------
 
     #TESTS AND ERRORS USER -----------------------------------------
     def popupmsg(self,msg):
@@ -82,7 +110,7 @@ class Root(Tk):
             self.popupmsg("you need to enter a timestep value !")
 
         if(self.mesh == ""): #add error catch on file not found
-            self.popupmsg("Mesh not found")
+            self.popupmsg("Any mesh selected")
 
         if(self.outputName == ""):
             self.popupmsg("you need to enter a output name !")

@@ -71,28 +71,5 @@ my_simulation = sim.Simulation(start_date,
 #------------------GUI-----------------
 #-------------------------------------------
 window = gui.Root()
-
-def start_simulation():
-	#window.error_catch()
-	my_simulationTEST = sim.Simulation(start_date, 
-							end_date, 
-							timestep, 
-							getattr(window,'mesh'),
-							output_name,
-							latitude=latitude,
-							read_data=False,
-							data_path=my_data_file,
-							)
-	my_simulationTEST.make_simulation()
-	print(getattr(window,'mesh'))
-
-def show_mesh():
-	mesh = tm.load(my_posture_file)
-	mesh.show()
-
-btn = Button(window, text="start simualation", bg ="green", command=start_simulation)
-btn.grid(column=0, row=0)
-btn_show = Button(window, text="show mesh", bg ="green", command=show_mesh)
-btn_show.grid(column=1, row=0)
 window.mainloop()
 
