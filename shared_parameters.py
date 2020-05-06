@@ -21,5 +21,5 @@
 
 N = 100000
 hemispherical_random_generator = False
-normalization_factor = 1e-16
+normalization_factor = 1e-6
 threshold = 10e-12

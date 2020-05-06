@@ -65,10 +65,6 @@ def from_polar_to_cartesian(zenith, azimuth):
     y = mt.cos(np.radians(zenith))
     z = - mt.sin(np.radians(zenith))*mt.cos(np.radians(azimuth))
 
-    if(x < sp.threshold): x = 0
-    if(y < sp.threshold): y = 0
-    if(z < sp.threshold): z = 0
-
     return x, y, z
     
 
@@ -146,7 +142,6 @@ def uniform_points_hemisphere(N):
             z = - mt.sin(theta)*mt.cos(phi)
     
             res.append(np.array([x, y, z]))
-            res_theta.append(mt.sin(theta))
             n_c += 1
     
     return np.array(res[:N])
