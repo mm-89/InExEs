@@ -73,7 +73,7 @@ my_simulation = sim.Simulation(start_date,
 window = gui.Root()
 
 def start_simulation():
-	window.error_catch()
+	#window.error_catch()
 	my_simulationTEST = sim.Simulation(start_date, 
 							end_date, 
 							timestep, 

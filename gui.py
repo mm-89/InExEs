@@ -87,10 +87,20 @@ class Root(Tk):
         if(self.outputName == ""):
             self.popupmsg("you need to enter a output name !")
 
-        if(self.readData == True and self.dataPath == ""): #add error catch on file not found
-            self.popupmsg("You choose to use a data file, but no file found !")
+        if(self.readData == True and self.dataPath == ""):
+            self.popupmsg("You choose to use a data file, but no file selected !")
 
-        if(self.readData == False and self.latitude == ""): #add error catch on file not found
+        if(self.readData == False and self.latitude == ""):
             self.popupmsg("You choose to generate data automatically, but no latitude value found !")
+        
+        try :
+            file = open(self.dataPath,'r')
+        except IOError:
+            self.popupmsg("Error : Data file not found !")
+        try :
+            file = open(self.mesh,'r')
+        except IOError:
+            self.popupmsg("Error : Mesh file not found !")
+
 
 
