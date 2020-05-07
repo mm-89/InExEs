@@ -15,18 +15,57 @@ class Root(Tk):
 
 
         # FRAMES ---------------------------------------------------
+        self.meshFrame = LabelFrame(self, text = "Load a mesh")
+        self.meshFrame.grid(column = 0, row = 0)
+
+        self.startFrame = LabelFrame(self, text = "Start simulation")
+        self.startFrame.grid(column = 0, row = 7)
+
+        self.dataFrame = LabelFrame(self, text = "Simulation Data")
+        self.dataFrame.grid(column = 0, row = 2)
+
+        self.dateFrame = LabelFrame(self, text = "Date and Timestep")
+        self.dateFrame.grid(column = 0, row = 3)
         # ----------------------------------------------------------
 
 
         # WIDGET CREATION ------------------------------------------
-        self.labelFrame = ttk.LabelFrame(self, text = "Open a file")
-        self.labelFrame.grid(column = 0, row = 2)
+        #Button to show mesh in new window
+        self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
 
-        btnShow = Button(self, text="show mesh", bg ="green", command=self.show_mesh)
-        btnStartSimulation = Button(self, text="start simualation", bg ="green", command=self.start_simulation)
+        #Button to start simulation 
+        self.btnStartSimulation = Button(self.startFrame, text="start simualation", bg ="green", command=self.start_simulation)
 
-        
+        #User input for mesh path
+        self.meshName = Entry(self.meshFrame, text = "", bg ="white", width = 20)
+
+        #User input for mesh path
+        self.dataName = Entry(self.dataFrame, text = "", bg ="white", width = 20)
+
+        #User input for start date
+        self.startDateLabel = Label(self.dateFrame, text = "Start date")
+        self.endDateLabel = Label(self.dateFrame, text = "End date")
         # ----------------------------------------------------------
+
+        # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
+        self.load_mesh()
+        self.load_data()
+        #Date picker for start date
+        self.start_date_picker(r = 4, col = 2)
+        self.end_date_picker(r = 5, col = 2)
+        #Button to show mesh in new window
+        self.btnShow.grid(column=1, row=0)
+        #Button to start simulation 
+        self.btnStartSimulation.grid(column=1, row=7)
+        #User input for mesh path
+        self.meshName.grid(column = 2, row = 2)
+        #User input for mesh path
+        self.dataName.grid(column = 2, row = 3)
+
+        #User input for start date
+        self.startDateLabel.grid(column = 1, row = 4)
+        self.endDateLabel.grid(column = 1, row = 5)
+        #-----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
         self.startDate = '05/01/2009 00:01:00'
@@ -37,33 +76,127 @@ class Root(Tk):
         self.latitude = 40.
         self.readData = True
         self.dataPath = "input/irradiance_2009.csv"
-        #-----------------------------------------------------------
 
-        # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
-        self.load_mesh()
-        #Button to show mesh in new window
-        btnShow.grid(column=1, row=0)
-        #Button to start simulation 
-        btnStartSimulation.grid(column=0, row=0)
+        #SPECIAL PARAMETERS :
+        self.colors = []
+        self.preciseTimestep = ''
         #-----------------------------------------------------------
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
-        self.btnMeshLoad = ttk.Button(self.labelFrame, text="browse a file", command = self.fileDialog)
+        self.btnMeshLoad = Button(self.meshFrame, text="select a mesh", command = self.file_dialog_mesh)
         self.btnMeshLoad.grid(column = 1, row = 2)
 
-    def fileDialog(self):
+    def file_dialog_mesh(self):
         self.fileName = filedialog.askopenfilename(initialdir = "/", title = "select a mesh")
-        self.meshName = ttk.Label(self.labelFrame, text = "")
-        self.meshName.grid(column = 2, row = 2)
-        self.meshName.configure(text = self.fileName)
+        self.meshName.insert(12, self.fileName)
         self.mesh = self.fileName
     #---------------------------------------------------------------
 
     #LOAD DATA FUNCTIONS -------------------------------------------
+    def load_data(self):
+        self.btnDataLoad = Button(self.dataFrame, text="select a data file", command = self.file_dialog_data)
+        self.btnDataLoad.grid(column = 1, row = 3)
+
+    def file_dialog_data(self):
+        self.fileNameData = filedialog.askopenfilename(initialdir = "/", title = "select a data file")
+        self.dataName.insert(12, self.fileNameData)
+        self.dataPath = self.fileNameData
     #---------------------------------------------------------------
 
     #USER INPUT DATE -----------------------------------------------
+    def start_date_picker(self, r, col):
+        #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC START
+        self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_1SDay = Label(self.dateFrame, text='/')
+        self.entry_2SDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_2SDay = Label(self.dateFrame, text='/')
+        self.entry_3SDay = Entry(self.dateFrame, width=4, bg = "white")
+
+        self.entry_4SDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_4SDay = Label(self.dateFrame, text=':')
+        self.entry_5SDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_5SDay = Label(self.dateFrame, text=':')
+        self.entry_6SDay = Entry(self.dateFrame, width=2, bg = "white")
+
+        self.entry_1SDay.grid(column = col, row = r)
+        self.label_1SDay.grid(column = col+1, row = r)
+        self.entry_2SDay.grid(column = col+2, row = r)
+        self.label_2SDay.grid(column = col+3, row = r)
+        self.entry_3SDay.grid(column = col+4, row = r)
+
+        self.entry_4SDay.grid(column = col+5, row = r)
+        self.label_4SDay.grid(column = col+6, row = r)
+        self.entry_5SDay.grid(column = col+7, row = r)
+        self.label_5SDay.grid(column = col+8, row = r)
+        self.entry_6SDay.grid(column = col+9, row = r)
+
+        self.entries = [self.entry_1SDay, self.entry_2SDay, self.entry_3SDay, self.entry_4SDay, self.entry_5SDay, self.entry_6SDay]
+
+        self.entry_1SDay.bind('<KeyRelease>', lambda e: self._check(0, 2))
+        self.entry_2SDay.bind('<KeyRelease>', lambda e: self._check(1, 2))
+        self.entry_3SDay.bind('<KeyRelease>', lambda e: self._check(2, 4))
+        self.entry_4SDay.bind('<KeyRelease>', lambda e: self._check(3, 2))
+        self.entry_5SDay.bind('<KeyRelease>', lambda e: self._check(4, 2))
+        self.entry_6SDay.bind('<KeyRelease>', lambda e: self._check(5, 2))
+
+
+    def end_date_picker(self, r, col):
+        #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC END
+        self.entry_1EDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_1EDay = Label(self.dateFrame, text='/')
+        self.entry_2EDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_2EDay = Label(self.dateFrame, text='/')
+        self.entry_3EDay = Entry(self.dateFrame, width=4, bg = "white")
+
+        self.entry_4EDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_4EDay = Label(self.dateFrame, text=':')
+        self.entry_5EDay = Entry(self.dateFrame, width=2, bg = "white")
+        self.label_5EDay = Label(self.dateFrame, text=':')
+        self.entry_6EDay = Entry(self.dateFrame, width=2, bg = "white")
+
+        self.entry_1EDay.grid(column = col, row = r)
+        self.label_1EDay.grid(column = col+1, row = r)
+        self.entry_2EDay.grid(column = col+2, row = r)
+        self.label_2EDay.grid(column = col+3, row = r)
+        self.entry_3EDay.grid(column = col+4, row = r)
+
+        self.entry_4EDay.grid(column = col+5, row = r)
+        self.label_4EDay.grid(column = col+6, row = r)
+        self.entry_5EDay.grid(column = col+7, row = r)
+        self.label_5EDay.grid(column = col+8, row = r)
+        self.entry_6EDay.grid(column = col+9, row = r)
+
+        self.entries2 = [self.entry_1EDay, self.entry_2EDay, self.entry_3EDay, self.entry_4EDay, self.entry_5EDay, self.entry_6EDay]
+
+        self.entry_1EDay.bind('<KeyRelease>', lambda e: self._check(0, 2))
+        self.entry_2EDay.bind('<KeyRelease>', lambda e: self._check(1, 2))
+        self.entry_3EDay.bind('<KeyRelease>', lambda e: self._check(2, 4))
+        self.entry_4EDay.bind('<KeyRelease>', lambda e: self._check(3, 2))
+        self.entry_5EDay.bind('<KeyRelease>', lambda e: self._check(4, 2))
+        self.entry_6EDay.bind('<KeyRelease>', lambda e: self._check(5, 2))
+
+    def _backspace(self, entry):
+        cont = entry.get()
+        entry.delete(0, END)
+        entry.insert(0, cont[:-1])
+
+    def _check(self, index, size):
+        entry = self.entries[index]
+        next_index = index + 1
+        next_entry = self.entries[next_index] if next_index < len(self.entries) else None
+        data = entry.get()
+
+        if len(data) > size or not data.isdigit():
+            self._backspace(entry)
+        if len(data) >= size and next_entry:
+            next_entry.focus()
+
+    def get_start_infos(self):
+        return [e.get() for e in self.entries]
+
+    def get_end_infos(self):
+        return [e.get() for e in self.entries2]
     #---------------------------------------------------------------
 
     #USER INPUT FOR OUTPUT -----------------------------------------
@@ -73,12 +206,34 @@ class Root(Tk):
     #---------------------------------------------------------------
     #SHOW MESH AND TESTS MESH FUNCTIONS ----------------------------
     def show_mesh(self):
+        if(self.mesh == ""):
+            self.popupmsg("Error : Mesh file not found !")
         try :
             meshToShow = tm.load(self.mesh)
             meshToShow.show()
         except IOError:
             self.popupmsg("Error : Mesh file not found !")
         
+    
+    def reference_frame(self):
+        if(self.mesh == ""):
+            self.popupmsg("Error : Mesh file not found !")
+        try :
+            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+            simulation.export_reference_frame()
+        except IOError:
+            self.popupmsg("An error occured ! Please verify simulation parameters...")
+
+    def show_mesh_in_timestep(self):
+        if(self.mesh == ""):
+            self.popupmsg("Error : Mesh file not found !")
+        try :
+            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+            simulation.show_one_timestep(self.preciseTimestep)
+        except IOError:
+            self.popupmsg("An error occured ! Please verify simulation parameters...")        
+
+
     #---------------------------------------------------------------
 
 
