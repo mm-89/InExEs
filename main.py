@@ -44,7 +44,7 @@ end_date    = '05/02/2009 00:01:00'
 
 #-------------------------------------------------------------------------
 
-my_simulation = sim.Simulation(start_date, 
+"""my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
 								my_posture_file,
@@ -53,7 +53,7 @@ my_simulation = sim.Simulation(start_date,
 								read_data=True,
 								data_path=my_data_file,
 								)
-
+"""
 #my_simulation.set_start_angle(start_angle_azimuth)
 
 #to make sure how your mesh is orientated in the space----
