@@ -18,14 +18,17 @@ class Root(Tk):
         self.meshFrame = LabelFrame(self, text = "Load a mesh")
         self.meshFrame.grid(column = 0, row = 0)
 
-        self.startFrame = LabelFrame(self, text = "Start simulation")
-        self.startFrame.grid(column = 0, row = 7)
-
         self.dataFrame = LabelFrame(self, text = "Simulation Data")
-        self.dataFrame.grid(column = 0, row = 2)
+        self.dataFrame.grid(column = 0, row = 1)
 
         self.dateFrame = LabelFrame(self, text = "Date and Timestep")
-        self.dateFrame.grid(column = 0, row = 3)
+        self.dateFrame.grid(column = 0, row = 2)
+
+        self.outputFrame = LabelFrame(self, text = "Output")
+        self.outputFrame.grid(column = 0, row = 3)
+
+        self.startFrame = LabelFrame(self, text = "Start simulation")
+        self.startFrame.grid(column = 0, row = 7)
         # ----------------------------------------------------------
 
 
@@ -49,6 +52,11 @@ class Root(Tk):
         #User input for timestep
         self.timestepLabel = Label(self.dateFrame,text='Timestep : ')
         self.timestepValue = Entry(self.dateFrame,bg = "white", width = 2)
+        self.timestepValue.bind('<KeyRelease>', lambda e: self._check_timestep())
+
+        #User input for output name
+        self.ouputLabel = Label(self.outputFrame,text='Output name : ')
+        self.ouputValue = Entry(self.outputFrame,bg = "white", width = 20)
         # ----------------------------------------------------------
 
         # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
@@ -74,6 +82,10 @@ class Root(Tk):
         #User input for timestep
         self.timestepLabel.grid(column = 1, row = 6)
         self.timestepValue.grid(column = 2, row = 6)
+
+        #User input for output value
+        self.ouputLabel.grid(column = 1, row = 1)
+        self.ouputValue.grid(column = 2, row = 1)
         #-----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
@@ -211,6 +223,13 @@ class Root(Tk):
             self._backspace(entry)
         if len(data) >= size and next_entry:
             next_entry.focus()
+
+    def _check_timestep(self):
+        entry = self.timestepValue
+        data = entry.get()
+
+        if len(data) > 2 or not data.isdigit():
+            self._backspace(entry)
 
     def get_start_infos(self):
         return [e.get() for e in self.entries]
