@@ -89,14 +89,14 @@ class Root(Tk):
         #-----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
-        self.startDate = '05/01/2009 00:01:00'
-        self.endDate = '05/02/2009 00:01:00'
+        self.startDate = ''
+        self.endDate = ''
         self.timestep = 0.
         self.mesh = ""
-        self.outputName = "face_may_with"
+        self.outputName = ""
         self.latitude = 40.
         self.readData = True
-        self.dataPath = "input/irradiance_2009.csv"
+        self.dataPath = ""
 
         #SPECIAL PARAMETERS :
         self.colors = []
@@ -109,9 +109,13 @@ class Root(Tk):
 
     def test(self):
         self.get_dates_infos()
+        self.get_output_name()
+        print("mesh : " , self.mesh)
+        print("data file : ", self.dataPath)
         print("start infos : " , self.startDate)
         print("end infos : " , self.endDate)
         print("timestep infos : " , self.timestep)
+        print("output name : " , self.outputName)
         print(type(self.timestep))
 
     #LOAD MESH FUNCTIONS -------------------------------------------
@@ -249,6 +253,8 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #USER INPUT FOR OUTPUT -----------------------------------------
+    def get_output_name(self):
+        self.outputName = self.ouputValue.get()
     #---------------------------------------------------------------
 
     #USER INPUT FOR AUTOMATE DATA ----------------------------------
@@ -288,6 +294,8 @@ class Root(Tk):
 
     #START SIMULATION ----------------------------------------------
     def start_simulation(self):
+        self.get_dates_infos()
+        self.get_output_name()
         self.error_catch()
         simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
         simulation.make_simulation()
