@@ -44,7 +44,11 @@ class Root(Tk):
 
         #User input for start date
         self.startDateLabel = Label(self.dateFrame, text = "Start date")
+        #User input for end date
         self.endDateLabel = Label(self.dateFrame, text = "End date")
+        #User input for timestep
+        self.timestepLabel = Label(self.dateFrame,text='Timestep : ')
+        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 2)
         # ----------------------------------------------------------
 
         # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
@@ -65,7 +69,11 @@ class Root(Tk):
 
         #User input for start date
         self.startDateLabel.grid(column = 1, row = 4)
+        #User input for start date
         self.endDateLabel.grid(column = 1, row = 5)
+        #User input for timestep
+        self.timestepLabel.grid(column = 1, row = 6)
+        self.timestepValue.grid(column = 2, row = 6)
         #-----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
