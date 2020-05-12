@@ -63,29 +63,34 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 		beta = []
 
 		# N rays on upper hemisphere
-		ray_diff_hem, theta = mrd.random_points_hemisphere(sp.N)
+		ray_diff_hem, theta_diff = mrd.random_points_hemisphere(sp.N, True)
 
 		# N rays on lower hemisphere
-		ray_refl_hem = ray_diff_hem # just to initialize
-		for i in range(len(ray_diff_hem)):
-			ray_refl_hem[i, 1] = - ray_refl_hem[i, 1]
+		ray_refl_hem, theta_refl = mrd.random_points_hemisphere(sp.N, False)
 
 		for counter, item in enumerate(faces_normals_minimized):
+
+			angle_normals = mrd.from_cartesian_to_polar(face_normals[counter])
 
 			# set current ray origin lenght to N
 			ray_origin = [item for i in range(sp.N)]
 
 			# compute beta for diffuse part
 			# check the intersecptions
+
+			#FROM TRIMESH:
+			#check if a list of rays hits the surface.
+			#Did each ray hit the surface
 			res_diff = file.ray.intersects_any(ray_origins=ray_origin, 
 												ray_directions=ray_diff_hem)
-			
+
 			integer_count_diff = 0
 			for j, i in enumerate(res_diff):
 				if not i:
-					integer_count_diff += theta[j]
-			
-			integer_tot_diff = 2*mt.pi*integer_count_diff/sp.N
+					integer_count_diff += mt.cos(angle_normals[0] - theta_diff[j])*mt.sin(theta_diff[j])
+
+
+			integer_tot_diff = (mt.pi*mt.pi)*integer_count_diff/sp.N
 
 			# compute beta for reflect part
 			# check the intersecptions
@@ -95,9 +100,9 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 			integer_count_refl = 0
 			for j, i in enumerate(res_refl):
 				if not i:
-					integer_count_refl += theta[j]
+					integer_count_refl +=  mt.cos(angle_normals[0] - theta_refl[j])*mt.sin(theta_refl[j])
 								
-			integer_tot_refl = 2*mt.pi*integer_count_refl/sp.N
+			integer_tot_refl = (mt.pi*mt.pi)*integer_count_refl/sp.N
 
 
 			beta.append(np.array([integer_tot_diff, integer_tot_refl]))
