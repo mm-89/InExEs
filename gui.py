@@ -91,7 +91,7 @@ class Root(Tk):
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
         self.startDate = '05/01/2009 00:01:00'
         self.endDate = '05/02/2009 00:01:00'
-        self.timestep = 60.
+        self.timestep = 0.
         self.mesh = ""
         self.outputName = "face_may_with"
         self.latitude = 40.
@@ -102,6 +102,17 @@ class Root(Tk):
         self.colors = []
         self.preciseTimestep = ''
         #-----------------------------------------------------------
+
+        #TEST BUTTON FUNCTIONS !
+        self.tBtn = Button(self, text="test function", command=self.test)
+        self.tBtn.grid(column=0, row=8)
+
+    def test(self):
+        self.get_dates_infos()
+        print("start infos : " , self.startDate)
+        print("end infos : " , self.endDate)
+        print("timestep infos : " , self.timestep)
+        print(type(self.timestep))
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -231,11 +242,10 @@ class Root(Tk):
         if len(data) > 2 or not data.isdigit():
             self._backspace(entry)
 
-    def get_start_infos(self):
-        return [e.get() for e in self.entries]
-
-    def get_end_infos(self):
-        return [e.get() for e in self.entries2]
+    def get_dates_infos(self):
+        self.startDate = self.entries[0].get() + '/' + self.entries[1].get() + '/' + self.entries[2].get() + ' ' + self.entries[3].get() + ':' + self.entries[4].get() + ':' + self.entries[5].get()
+        self.endDate = self.entries2[0].get() + '/' + self.entries2[1].get() + '/' + self.entries2[2].get() + ' ' + self.entries2[3].get() + ':' + self.entries2[4].get() + ':' + self.entries2[5].get()
+        self.timestep = float(self.timestepValue.get())
     #---------------------------------------------------------------
 
     #USER INPUT FOR OUTPUT -----------------------------------------
@@ -300,10 +310,10 @@ class Root(Tk):
         if(start > end) :
             self.popupmsg("start date is posterior to end date !")
 
-        if(self.timestep == ""):
+        if(self.timestep == 0.):
             self.popupmsg("you need to enter a timestep value !")
 
-        if(self.mesh == ""): #add error catch on file not found
+        if(self.mesh == ""):
             self.popupmsg("Any mesh selected")
 
         if(self.outputName == ""):
