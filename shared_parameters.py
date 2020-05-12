@@ -19,7 +19,5 @@
 #to set zero a value under the value of
 #threshold itself
 
-N = 100000
-hemispherical_random_generator = False
+N = 50000
 normalization_factor = 1e-6
-threshold = 10e-12
