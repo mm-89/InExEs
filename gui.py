@@ -52,6 +52,7 @@ class Root(Tk):
         self.load_data()
         #Date picker for start date
         self.start_date_picker(r = 4, col = 2)
+        #Date picker for end date
         self.end_date_picker(r = 5, col = 2)
         #Button to show mesh in new window
         self.btnShow.grid(column=1, row=0)
@@ -108,15 +109,15 @@ class Root(Tk):
     def start_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC START
         self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1SDay = Label(self.dateFrame, text='/')
+        self.label_1SDay = Label(self.dateFrame, text='DD/')
         self.entry_2SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2SDay = Label(self.dateFrame, text='/')
+        self.label_2SDay = Label(self.dateFrame, text='MM/')
         self.entry_3SDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_4SDay = Label(self.dateFrame, text=':')
+        self.label_4SDay = Label(self.dateFrame, text='H:')
         self.entry_5SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_5SDay = Label(self.dateFrame, text=':')
+        self.label_5SDay = Label(self.dateFrame, text='M:')
         self.entry_6SDay = Entry(self.dateFrame, width=2, bg = "white")
 
         self.entry_1SDay.grid(column = col, row = r)
@@ -144,15 +145,15 @@ class Root(Tk):
     def end_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC END
         self.entry_1EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1EDay = Label(self.dateFrame, text='/')
+        self.label_1EDay = Label(self.dateFrame, text='DD/')
         self.entry_2EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2EDay = Label(self.dateFrame, text='/')
+        self.label_2EDay = Label(self.dateFrame, text='MM/')
         self.entry_3EDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_4EDay = Label(self.dateFrame, text=':')
+        self.label_4EDay = Label(self.dateFrame, text='H:')
         self.entry_5EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_5EDay = Label(self.dateFrame, text=':')
+        self.label_5EDay = Label(self.dateFrame, text='M:')
         self.entry_6EDay = Entry(self.dateFrame, width=2, bg = "white")
 
         self.entry_1EDay.grid(column = col, row = r)
@@ -169,12 +170,12 @@ class Root(Tk):
 
         self.entries2 = [self.entry_1EDay, self.entry_2EDay, self.entry_3EDay, self.entry_4EDay, self.entry_5EDay, self.entry_6EDay]
 
-        self.entry_1EDay.bind('<KeyRelease>', lambda e: self._check(0, 2))
-        self.entry_2EDay.bind('<KeyRelease>', lambda e: self._check(1, 2))
-        self.entry_3EDay.bind('<KeyRelease>', lambda e: self._check(2, 4))
-        self.entry_4EDay.bind('<KeyRelease>', lambda e: self._check(3, 2))
-        self.entry_5EDay.bind('<KeyRelease>', lambda e: self._check(4, 2))
-        self.entry_6EDay.bind('<KeyRelease>', lambda e: self._check(5, 2))
+        self.entry_1EDay.bind('<KeyRelease>', lambda e: self._check2(0, 2))
+        self.entry_2EDay.bind('<KeyRelease>', lambda e: self._check2(1, 2))
+        self.entry_3EDay.bind('<KeyRelease>', lambda e: self._check2(2, 4))
+        self.entry_4EDay.bind('<KeyRelease>', lambda e: self._check2(3, 2))
+        self.entry_5EDay.bind('<KeyRelease>', lambda e: self._check2(4, 2))
+        self.entry_6EDay.bind('<KeyRelease>', lambda e: self._check2(5, 2))
 
     def _backspace(self, entry):
         cont = entry.get()
@@ -185,6 +186,17 @@ class Root(Tk):
         entry = self.entries[index]
         next_index = index + 1
         next_entry = self.entries[next_index] if next_index < len(self.entries) else None
+        data = entry.get()
+
+        if len(data) > size or not data.isdigit():
+            self._backspace(entry)
+        if len(data) >= size and next_entry:
+            next_entry.focus()
+
+    def _check2(self, index, size):
+        entry = self.entries2[index]
+        next_index = index + 1
+        next_entry = self.entries2[next_index] if next_index < len(self.entries2) else None
         data = entry.get()
 
         if len(data) > size or not data.isdigit():
