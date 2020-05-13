@@ -97,6 +97,11 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 
 			integer_tot_diff = (mt.pi*mt.pi)*sum(integer_count_diff)/sp.N
 
+			if(integer_tot_diff != 0.):
+				perc_err_diff = 100*((var_diff)**0.5)/integer_tot_diff
+			else:
+				perc_err_diff = 0.
+
 			# compute beta for reflect part
 			# check the intersecptions
 			res_refl = file.ray.intersects_any(ray_origins=ray_origin, 
@@ -119,12 +124,19 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 								
 			integer_tot_refl = (mt.pi*mt.pi)*sum(integer_count_refl)/sp.N
 
+			if(integer_tot_refl != 0.):
+				perc_err_refl = 100*((var_refl)**0.5)/integer_tot_refl
+			else:
+				perc_err_refl = 0
+
 			#print diff and refl ratio
 			#print diff and refl standard deviations
 			beta.append(np.array([integer_tot_diff, 
 								integer_tot_refl, 
 								(var_diff)**0.5,
-								(var_refl)**0.5]))
+								(var_refl)**0.5,
+								perc_err_diff,
+								perc_err_refl]))
 
 			print("Computing beta ... ", 
 				round(counter/len(faces_normals_minimized)*100,1), 
