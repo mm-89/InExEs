@@ -170,6 +170,7 @@ def random_points_hemisphere(N, diff):
 	"""
 	res = []
 	res_theta = []
+	res_phi = []
 
 	for i in range(N):
 
@@ -185,5 +186,6 @@ def random_points_hemisphere(N, diff):
 
 		res.append(np.array([x, y, z]))
 		res_theta.append(theta)
+		res_phi.append(phi)
 
-	return np.array(res), res_theta
+	return np.array(res), res_theta, res_phi

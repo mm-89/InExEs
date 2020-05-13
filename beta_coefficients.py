@@ -63,10 +63,10 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 		beta = []
 
 		# N rays on upper hemisphere
-		ray_diff_hem, theta_diff = mrd.random_points_hemisphere(sp.N, True)
+		ray_diff_hem, theta_diff, phi_diff = mrd.random_points_hemisphere(sp.N, True)
 
 		# N rays on lower hemisphere
-		ray_refl_hem, theta_refl = mrd.random_points_hemisphere(sp.N, False)
+		ray_refl_hem, theta_refl, phi_refl = mrd.random_points_hemisphere(sp.N, False)
 
 		for counter, item in enumerate(faces_normals_minimized):
 
@@ -83,8 +83,9 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 			integer_count_diff = []
 			for j, i in enumerate(res_diff):
 				if not i:
-					integer_count_diff.append(mt.cos(angle_normals[0] - \
-							theta_diff[j])*mt.sin(theta_diff[j]))
+					integer_count_diff.append( (mt.sin(theta_diff[j])*mt.cos(phi_diff[j])*mt.sin(angle_normals[0])*mt.cos(angle_normals[1]) + \
+									mt.sin(theta_diff[j])*mt.sin(phi_diff[j])*mt.sin(angle_normals[0])*mt.sin(angle_normals[1]) + \
+									mt.cos(theta_diff[j])*mt.cos(angle_normals[0]))*mt.sin(theta_diff[j]) )
 
 			current_mean_value_diff = sum(integer_count_diff)/sp.N
 
@@ -110,8 +111,9 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 			integer_count_refl = []
 			for j, i in enumerate(res_refl):
 				if not i:
-					integer_count_refl.append(mt.cos(angle_normals[0] - \
-						theta_refl[j])*mt.sin(theta_refl[j]))
+					integer_count_refl.append((mt.sin(theta_refl[j])*mt.cos(phi_refl[j])*mt.sin(angle_normals[0])*mt.cos(angle_normals[1]) + \
+									mt.sin(theta_refl[j])*mt.sin(phi_refl[j])*mt.sin(angle_normals[0])*mt.sin(angle_normals[1]) + \
+									mt.cos(theta_refl[j])*mt.cos(angle_normals[0]))*mt.sin(theta_refl[j]))
 
 			current_mean_value_refl = sum(integer_count_refl)/sp.N
 
