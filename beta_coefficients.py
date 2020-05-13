@@ -77,36 +77,54 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 
 			# compute beta for diffuse part
 			# check the intersecptions
-
-			#FROM TRIMESH:
-			#check if a list of rays hits the surface.
-			#Did each ray hit the surface
 			res_diff = file.ray.intersects_any(ray_origins=ray_origin, 
 												ray_directions=ray_diff_hem)
 
-			integer_count_diff = 0
+			integer_count_diff = []
 			for j, i in enumerate(res_diff):
 				if not i:
-					integer_count_diff += mt.cos(angle_normals[0] - theta_diff[j])*mt.sin(theta_diff[j])
+					integer_count_diff.append(mt.cos(angle_normals[0] - \
+							theta_diff[j])*mt.sin(theta_diff[j]))
 
+			current_mean_value_diff = sum(integer_count_diff)/sp.N
 
-			integer_tot_diff = (mt.pi*mt.pi)*integer_count_diff/sp.N
+			#compute variance - diff
+			acc_var_diff = 0
+			for i in integer_count_diff:
+				acc_var_diff += (i - current_mean_value_diff)**2
+
+			var_diff = (acc_var_diff/sp.N**2)*(mt.pi*mt.pi)**2
+
+			integer_tot_diff = (mt.pi*mt.pi)*sum(integer_count_diff)/sp.N
 
 			# compute beta for reflect part
 			# check the intersecptions
 			res_refl = file.ray.intersects_any(ray_origins=ray_origin, 
 												ray_directions=ray_refl_hem)
 			
-			integer_count_refl = 0
+			integer_count_refl = []
 			for j, i in enumerate(res_refl):
 				if not i:
-					integer_count_refl +=  mt.cos(angle_normals[0] - theta_refl[j])*mt.sin(theta_refl[j])
+					integer_count_refl.append(mt.cos(angle_normals[0] - \
+						theta_refl[j])*mt.sin(theta_refl[j]))
+
+			current_mean_value_refl = sum(integer_count_refl)/sp.N
+
+			#compute variance - refl
+			acc_var_refl = 0
+			for i in integer_count_refl:
+				acc_var_refl += (i - current_mean_value_refl)**2
+
+			var_refl = (acc_var_refl/sp.N**2)*(mt.pi*mt.pi)**2
 								
-			integer_tot_refl = (mt.pi*mt.pi)*integer_count_refl/sp.N
+			integer_tot_refl = (mt.pi*mt.pi)*sum(integer_count_refl)/sp.N
 
-
-			beta.append(np.array([integer_tot_diff, integer_tot_refl]))
-
+			#print diff and refl ratio
+			#print diff and refl standard deviations
+			beta.append(np.array([integer_tot_diff, 
+								integer_tot_refl, 
+								(var_diff)**0.5,
+								(var_refl)**0.5]))
 
 			print("Computing beta ... ", 
 				round(counter/len(faces_normals_minimized)*100,1), 
@@ -116,28 +134,3 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 		return np.loadtxt(fileName)
 
 	return np.array(res), res_theta
-
-	def solid_angle_factor(angle):
-		"""
-		Fraction of upper hemisphere
-		visible from a surface
-		of normal inclined of an
-		angle "angle" compare 
-		to the horizon.
-
-		Parameters:
-		------------
-		angle : (, 1)   float
-			angle between the zenith
-			vector (horizon) and the 
-			normal of current plane
-
-		Returns:
-		-----------
-		factor : (, 1)   float
-			fraction of visible
-			hemisphere from 0 
-			to 1
-		"""
-		factor = (1 + mt.cos(angle))/2
-		return factor
