@@ -4,6 +4,9 @@ from tkinter import filedialog
 import simulation as sim
 from datetime import datetime as dt
 import trimesh as tm
+import numpy as np
+import input_data_handle as idh
+import csv
 
 
 class Root(Tk):
@@ -108,15 +111,7 @@ class Root(Tk):
         self.tBtn.grid(column=0, row=8)
 
     def test(self):
-        self.get_dates_infos()
-        self.get_output_name()
-        print("mesh : " , self.mesh)
-        print("data file : ", self.dataPath)
-        print("start infos : " , self.startDate)
-        print("end infos : " , self.endDate)
-        print("timestep infos : " , self.timestep)
-        print("output name : " , self.outputName)
-        print(type(self.timestep))
+        self.insert_date_from_data()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -138,6 +133,41 @@ class Root(Tk):
         self.fileNameData = filedialog.askopenfilename(initialdir = "/", title = "select a data file")
         self.dataName.insert(12, self.fileNameData)
         self.dataPath = self.fileNameData
+
+    def insert_date_from_data(self):
+        allDates = [[]]
+        try:
+
+            with open(self.dataPath, mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file)
+                line_count = 0
+                for row in csv_reader:
+                    if line_count == 0:
+                        line_count += 1
+                    date = [row["jour"],row["mois"],row["anne"],row["heure"],row["min"],row["sec"]]
+                    allDates.append(date)
+                    line_count += 1
+
+                print("first date is : ", allDates[1])
+                print("last date is : ", allDates[-1])
+                #START DATE AUTO INPUT 
+                self.entry_1SDay.insert(12, allDates[1][0])
+                self.entry_2SDay.insert(12, allDates[1][1])
+                self.entry_3SDay.insert(12, allDates[1][2])
+                self.entry_4SDay.insert(12, allDates[1][3])
+                self.entry_5SDay.insert(12, allDates[1][4])
+                self.entry_6SDay.insert(12, allDates[1][5])
+
+                #END DATE AUTO INPUT 
+                self.entry_1EDay.insert(12, allDates[-1][0])
+                self.entry_2EDay.insert(12, allDates[-1][1])
+                self.entry_3EDay.insert(12, allDates[-1][2])
+                self.entry_4EDay.insert(12, allDates[-1][3])
+                self.entry_5EDay.insert(12, allDates[-1][4])
+                self.entry_6EDay.insert(12, allDates[-1][5])
+
+        except IOError:
+            self.popupmsg("An error occured : CSV file not found")
     #---------------------------------------------------------------
 
     #USER INPUT DATE -----------------------------------------------
@@ -259,6 +289,7 @@ class Root(Tk):
 
     #USER INPUT FOR AUTOMATE DATA ----------------------------------
     #---------------------------------------------------------------
+
     #SHOW MESH AND TESTS MESH FUNCTIONS ----------------------------
     def show_mesh(self):
         if(self.mesh == ""):
