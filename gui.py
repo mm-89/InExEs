@@ -133,6 +133,7 @@ class Root(Tk):
         self.fileNameData = filedialog.askopenfilename(initialdir = "/", title = "select a data file")
         self.dataName.insert(12, self.fileNameData)
         self.dataPath = self.fileNameData
+        self.insert_date_from_data()
 
     def insert_date_from_data(self):
         allDates = [[]]
