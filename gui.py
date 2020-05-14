@@ -13,7 +13,7 @@ class Root(Tk):
     def __init__(self):
         super(Root,self).__init__()
         self.title("InExES")
-        self.minsize(640,400)
+        self.minsize(800,400)
         #self.wm_iconbitmap('blabla.ico') get an icon 
 
 
@@ -32,12 +32,18 @@ class Root(Tk):
 
         self.startFrame = LabelFrame(self, text = "Start simulation")
         self.startFrame.grid(column = 0, row = 7)
+
+        self.simInfosFrame = LabelFrame(self, text = "Simulation informations")
+        self.simInfosFrame.grid(column = 2, row = 0)
         # ----------------------------------------------------------
 
 
         # WIDGET CREATION ------------------------------------------
         #Button to show mesh in new window
         self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
+        
+        #Button to show mesh orientation
+        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.reference_frame)
 
         #Button to start simulation 
         self.btnStartSimulation = Button(self.startFrame, text="start simualation", bg ="green", command=self.start_simulation)
@@ -70,11 +76,13 @@ class Root(Tk):
         #Date picker for end date
         self.end_date_picker(r = 5, col = 2)
         #Button to show mesh in new window
-        self.btnShow.grid(column=1, row=0)
+        self.btnShow.grid(column = 1, row = 2)
+        #Button to test mesh orientation
+        self.btnShowOrientation.grid(column = 2, row = 2)
         #Button to start simulation 
         self.btnStartSimulation.grid(column=1, row=7)
         #User input for mesh path
-        self.meshName.grid(column = 2, row = 2)
+        self.meshName.grid(column = 2, row = 1)
         #User input for mesh path
         self.dataName.grid(column = 2, row = 3)
 
@@ -89,6 +97,11 @@ class Root(Tk):
         #User input for output value
         self.ouputLabel.grid(column = 1, row = 1)
         self.ouputValue.grid(column = 2, row = 1)
+
+        #Simulation infos
+        self.descriptionStats = Label(self.simInfosFrame, text="Informations for simulations")
+        self.descriptionStats.grid(column=1,row=1)
+
         #-----------------------------------------------------------
 
         #NECESSARY PARAMETERS FOR SIMULATION -----------------------
@@ -116,7 +129,7 @@ class Root(Tk):
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
         self.btnMeshLoad = Button(self.meshFrame, text="select a mesh", command = self.file_dialog_mesh)
-        self.btnMeshLoad.grid(column = 1, row = 2)
+        self.btnMeshLoad.grid(column = 1, row = 1)
 
     def file_dialog_mesh(self):
         self.fileName = filedialog.askopenfilename(initialdir = "/", title = "select a mesh")
@@ -149,8 +162,6 @@ class Root(Tk):
                     allDates.append(date)
                     line_count += 1
 
-                print("first date is : ", allDates[1])
-                print("last date is : ", allDates[-1])
                 #START DATE AUTO INPUT 
                 self.entry_1SDay.insert(12, allDates[1][0])
                 self.entry_2SDay.insert(12, allDates[1][1])
@@ -280,7 +291,10 @@ class Root(Tk):
     def get_dates_infos(self):
         self.startDate = self.entries[0].get() + '/' + self.entries[1].get() + '/' + self.entries[2].get() + ' ' + self.entries[3].get() + ':' + self.entries[4].get() + ':' + self.entries[5].get()
         self.endDate = self.entries2[0].get() + '/' + self.entries2[1].get() + '/' + self.entries2[2].get() + ' ' + self.entries2[3].get() + ':' + self.entries2[4].get() + ':' + self.entries2[5].get()
-        self.timestep = float(self.timestepValue.get())
+        if(self.timestepValue.get() == ''):
+            self.popupmsg("Missing timestep !")
+        else:
+            self.timestep = float(self.timestepValue.get())
     #---------------------------------------------------------------
 
     #USER INPUT FOR OUTPUT -----------------------------------------
@@ -303,8 +317,7 @@ class Root(Tk):
         
     
     def reference_frame(self):
-        if(self.mesh == ""):
-            self.popupmsg("Error : Mesh file not found !")
+        self.error_catch()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.export_reference_frame()
@@ -312,8 +325,7 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
-        if(self.mesh == ""):
-            self.popupmsg("Error : Mesh file not found !")
+        self.error_catch()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.show_one_timestep(self.preciseTimestep)
@@ -329,8 +341,14 @@ class Root(Tk):
         self.get_dates_infos()
         self.get_output_name()
         self.error_catch()
-        simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
-        simulation.make_simulation()
+        #Simulation informations/statistics :
+        self.infos_frame_creation()
+        try :
+            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+            simulation.make_simulation()
+        except IOError:
+            self.popupmsg("An error occured ! Please verify simulation parameters...")        
+
     #---------------------------------------------------------------
 
     #TESTS AND ERRORS USER -----------------------------------------
@@ -350,7 +368,7 @@ class Root(Tk):
         if(start > end) :
             self.popupmsg("start date is posterior to end date !")
 
-        if(self.timestep == 0.):
+        if(self.timestep == 0. or self.timestep==''):
             self.popupmsg("you need to enter a timestep value !")
 
         if(self.mesh == ""):
@@ -374,5 +392,33 @@ class Root(Tk):
         except IOError:
             self.popupmsg("Error : Mesh file not found !")
 
+
+    def infos_frame_creation(self):
+        tmpMesh = self.mesh.split('/')
+        tmpData = self.dataPath.split('/') 
+        cutMeshName = tmpMesh[-1]
+        cutDataName = tmpData[-1]
+        self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : ")
+        self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : ")
+
+        self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : "+cutMeshName)
+        self.infoNameData = Label(self.simInfosFrame, text="Data file used : "+cutDataName)
+        self.infoStartDate = Label(self.simInfosFrame, text="Start date : "+self.startDate)
+        self.infoEndDate = Label(self.simInfosFrame, text="End date : "+self.endDate)
+        self.infoTimestep = Label(self.simInfosFrame, text="Timestep : "+str(self.timestep))
+        self.infoOutput = Label(self.simInfosFrame, text="Output file : output/"+self.outputName+".csv")
+
+        self.betaLoadingLabel.grid(column=1, row=3)
+        self.betaLoadingLabel.grid(column=1, row=4)
+
+        self.betaLoadingLabel.grid(column=1, row=5)
+        self.betaLoadingLabel.grid(column=1, row=6)
+        self.betaLoadingLabel.grid(column=1, row=7)
+        self.betaLoadingLabel.grid(column=1, row=8)
+        self.betaLoadingLabel.grid(column=1, row=9)
+        self.betaLoadingLabel.grid(column=1, row=10)
+
+    def loading_bars(self):
+        print("loading...")
 
 
