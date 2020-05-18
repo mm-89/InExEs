@@ -12,6 +12,7 @@ import datetime
 import time
 import csv
 import os
+from tqdm import tqdm
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -148,6 +149,9 @@ class Simulation:
 		print("Start simulation...")
 		print("")
 
+		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+		loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
+
 		k = 0
 
 		start = time.time()
@@ -159,8 +163,8 @@ class Simulation:
 
 			while(current_line < self.end_row_data + 1):
 
-				print("Current date of simulation: ", 
-					data_update.strftime("%b %d %Y %H:%M:%S"))
+				#print("Current date of simulation: ", 
+					#data_update.strftime("%b %d %Y %H:%M:%S"))
 
 				data_output_dir = 0
 				data_output_dif = 0
@@ -170,7 +174,10 @@ class Simulation:
 				rad_dif = 0
 				rad_ref = 0 
 				
-				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+				#print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+				loadingBarSim.set_description("Simulating...".format(round(k/self.total_timestep_of_simulation*100,1)))
+				loadingBarSim.update(1)
 
 				#compute source rays direction
 				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
@@ -220,6 +227,8 @@ class Simulation:
 				current_line += 1
 
 				k += 1
+			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+			loadingBarSim.close()
 
 		else:
 
@@ -240,6 +249,7 @@ class Simulation:
 				rad_dir = 0
 				
 				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+
 
 				#compute source rays direction
 				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
