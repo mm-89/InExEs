@@ -13,6 +13,9 @@ import time
 import csv
 import os
 from tqdm import tqdm
+
+from tkinter import *
+from tkinter import ttk
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -150,7 +153,8 @@ class Simulation:
 		print("")
 
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-		loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
+		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
+		#self.sim_process_bar()
 
 		k = 0
 
@@ -163,8 +167,8 @@ class Simulation:
 
 			while(current_line < self.end_row_data + 1):
 
-				#print("Current date of simulation: ", 
-					#data_update.strftime("%b %d %Y %H:%M:%S"))
+				print("Current date of simulation: ", 
+					data_update.strftime("%b %d %Y %H:%M:%S"))
 
 				data_output_dir = 0
 				data_output_dif = 0
@@ -174,10 +178,11 @@ class Simulation:
 				rad_dif = 0
 				rad_ref = 0 
 				
-				#print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-				loadingBarSim.set_description("Simulating...".format(round(k/self.total_timestep_of_simulation*100,1)))
-				loadingBarSim.update(1)
+				#loadingBarSim.set_description("Simulating...".format(k))
+				#loadingBarSim.update(1)
+				#self.update_value_process_bar(k)
 
 				#compute source rays direction
 				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
@@ -228,7 +233,8 @@ class Simulation:
 
 				k += 1
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-			loadingBarSim.close()
+			#loadingBarSim.close()
+			#self.popup_process.destroy()
 
 		else:
 
@@ -444,3 +450,17 @@ class Simulation:
 		for i, item in enumerate(vec_id):
 			new_area_vector[i] = self.areas[item]
 		self.areas = new_area_vector
+
+	#GUI PROGRESS BAR :
+	def sim_process_bar(self):
+		self.popup_process = Tk()
+		self.popup_process.wm_title("Simulation process...")
+		self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
+		self.progressBar['maximum'] = self.total_timestep_of_simulation
+		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
+		self.progressBar.grid(column = 1, row = 1, pady = 10)
+		self.stopBtn.grid(column = 1, row = 2)
+
+	def update_value_process_bar(self, value):
+		self.progressBar['value'] = value
+		self.progressBar.update()

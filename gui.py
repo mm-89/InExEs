@@ -7,7 +7,7 @@ import trimesh as tm
 import numpy as np
 import input_data_handle as idh
 import csv
-
+import os
 
 class Root(Tk):
     def __init__(self):
@@ -342,7 +342,8 @@ class Root(Tk):
         self.get_output_name()
         self.error_catch()
         #Simulation informations/statistics :
-        self.infos_frame_creation()
+        #self.infos_frame_creation()
+        #self.termf_display()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.make_simulation()
@@ -420,5 +421,14 @@ class Root(Tk):
 
     def loading_bars(self):
         print("loading...")
+
+    def termf_display(self):
+        termf = Frame(self.simInfosFrame, height=400, width=500)
+        termf.grid(column = 1, row = 2)
+        wid = termf.winfo_id()
+        os.system('xterm -into %d -geometry 40x20 -sb &' % wid)
+        
+
+
 
 
