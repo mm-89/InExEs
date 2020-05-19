@@ -155,6 +155,9 @@ class Simulation:
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
 		#self.sim_process_bar()
+		self.currentTimestep = "Current date of simulation: " + str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
+		self.percentage = 'Percentage complete : 0%'
+		self.process_feedback(self.currentTimestep, self.percentage)
 
 		k = 0
 
@@ -183,6 +186,11 @@ class Simulation:
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
 				#self.update_value_process_bar(k)
+				#UPDATE POPUP FEEDBACK
+				self.currentTimestep = "Current date of simulation: " + str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
+				self.percentage = 'Percentage complete :' + str(round(k/self.total_timestep_of_simulation*100,1)) + '%'
+
+
 
 				#compute source rays direction
 				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
@@ -235,6 +243,8 @@ class Simulation:
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
 			#self.popup_process.destroy()
+			self.popupFeedback.destroy()
+		
 
 		else:
 
@@ -464,3 +474,14 @@ class Simulation:
 	def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
 		self.progressBar.update()
+
+	def process_feedback(self, ct, p):
+		self.popupFeedback = Tk()
+		self.popupFeedback.wm_title("Simulation process...")
+		self.labelTimestep = Label(self.popupFeedback, textvariable=ct)
+		self.labelTimestep.grid(column = 1 , row = 1, pady = 10)
+		self.labelPercentage = Label(self.popupFeedback, textvariable=p)
+		self.labelPercentage.grid(column = 1, row = 2, pady = 10)
+
+		self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
+		self.stopBtn.grid(column = 1, row = 3)
