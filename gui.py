@@ -123,6 +123,9 @@ class Root(Tk):
         self.tBtn = Button(self, text="test function", command=self.test)
         self.tBtn.grid(column=0, row=8)
 
+        self.autoBtn = Button(self, text="auto complete form", command=self.autocomplete_form)
+        self.autoBtn.grid(column=0, row=9)
+
     def test(self):
         self.insert_date_from_data()
 
@@ -427,6 +430,21 @@ class Root(Tk):
         termf.grid(column = 1, row = 2)
         wid = termf.winfo_id()
         os.system('xterm -into %d -geometry 40x20 -sb &' % wid)
+
+    def autocomplete_form(self):
+        self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
+        self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
+        self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
+        self.insert_date_from_data()
+        self.timestepValue.insert(12, '60')
+        self.ouputValue.insert(12, 'test')
+        self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
+
+
+
+
+
+
         
 
 
