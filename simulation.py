@@ -155,7 +155,7 @@ class Simulation:
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
 		#self.sim_process_bar()
-		self.currentTimestep = "Current date of simulation: " + str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
+		self.currentTimestep = "Current date of simulation: " #+ str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
 		self.percentage = 'Percentage complete : 0%'
 		self.process_feedback(self.currentTimestep, self.percentage)
 
