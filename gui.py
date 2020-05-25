@@ -189,9 +189,9 @@ class Root(Tk):
     def start_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC START
         self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1SDay = Label(self.dateFrame, text='DD/')
+        self.label_1SDay = Label(self.dateFrame, text='MM/')
         self.entry_2SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2SDay = Label(self.dateFrame, text='MM/')
+        self.label_2SDay = Label(self.dateFrame, text='DD/')
         self.entry_3SDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4SDay = Entry(self.dateFrame, width=2, bg = "white")
@@ -225,9 +225,9 @@ class Root(Tk):
     def end_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC END
         self.entry_1EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1EDay = Label(self.dateFrame, text='DD/')
+        self.label_1EDay = Label(self.dateFrame, text='MM/')
         self.entry_2EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2EDay = Label(self.dateFrame, text='MM/')
+        self.label_2EDay = Label(self.dateFrame, text='DD/')
         self.entry_3EDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4EDay = Entry(self.dateFrame, width=2, bg = "white")
@@ -367,8 +367,8 @@ class Root(Tk):
 
 
     def error_catch(self):
-        start = dt.strptime(self.startDate,"%d/%m/%Y %H:%M:%S")
-        end = dt.strptime(self.endDate,"%d/%m/%Y %H:%M:%S")
+        start = dt.strptime(self.startDate,"%m/%d/%Y %H:%M:%S")
+        end = dt.strptime(self.endDate,"%m/%d/%Y %H:%M:%S")
         if(start > end) :
             self.popupmsg("start date is posterior to end date !")
 
