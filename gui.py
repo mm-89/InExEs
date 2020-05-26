@@ -43,7 +43,7 @@ class Root(Tk):
         self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
         
         #Button to show mesh orientation
-        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.reference_frame)
+        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.show_mesh_in_timestep)
 
         #Button to start simulation 
         self.btnStartSimulation = Button(self.startFrame, text="start simualation", bg ="green", command=self.start_simulation)
@@ -328,12 +328,16 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
+        self.get_dates_infos()
+        print(self.startDate)
+        self.preciseTimestep = self.startDate
+        print(self.preciseTimestep)
         self.error_catch()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.show_one_timestep(self.preciseTimestep)
         except IOError:
-            self.popupmsg("An error occured ! Please verify simulation parameters...")        
+            self.popupmsg("An error occured ! Please verify simulation parameters...")      
 
 
     #---------------------------------------------------------------
@@ -439,6 +443,7 @@ class Root(Tk):
         self.timestepValue.insert(12, '60')
         self.ouputValue.insert(12, 'test')
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
+        self.outputName = 'test'
 
 
 
