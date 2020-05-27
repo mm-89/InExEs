@@ -13,13 +13,14 @@ class Root(Tk):
     def __init__(self):
         super(Root,self).__init__()
         self.title("InExES")
-        self.minsize(800,400)
+        self.minsize(800,600)
         #self.wm_iconbitmap('blabla.ico') get an icon 
 
 
         # FRAMES ---------------------------------------------------
         self.meshFrame = LabelFrame(self, text = "Load a mesh")
         self.meshFrame.grid(column = 0, row = 0)
+        #self.meshFrame.place(x=30,y=30,height=20,width=100)
 
         self.dataFrame = LabelFrame(self, text = "Simulation Data")
         self.dataFrame.grid(column = 0, row = 1)
@@ -43,7 +44,10 @@ class Root(Tk):
         self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
         
         #Button to show mesh orientation
-        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.show_mesh_in_timestep)
+        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.reference_frame)
+
+        #Button to show mesh in a precise timestep
+        self.btnShowMeshTimestep = Button(self.meshFrame, text = "show mesh in timestep", command = self.show_mesh_in_timestep)
 
         #Button to start simulation 
         self.btnStartSimulation = Button(self.startFrame, text="start simualation", bg ="green", command=self.start_simulation)
@@ -79,6 +83,8 @@ class Root(Tk):
         self.btnShow.grid(column = 1, row = 2)
         #Button to test mesh orientation
         self.btnShowOrientation.grid(column = 2, row = 2)
+        #Button to show mesh in a precise timestep 
+        self.btnShowMeshTimestep.grid(column = 3, row = 2)
         #Button to start simulation 
         self.btnStartSimulation.grid(column=1, row=7)
         #User input for mesh path
