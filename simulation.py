@@ -154,11 +154,11 @@ class Simulation:
 
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
-		self.sim_process_bar()
+		#self.sim_process_bar()
 		self.currentTimestep = StringVar()
 		self.percentage = StringVar()
-		self.currentTimestep = str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
-		self.percentage = '0%'
+		self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
+		self.percentage.set('0%')
 		self.process_feedback(self.currentTimestep, self.percentage)
 
 		k = 0
@@ -187,10 +187,10 @@ class Simulation:
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
-				self.update_value_process_bar(k)
+				#self.update_value_process_bar(k)
 				#UPDATE POPUP FEEDBACK
-				self.currentTimestep = str(self.start_date.strftime("%b %d %Y %H:%M:%S"))
-				self.percentage = str(round(k/self.total_timestep_of_simulation*100,1)) + '%'
+				self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
+				self.percentage.set(str(round(k/self.total_timestep_of_simulation*100,1)) + '%')
 
 
 				#compute source rays direction
@@ -243,7 +243,7 @@ class Simulation:
 				k += 1
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
-			self.popup_process.destroy()
+			#self.popup_process.destroy()
 			self.popupFeedback.destroy()
 		
 
@@ -471,6 +471,7 @@ class Simulation:
 		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
 		self.progressBar.grid(column = 1, row = 1, pady = 10)
 		self.stopBtn.grid(column = 1, row = 2)
+		self.popup_process.mainloop()
 
 	def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
@@ -493,4 +494,5 @@ class Simulation:
 
 		self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
 		self.stopBtn.grid(column = 1, row = 3)
+		self.popupFeedback.mainloop()
 		print("la création est terminée")
