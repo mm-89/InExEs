@@ -65,7 +65,7 @@ def from_polar_to_cartesian(zenith, azimuth):
     y = mt.cos(np.radians(zenith))
     z = - mt.sin(np.radians(zenith))*mt.cos(np.radians(azimuth))
 
-    return x, y, z
+    return np.array([x, y, z])
     
 
 def rotation_matrix_3D_xy(angle):
@@ -199,4 +199,4 @@ def random_points_hemisphere(N, diff):
 		res_theta.append(theta)
 		res_phi.append(phi)
 
-	return np.array(res), res_theta, res_phi
+	return np.array(res)
