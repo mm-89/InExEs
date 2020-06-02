@@ -16,6 +16,7 @@ from tqdm import tqdm
 
 from tkinter import *
 from tkinter import ttk
+import tkinter as tk
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -155,8 +156,8 @@ class Simulation:
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
 		#self.sim_process_bar()
-		self.currentTimestep = StringVar()
-		self.percentage = StringVar()
+		self.currentTimestep = tk.StringVar()
+		self.percentage = tk.StringVar()
 		self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
 		self.percentage.set('0%')
 		self.process_feedback(self.currentTimestep, self.percentage)
@@ -480,6 +481,7 @@ class Simulation:
 
 	def process_feedback(self, ct, p):
 		print("Je passe dans la création")
+		print(ct, p)
 		self.popupFeedback = Tk()
 		self.popupFeedback.wm_title("Simulation process...")
 		self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
