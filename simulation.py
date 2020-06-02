@@ -189,6 +189,7 @@ class Simulation:
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
 				self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
+				self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
 				#UPDATE POPUP FEEDBACK
 				'''self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
 				self.percentage.set(str(round(k/self.total_timestep_of_simulation*100,1)) + '%')'''
@@ -473,6 +474,9 @@ class Simulation:
 		self.progressBar.grid(column = 1, row = 1, pady = 10)
 		self.stopBtn.grid(column = 1, row = 2)
 
+		self.labelPercentage = Label(self.popup_process, text="Percentage complete : 0% ")
+		self.labelPercentage.grid(column = 1, row = 3, pady = 10)
+
 	def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
 		self.progressBar.update()
@@ -488,8 +492,8 @@ class Simulation:
 		self.labelTimestep2 = Label(self.popupFeedback, textvariable=ct)
 		self.labelTimestep2.grid(column = 2 , row = 1)
 
-		self.labelPercentage = Label(self.popupFeedback, text="Percentage complete : ")
-		self.labelPercentage.grid(column = 1, row = 2, pady = 10)
+		#self.labelPercentage = Label(self.popupFeedback, text="Percentage complete : ")
+		#self.labelPercentage.grid(column = 1, row = 2, pady = 10)
 		self.labelPercentage2 = Label(self.popupFeedback, textvariable = p)
 		self.labelPercentage2.grid(column = 2, row = 2)
 
