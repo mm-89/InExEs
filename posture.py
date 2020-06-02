@@ -4,6 +4,7 @@ import shared_parameters as sp
 
 import trimesh as tm
 import sys
+import numpy as np
 
 class Posture:
 
@@ -126,3 +127,7 @@ class Posture:
 	def get_vertex_normals(self):
 		return self.my_file.vertex_normals
 	
+
+	@property
+	def get_max_bounds(self):
+		return np.linalg.norm(self.my_file.bounds[1])
