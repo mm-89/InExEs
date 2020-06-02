@@ -8,6 +8,7 @@ import numpy as np
 import input_data_handle as idh
 import csv
 import os
+import time
 
 class Root(Tk):
     def __init__(self):
@@ -133,7 +134,20 @@ class Root(Tk):
         self.autoBtn.grid(column=0, row=9)
 
     def test(self):
-        self.insert_date_from_data()
+        '''ct = StringVar()
+        self.popupFeedback = Tk()
+        self.popupFeedback.wm_title("Simulation process...")
+        self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
+        self.labelTimestep.grid(column = 1 , row = 1, pady = 10)
+        self.labelTimestep2 = Label(self.popupFeedback, textvariable=ct)
+        self.labelTimestep2.grid(column = 2 , row = 1)
+        self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
+        self.stopBtn.grid(column = 1, row = 3)
+        self.popupFeedback.mainloop()
+        for i in range (100):
+            ct.set(str(i))'''
+        self.sim_process_bar()
+        self.update_value_process_bar()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -450,6 +464,22 @@ class Root(Tk):
         self.ouputValue.insert(12, 'test')
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
         self.outputName = 'test'
+
+
+    def sim_process_bar(self):
+        self.popup_process = Tk()
+        self.popup_process.wm_title("Simulation process...")
+        self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
+        self.progressBar['maximum'] = 100#self.total_timestep_of_simulation
+        self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
+        self.progressBar.grid(column = 1, row = 1, pady = 10)
+        self.stopBtn.grid(column = 1, row = 2)
+
+    def update_value_process_bar(self):
+        for i in range(101):
+            time.sleep(0.05)
+            self.progressBar['value'] = i
+            self.progressBar.update()
 
 
 
