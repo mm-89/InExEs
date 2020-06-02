@@ -110,11 +110,11 @@ def uniform_points_hemisphere(N, diff):
     N :   int
         total points number
 
-    diff : bool
-        if True it generates diffuse
-        points (upper hemisphere)
-        if False it generates reflect
-        points (lower hemisphere)
+    diff :  bool
+        if True it gives N points
+        on the upper hemisphere
+        if False it gives N points
+        on the lower hemisphere
 
     Returns:
     -----------
@@ -137,12 +137,11 @@ def uniform_points_hemisphere(N, diff):
     d_phi = 4*mt.pi/(d_theta*N)
 
     for i in range(m_theta):
-
+        theta = mt.pi*(i + 0.5)/(2*m_theta)
+        
         if not diff:
-            theta = mt.pi**(i + 0.5)/(2*m_theta) + mt.pi/2.
-        else:
-            theta = mt.pi**(i + 0.5)/(2*m_theta)
-
+            theta = mt.pi*(i + 0.5)/(2*m_theta) + mt.pi/2.
+            
         m_phi = int(round(2*mt.pi*mt.sin(theta)/d_phi))
 
         for j in range(m_phi):
@@ -180,23 +179,19 @@ def random_points_hemisphere(N, diff):
 		row is a versor.
 	"""
 	res = []
-	res_theta = []
-	res_phi = []
 
 	for i in range(N):
 
 		phi = random.uniform(0, 2*mt.pi)
 		if(diff):
-			theta = random.uniform(0, mt.pi/2.)
+			theta = mt.acos(random.uniform(0, 1))
 		else:
-			theta = random.uniform(mt.pi/2., mt.pi)
+			theta = mt.acos(random.uniform(-1., 0))
 
 		x = mt.sin(theta)*mt.sin(phi)
 		y = mt.cos(theta)
 		z = - mt.sin(theta)*mt.cos(phi)
 
 		res.append(np.array([x, y, z]))
-		res_theta.append(theta)
-		res_phi.append(phi)
 
 	return np.array(res)
