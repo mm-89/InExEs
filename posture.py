@@ -9,16 +9,29 @@ class Posture:
 
 	def __init__(self, my_file):
 		self.path = my_file
-		self.my_file = tm.load(my_file, use_embree=True)
+		self.my_file = tm.load(my_file, 
+							use_embree=sp.py_embree,
+							process=sp.process,
+							validate=sp.validate
+							)
 
 		#to avoid auto-intersection
 		self.normals_minimized = self.my_file.triangles_center + \
 								self.my_file.face_normals*sp.normalization_factor
 
-		self.beta_coeff = bc.compute_beta(self.path,
-										self.my_file,
-										self.my_file.face_normals,
-										self.normals_minimized)
+		self.vertices_normals_minimized = self.my_file.vertices + \
+								self.my_file.vertex_normals*sp.normalization_factor
+
+		if(True):
+			self.beta_coeff = bc.compute_beta(self.path,
+											self.my_file,
+											self.my_file.face_normals,
+											self.normals_minimized)
+		else:
+			self.beta_coeff = bc.compute_beta(self.path,
+											self.my_file,
+											self.my_file.vertex_normals,
+											self.vertices_normals_minimized)
 			
 
 	def get_angles_from_normals(self):
@@ -70,6 +83,11 @@ class Posture:
 
 
 	@property
+	def get_vertices_normals_minimized(self):
+		return self.vertices_normals_minimized
+
+
+	@property
 	def get_beta(self):
 		return self.beta_coeff
 
@@ -92,3 +110,19 @@ class Posture:
 	@property
 	def get_faces_color(self):
 		return self.my_file.visual.face_colors
+
+
+	@property
+	def get_vertices_color(self):
+		return self.my_file.visual.vertex_colors
+
+
+	@property
+	def get_vertex_faces(self):
+		return self.my_file.vertex_faces
+
+
+	@property
+	def get_vertex_normals(self):
+		return self.my_file.vertex_normals
+	
