@@ -5,7 +5,7 @@ import math as mt
 import numpy as np
 import random
 
-def compute_beta(path, file, face_normals, faces_normals_minimized):
+def compute_beta(path, file, face_normals, face_centers):
 	"""
 	Generate beta coefficient (see
 	guidelines) for a specific posture.
@@ -42,6 +42,7 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 	path = path.split('/')
 	mesh_name = path[-1]
 	fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(sp.N) + ".txt"
+
 	try:
 		with open(fileName) as f:
 			print("Beta file found")
@@ -61,89 +62,71 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 
 		#[0] is diffused, [1] is reflecte
 		beta = []
+		if(sp.random_points):
+			# N rays on upper hemisphere
+			ray_diff_hem = mrd.random_points_hemisphere(sp.N, True)
+			# N rays on lower hemisphere
+			ray_refl_hem = mrd.random_points_hemisphere(sp.N, False)
+		else:
+			# N rays on upper hemisphere
+			ray_diff_hem = mrd.uniform_points_hemisphere(sp.N, True)
+			# N rays on lower hemisphere
+			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
+		#in this case fnm is triangle centres
+		for count, item in enumerate(face_centers):
 
-		# N rays on upper hemisphere
-		ray_diff_hem, theta_diff, phi_diff = mrd.random_points_hemisphere(sp.N, True)
+			# translate each diff_hem of face center point
+			curr_tr_centre = [item for i in range(sp.N)]
+		
+			# diffuse part of beta coefficient ----------------------------------------
+			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_diff_hem)]
+			ray_direction_diff_in = [-i for i in ray_diff_hem]
 
-		# N rays on lower hemisphere
-		ray_refl_hem, theta_refl, phi_refl = mrd.random_points_hemisphere(sp.N, False)
+			res_diff, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_diff_in),
+												multiple_hits=False,
+												return_locations=False)
 
-		for counter, item in enumerate(faces_normals_minimized):
-
-			angle_normals = mrd.from_cartesian_to_polar(face_normals[counter])
-
-			# set current ray origin lenght to N
-			ray_origin = [item for i in range(sp.N)]
-
-			# compute beta for diffuse part
-			# check the intersecptions
-			res_diff = file.ray.intersects_any(ray_origins=ray_origin, 
-												ray_directions=ray_diff_hem)
-
+			# parameter i: index of the first hitten
+			# parameter j: boolean 
 			integer_count_diff = []
-			for j, i in enumerate(res_diff):
-				if not i:
-					integer_count_diff.append( (mt.sin(theta_diff[j])*mt.cos(phi_diff[j])*mt.sin(angle_normals[0])*mt.cos(angle_normals[1]) + \
-									mt.sin(theta_diff[j])*mt.sin(phi_diff[j])*mt.sin(angle_normals[0])*mt.sin(angle_normals[1]) + \
-									mt.cos(theta_diff[j])*mt.cos(angle_normals[0]))*mt.sin(theta_diff[j]) )
+			for k, i in enumerate(res_diff):
+				if( i==count ):
+					integer_count_diff.append( np.dot(face_normals[count],ray_diff_hem[k]) )
 
-			current_mean_value_diff = sum(integer_count_diff)/sp.N
+			integer_tot_diff = 2*mt.pi*sum(integer_count_diff)/sp.N
 
-			#compute variance - diff
-			acc_var_diff = 0
-			for i in integer_count_diff:
-				acc_var_diff += (i - current_mean_value_diff)**2
+			# --------------------------------------------------------------------------
+			# reflective part of beta coefficient---------------------------------------
 
-			var_diff = (acc_var_diff/sp.N**2)*(mt.pi*mt.pi)**2
+			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_refl_hem)]
+			ray_direction_refl_in = [-i for i in ray_refl_hem]
 
-			integer_tot_diff = (mt.pi*mt.pi)*sum(integer_count_diff)/sp.N
+			res_refl, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_refl_in),
+												multiple_hits=False,
+												return_locations=False)
 
-			if(integer_tot_diff != 0.):
-				perc_err_diff = 100*((var_diff)**0.5)/integer_tot_diff
-			else:
-				perc_err_diff = 0.
-
-			# compute beta for reflect part
-			# check the intersecptions
-			res_refl = file.ray.intersects_any(ray_origins=ray_origin, 
-												ray_directions=ray_refl_hem)
-			
+			# parameter i: index of the first hitten
+			# parameter j: boolean 
 			integer_count_refl = []
-			for j, i in enumerate(res_refl):
-				if not i:
-					integer_count_refl.append((mt.sin(theta_refl[j])*mt.cos(phi_refl[j])*mt.sin(angle_normals[0])*mt.cos(angle_normals[1]) + \
-									mt.sin(theta_refl[j])*mt.sin(phi_refl[j])*mt.sin(angle_normals[0])*mt.sin(angle_normals[1]) + \
-									mt.cos(theta_refl[j])*mt.cos(angle_normals[0]))*mt.sin(theta_refl[j]))
+			for k, i in enumerate(res_refl):
+				if( i==count ):
+					integer_count_refl.append( np.dot(face_normals[count],ray_refl_hem[k]) )
 
-			current_mean_value_refl = sum(integer_count_refl)/sp.N
+			integer_tot_refl = 2*mt.pi*sum(integer_count_refl)/sp.N
 
-			#compute variance - refl
-			acc_var_refl = 0
-			for i in integer_count_refl:
-				acc_var_refl += (i - current_mean_value_refl)**2
-
-			var_refl = (acc_var_refl/sp.N**2)*(mt.pi*mt.pi)**2
-								
-			integer_tot_refl = (mt.pi*mt.pi)*sum(integer_count_refl)/sp.N
-
-			if(integer_tot_refl != 0.):
-				perc_err_refl = 100*((var_refl)**0.5)/integer_tot_refl
-			else:
-				perc_err_refl = 0
+			#----------------------------------------------------------------------------
 
 			#print diff and refl ratio
 			#print diff and refl standard deviations
-			beta.append(np.array([integer_tot_diff, 
-								integer_tot_refl, 
-								(var_diff)**0.5,
-								(var_refl)**0.5,
-								perc_err_diff,
-								perc_err_refl]))
-
+			beta.append(np.array([integer_tot_diff,
+								integer_tot_refl]))
+			
 			print("Computing beta ... ", 
-				round(counter/len(faces_normals_minimized)*100,1), 
+				round(count/len(face_normals)*100,1), 
 				" percent complete", end="\r")
-
+			
 		np.savetxt(fileName, beta, fmt="%.10f")
 		return np.loadtxt(fileName)
 
