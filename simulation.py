@@ -155,12 +155,12 @@ class Simulation:
 
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
-		#self.sim_process_bar()
-		self.currentTimestep = tk.StringVar()
+		self.sim_process_bar()
+		'''self.currentTimestep = tk.StringVar()
 		self.percentage = tk.StringVar()
 		self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
 		self.percentage.set('0%')
-		self.process_feedback(self.currentTimestep, self.percentage)
+		self.process_feedback(self.currentTimestep, self.percentage)'''
 
 		k = 0
 
@@ -188,10 +188,10 @@ class Simulation:
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
-				#self.update_value_process_bar(k)
+				self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
 				#UPDATE POPUP FEEDBACK
-				self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
-				self.percentage.set(str(round(k/self.total_timestep_of_simulation*100,1)) + '%')
+				'''self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
+				self.percentage.set(str(round(k/self.total_timestep_of_simulation*100,1)) + '%')'''
 
 
 				#compute source rays direction
@@ -244,8 +244,8 @@ class Simulation:
 				k += 1
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
-			#self.popup_process.destroy()
-			self.popupFeedback.destroy()
+			self.popup_process.destroy()
+			#self.popupFeedback.destroy()
 		
 
 		else:
@@ -468,11 +468,10 @@ class Simulation:
 		self.popup_process = Tk()
 		self.popup_process.wm_title("Simulation process...")
 		self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
-		self.progressBar['maximum'] = self.total_timestep_of_simulation
+		self.progressBar['maximum'] = 100
 		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
 		self.progressBar.grid(column = 1, row = 1, pady = 10)
 		self.stopBtn.grid(column = 1, row = 2)
-		self.popup_process.mainloop()
 
 	def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
