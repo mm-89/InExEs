@@ -97,7 +97,7 @@ def rotation_matrix_3D_xz(angle):
 					[-mt.sin(angle), 0, mt.cos(angle)]])
 
 
-def uniform_points_hemisphere(N):
+def uniform_points_hemisphere(N, diff):
     """
     Generate N points on the upper
     hemisphere uniformly distribuited.
@@ -109,6 +109,12 @@ def uniform_points_hemisphere(N):
     ------------
     N :   int
         total points number
+
+    diff : bool
+        if True it generates diffuse
+        points (upper hemisphere)
+        if False it generates reflect
+        points (lower hemisphere)
 
     Returns:
     -----------
@@ -131,7 +137,12 @@ def uniform_points_hemisphere(N):
     d_phi = 4*mt.pi/(d_theta*N)
 
     for i in range(m_theta):
-        theta = mt.pi*(i + 0.5)/(2*m_theta)
+
+        if not diff:
+            theta = mt.pi**(i + 0.5)/(2*m_theta) + mt.pi/2.
+        else:
+            theta = mt.pi**(i + 0.5)/(2*m_theta)
+
         m_phi = int(round(2*mt.pi*mt.sin(theta)/d_phi))
 
         for j in range(m_phi):
