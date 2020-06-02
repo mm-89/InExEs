@@ -10,5 +10,7 @@
 #computed change with this parameter, as well as 
 #the precision 
 
-N = 50000
-normalization_factor = 1e-6
+N = 10000
+translation_factor = 2.
+normalization_factor = 4 # ----> to take it off
+random_points = False
