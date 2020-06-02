@@ -478,8 +478,13 @@ class Root(Tk):
     def update_value_process_bar(self):
         for i in range(101):
             time.sleep(0.05)
-            self.progressBar['value'] = i
-            self.progressBar.update()
+            #self.progressBar['value'] = i
+            #self.progressBar.update()
+            self.update_value_2(i)
+
+    def update_value_2(self, value):
+        self.progressBar['value'] = value
+        self.progressBar.update()
 
 
 
