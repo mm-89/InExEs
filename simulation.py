@@ -156,11 +156,7 @@ class Simulation:
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
 		self.sim_process_bar()
-		'''self.currentTimestep = tk.StringVar()
-		self.percentage = tk.StringVar()
-		self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
-		self.percentage.set('0%')
-		self.process_feedback(self.currentTimestep, self.percentage)'''
+		self.process_feedback()
 
 		k = 0
 
@@ -191,8 +187,8 @@ class Simulation:
 				self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
 				self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
 				#UPDATE POPUP FEEDBACK
-				'''self.currentTimestep.set(str(self.start_date.strftime("%b %d %Y %H:%M:%S")))
-				self.percentage.set(str(round(k/self.total_timestep_of_simulation*100,1)) + '%')'''
+				self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
+				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
 
 
 				#compute source rays direction
@@ -246,7 +242,7 @@ class Simulation:
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
 			self.popup_process.destroy()
-			#self.popupFeedback.destroy()
+			self.popupFeedback.destroy()
 		
 
 		else:
@@ -482,22 +478,15 @@ class Simulation:
 		self.progressBar.update()
 		
 
-	def process_feedback(self, ct, p):
-		print("Je passe dans la création")
-		print(ct, p)
+	def process_feedback(self):
+		print("Simulation begins")
 		self.popupFeedback = Tk()
 		self.popupFeedback.wm_title("Simulation process...")
 		self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
-		self.labelTimestep.grid(column = 1 , row = 1, pady = 10)
-		self.labelTimestep2 = Label(self.popupFeedback, textvariable=ct)
-		self.labelTimestep2.grid(column = 2 , row = 1)
+		self.labelTimestep.grid(column = 0 , row = 1, pady = 10)
 
-		#self.labelPercentage = Label(self.popupFeedback, text="Percentage complete : ")
-		#self.labelPercentage.grid(column = 1, row = 2, pady = 10)
-		self.labelPercentage2 = Label(self.popupFeedback, textvariable = p)
-		self.labelPercentage2.grid(column = 2, row = 2)
+		self.labelPercentage2 = Label(self.popupFeedback, text="Percentage complete : ")
+		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
 
 		self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
-		self.stopBtn.grid(column = 1, row = 3)
-		self.popupFeedback.mainloop()
-		print("la création est terminée")
+		self.stopBtn.grid(column = 0, row = 3)
