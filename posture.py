@@ -16,23 +16,16 @@ class Posture:
 							validate=sp.validate
 							)
 
-		#to avoid auto-intersection
-		self.normals_minimized = self.my_file.triangles_center + \
-								self.my_file.face_normals*sp.normalization_factor
-
-		self.vertices_normals_minimized = self.my_file.vertices + \
-								self.my_file.vertex_normals*sp.normalization_factor
-
 		if(True):
 			self.beta_coeff = bc.compute_beta(self.path,
 											self.my_file,
 											self.my_file.face_normals,
-											self.normals_minimized)
+											self.my_file.triangles_center)
 		else:
 			self.beta_coeff = bc.compute_beta(self.path,
 											self.my_file,
 											self.my_file.vertex_normals,
-											self.vertices_normals_minimized)
+											self.my_file.vertices)
 			
 
 	def get_angles_from_normals(self):
@@ -76,16 +69,6 @@ class Posture:
 	@property
 	def get_total_area(self):
 		return self.my_file.area
-
-
-	@property
-	def get_normals_minimized(self):
-    		return self.normals_minimized
-
-
-	@property
-	def get_vertices_normals_minimized(self):
-		return self.vertices_normals_minimized
 
 
 	@property

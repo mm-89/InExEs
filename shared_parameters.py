@@ -25,9 +25,8 @@
 
 N = 10000
 translation_factor = 2.
-normalization_factor = 4 # ----> to take it off
 random_points = False
 
 py_embree = True
-process = False
+process = True
 validate = False
