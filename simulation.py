@@ -4,6 +4,8 @@ import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
 import color_map as cm
+import area_vertices as av
+import shared_parameters as sp
 
 import trimesh as tm
 import numpy as np
@@ -24,6 +26,7 @@ class Simulation:
 				latitude=None,
 				read_data= False, 
 				data_path=None,
+				loop_on_faces=True
 				):
 
 		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
@@ -34,16 +37,17 @@ class Simulation:
 
 		self.posture = ps.Posture(posture)
 		self.beta = self.posture.get_beta
-		self.areas = self.posture.get_area_faces
 
 		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
 
+		self.loop_on_faces = loop_on_faces
+
 		if(self.read_data):
 
 			self.data = []
-			self.timestep = 60.
+			self.timestep = 60
 
 			try:
 
@@ -87,8 +91,18 @@ class Simulation:
 
 		self.name = posture
 
-		self.ray_origins = self.posture.get_normals_minimized
-		self.face_normals = self.posture.get_normals
+		# to manage faces or vertices loop on
+		if(self.loop_on_faces):
+			self.ray_origins = self.posture.get_triangles_center
+			self.face_normals = self.posture.get_normals
+			self.areas = self.posture.get_area_faces
+			self.faces = [i for i in range(len(self.posture.get_faces))]
+		else:
+			self.ray_origins = self.posture.get_vertices_normals_minimized
+			self.face_normals = self.posture.get_vertex_normals
+			self.areas = av.compute_vertex_area(self.posture.get_vertex_faces,
+												self.posture.get_area_faces)
+			self.faces = [i for i in range(len(self.posture.get_faces))]
 
 		self.output_name = output_name
 
@@ -102,7 +116,7 @@ class Simulation:
 		print("Posture that has to be simulated is: ", self.name)
 		print("")
 
-		if(self.start_date >= self.end_date):
+		if(self.start_date > self.end_date):
 			print("End date must me greater of start date!")
 
 
@@ -120,8 +134,7 @@ class Simulation:
 		file_writer = csv.writer(file_out, delimiter=",",
     										quoting=csv.QUOTE_NONNUMERIC)
 
-		#write the header
-		#file_writer.writerow( ["datetime", *[i for i in range(len(self.ray_origins))]] )
+		#write the header )
 		file_writer.writerow(["datetime", 
 							"direct intensity [J/m^2]",
 							"diffuse intensity [J/m^2]",
@@ -131,7 +144,7 @@ class Simulation:
 		print("Start simulation...")
 		print("")
 
-		k = 0
+		acc = 0
 
 		start = time.time()
 
@@ -153,43 +166,47 @@ class Simulation:
 				rad_dif = 0
 				rad_ref = 0 
 				
-				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
 				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
 									self.data[current_line, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 
 				#compute only light days
-				if(self.data[current_line, dm.data_map["zenith"]]<90.):
+				if(self.data[current_line, dm.data_map["zenith"]]<85.):
 				
-					ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
+					ray_directions = [-ray_source_direction for item in range(len(self.ray_origins))]
+
+					ray_origins = [i - j*sp.translation_factor*self.posture.get_max_bounds for i, j in zip(self.ray_origins, ray_directions)]
 
 					#just to check
-					if not len(self.ray_origins)==len(ray_direction):
+					if not len(ray_origins)==len(ray_directions):
 						print("Some problems occured")
 						break
-
+			
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
-					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-																ray_directions=ray_direction)
+					proj = np.dot(self.face_normals, ray_source_direction)
 
-					for j, comp in enumerate(inf):	
-						if not comp:
+					#--------------------------------------------------------
+					inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
+																		ray_directions=ray_directions,
+																		multiple_hits=False,
+																		return_locations=False)
+					#--------------------------------------------------------
+					for k, (j, comp) in enumerate(zip(self.faces, inf)):
+						if(comp==j):
+							data_output_dir += abs(proj[k])*self.areas[k]/ \
+							mt.cos(np.radians(self.data[current_line, dm.data_map["zenith"]]))
 							
-							data_output_dir += abs(proj[j][0])*self.areas[j]/\
-								mt.cos(np.radians(self.data[current_line, dm.data_map["zenith"]]))
-						
-						data_output_dif += self.beta[j,0]*self.areas[j]/mt.pi
+						data_output_dif += self.beta[k,0]*self.areas[k]/mt.pi
 
-
-						data_output_ref += self.beta[j,1]*self.areas[j]/mt.pi
-					
+						data_output_ref += self.beta[k,1]*self.areas[k]/mt.pi
+							
 					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
 					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
 					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
 
-				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"), 
+				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"),
 							rad_dir*data_output_dir*self.timestep/sum(self.areas),
 							rad_dif*data_output_dif*self.timestep/sum(self.areas),
 							rad_ref*data_output_ref*self.timestep/sum(self.areas),
@@ -198,11 +215,10 @@ class Simulation:
 							 rad_ref*data_output_ref)*self.timestep/sum(self.areas)
 									])
 				
-			
 				data_update += datetime.timedelta(seconds=self.timestep)
 				current_line += 1
 
-				k += 1
+				acc += 1
 
 		else:
 
@@ -222,7 +238,7 @@ class Simulation:
 
 				rad_dir = 0
 				
-				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
+				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
 
 				#compute source rays direction
 				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
@@ -271,7 +287,7 @@ class Simulation:
 					current_second = 86400 - current_second
 					current_day += 1
 
-				k += 1
+				acc += 1
 
 		print("Total time of simulation: ", time.time() - start, " seconds")
 
@@ -290,6 +306,7 @@ class Simulation:
 		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
 		current_day = self.day_of_beginning
 
+
 		#make rays of sun (direction)
 		if(self.read_data):
 			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
@@ -297,11 +314,15 @@ class Simulation:
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
 
-		ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
+		ray_direction = np.array([-ray_source_direction for i in range(len(self.ray_origins))])
+		
+		ray_origins = np.array([i - j*sp.translation_factor*self.posture.get_max_bounds for i,j in zip(self.ray_origins, ray_direction)])
 
 		#rays tracing
-		inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-														ray_directions=ray_direction)
+		inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
+															ray_directions=ray_direction,
+															multiple_hits=False,
+															return_locations=False)
 
 		#take only non-zero components (non-zero=not hit)
 		#face_nohit = np.nonzero(~inf)[0]
@@ -314,8 +335,8 @@ class Simulation:
 		#set white if the component is false (no hit)
 		#or set black if the component is true (hit some faces)
 		col_ver = []
-		for comp in inf:
-			if not comp:
+		for j, comp in enumerate(inf):
+			if(comp==j):
 				col_ver.append(white_col)
 			else:
 				col_ver.append(black_col)
@@ -394,10 +415,21 @@ class Simulation:
 		vector too - (previous error - TO TEST)
 		"""
 		vec_id = []
-		for k, item in enumerate(self.posture.get_faces_color):
-			if(np.array_equal(item,cm.color_map[RGB_map])): 
-				vec_id.append(k)
-				
+		ver = False
+		if(self.loop_on_faces):
+			for k, item in enumerate(self.posture.get_faces_color):
+				if(np.array_equal(item, cm.color_map[RGB_map])): 
+					vec_id.append(k)
+					ver = True
+		else:
+			for k, item in enumerate(self.posture.get_vertices_color):
+				if(np.array_equal(item,cm.color_map[RGB_map])): 
+					vec_id.append(k)
+					ver = True
+
+		if not ver:
+			raise TypeError("No face/vertex with this color!")
+							
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
@@ -410,10 +442,15 @@ class Simulation:
 
 		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
 		for i, item in enumerate(vec_id):
-			new_beta_vector[i, :] = self.beta[item]
+			new_beta_vector[i] = self.beta[item]
 		self.beta = new_beta_vector
 
 		new_area_vector = np.zeros(shape=len(vec_id))
 		for i, item in enumerate(vec_id):
 			new_area_vector[i] = self.areas[item]
 		self.areas = new_area_vector
+
+		new_faces_vector = []
+		for item in vec_id:
+			new_faces_vector.append(item)
+		self.faces = new_faces_vector

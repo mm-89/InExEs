@@ -5,7 +5,7 @@ import math as mt
 import numpy as np
 import random
 
-def compute_beta(path, file, face_normals, faces_normals_minimized):
+def compute_beta(path, file, face_normals, face_centers):
 	"""
 	Generate beta coefficient (see
 	guidelines) for a specific posture.
@@ -42,6 +42,7 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 	path = path.split('/')
 	mesh_name = path[-1]
 	fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(sp.N) + ".txt"
+
 	try:
 		with open(fileName) as f:
 			print("Beta file found")
@@ -61,78 +62,72 @@ def compute_beta(path, file, face_normals, faces_normals_minimized):
 
 		#[0] is diffused, [1] is reflecte
 		beta = []
+		if(sp.random_points):
+			# N rays on upper hemisphere
+			ray_diff_hem = mrd.random_points_hemisphere(sp.N, True)
+			# N rays on lower hemisphere
+			ray_refl_hem = mrd.random_points_hemisphere(sp.N, False)
+		else:
+			# N rays on upper hemisphere
+			ray_diff_hem = mrd.uniform_points_hemisphere(sp.N, True)
+			# N rays on lower hemisphere
+			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
+		#in this case fnm is triangle centres
+		for count, item in enumerate(face_centers):
 
-		# N rays on upper hemisphere
-		ray_diff_hem, theta = mrd.random_points_hemisphere(sp.N)
+			# translate each diff_hem of face center point
+			curr_tr_centre = [item for i in range(sp.N)]
+		
+			# diffuse part of beta coefficient ----------------------------------------
+			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_diff_hem)]
+			ray_direction_diff_in = [-i for i in ray_diff_hem]
 
-		# N rays on lower hemisphere
-		ray_refl_hem = ray_diff_hem # just to initialize
-		for i in range(len(ray_diff_hem)):
-			ray_refl_hem[i, 1] = - ray_refl_hem[i, 1]
+			res_diff, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_diff_in),
+												multiple_hits=False,
+												return_locations=False)
 
-		for counter, item in enumerate(faces_normals_minimized):
+			# parameter i: index of the first hitten
+			# parameter j: boolean 
+			integer_count_diff = []
+			for k, i in enumerate(res_diff):
+				if( i==count ):
+					integer_count_diff.append( np.dot(face_normals[count],ray_diff_hem[k]) )
 
-			# set current ray origin lenght to N
-			ray_origin = [item for i in range(sp.N)]
+			integer_tot_diff = 2*mt.pi*sum(integer_count_diff)/sp.N
 
-			# compute beta for diffuse part
-			# check the intersecptions
-			res_diff = file.ray.intersects_any(ray_origins=ray_origin, 
-												ray_directions=ray_diff_hem)
+			# --------------------------------------------------------------------------
+			# reflective part of beta coefficient---------------------------------------
+
+			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_refl_hem)]
+			ray_direction_refl_in = [-i for i in ray_refl_hem]
+
+			res_refl, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_refl_in),
+												multiple_hits=False,
+												return_locations=False)
+
+			# parameter i: index of the first hitten
+			# parameter j: boolean 
+			integer_count_refl = []
+			for k, i in enumerate(res_refl):
+				if( i==count ):
+					integer_count_refl.append( np.dot(face_normals[count],ray_refl_hem[k]) )
+
+			integer_tot_refl = 2*mt.pi*sum(integer_count_refl)/sp.N
+
+			#----------------------------------------------------------------------------
+
+			#print diff and refl ratio
+			#print diff and refl standard deviations
+			beta.append(np.array([integer_tot_diff,
+								integer_tot_refl]))
 			
-			integer_count_diff = 0
-			for j, i in enumerate(res_diff):
-				if not i:
-					integer_count_diff += theta[j]
-			
-			integer_tot_diff = 2*mt.pi*integer_count_diff/sp.N
-
-			# compute beta for reflect part
-			# check the intersecptions
-			res_refl = file.ray.intersects_any(ray_origins=ray_origin, 
-												ray_directions=ray_refl_hem)
-			
-			integer_count_refl = 0
-			for j, i in enumerate(res_refl):
-				if not i:
-					integer_count_refl += theta[j]
-								
-			integer_tot_refl = 2*mt.pi*integer_count_refl/sp.N
-
-
-			beta.append(np.array([integer_tot_diff, integer_tot_refl]))
-
-
 			print("Computing beta ... ", 
-				round(counter/len(faces_normals_minimized)*100,1), 
+				round(count/len(face_normals)*100,1), 
 				" percent complete", end="\r")
-
+			
 		np.savetxt(fileName, beta, fmt="%.10f")
 		return np.loadtxt(fileName)
 
 	return np.array(res), res_theta
-
-	def solid_angle_factor(angle):
-		"""
-		Fraction of upper hemisphere
-		visible from a surface
-		of normal inclined of an
-		angle "angle" compare 
-		to the horizon.
-
-		Parameters:
-		------------
-		angle : (, 1)   float
-			angle between the zenith
-			vector (horizon) and the 
-			normal of current plane
-
-		Returns:
-		-----------
-		factor : (, 1)   float
-			fraction of visible
-			hemisphere from 0 
-			to 1
-		"""
-		factor = (1 + mt.cos(angle))/2
-		return factor
