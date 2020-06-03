@@ -1,5 +1,7 @@
 # How to install InExES
 
+**WIP we recommend to wait the release version before cloning it**
+
 We suppose that InExES can work on every machine, but we only try on a Mac, Linux Ubuntu 16.04 and Linux Mint 19.3
 
 
