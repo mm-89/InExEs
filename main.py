@@ -1,17 +1,17 @@
 import simulation as sim
+from color_map import color_map as cm
 
 #-------------------------------------------
 #------------------NAMELIST-----------------
 #-------------------------------------------
-
 #POSTURE PARAMETERS--------------------------
 #choosing and charging the posture
 
 my_data_file = "input/irradiance_2009.csv"
 
-my_posture_file = "special_postures/face_with_eyebrows.ply"
+my_posture_file = "postures/body_low_res/baby.ply"
 
-output_name = "face_with_eyebrows_1_June"
+output_name = "baby_armL"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
@@ -31,8 +31,8 @@ start_angle_azimuth = 0.
 #set start date
 
 #--------------mm-dd-yyyy-hh-mm-ss
-start_date  = '06/01/2009 00:01:00'
-end_date    = '06/02/2009 00:01:00'
+start_date  = '01/01/2009 00:01:00'
+end_date    = '01/02/2009 00:01:00'
 
 #-------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ my_simulation = sim.Simulation(start_date,
 #to visualize a particular timestep-----------------------
 #my_simulation.show_one_timestep(start_date)
 
-#my_simulation.set_zone_to_simulate("blgree")
+my_simulation.set_zone_to_simulate(cm["arm1"])
 
 #to make a whole simulation---------------------------------
 my_simulation.make_simulation()
