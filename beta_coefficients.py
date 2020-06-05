@@ -128,6 +128,4 @@ def compute_beta(path, file, face_normals, face_centers):
 				" percent complete", end="\r")
 			
 		np.savetxt(fileName, beta, fmt="%.10f")
-		return np.loadtxt(fileName)
-
-	return np.array(res), res_theta
+	return np.loadtxt(fileName)
