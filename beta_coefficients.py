@@ -5,6 +5,8 @@ import math as mt
 import numpy as np
 import random
 
+import time 
+
 def compute_beta(path, file, face_normals, face_centers):
 	"""
 	Generate beta coefficient (see
@@ -73,20 +75,22 @@ def compute_beta(path, file, face_normals, face_centers):
 			# N rays on lower hemisphere
 			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
 		#in this case fnm is triangle centres
+
+		bounds_no = np.linalg.norm(file.bounds[1])
+		tf_no = sp.translation_factor
+
 		for count, item in enumerate(face_centers):
 
 			# translate each diff_hem of face center point
 			curr_tr_centre = [item for i in range(sp.N)]
-		
+	
 			# diffuse part of beta coefficient ----------------------------------------
-			ray_origins = map(lambda x: x[0] + x[1]*np.linalg.norm(file.bounds[1])*sp.translation_factor, zip(curr_tr_centre,ray_diff_hem))
-			ray_direction_diff_in = map(lambda x: -x, ray_diff_hem)
-
-			ray_origins = np.array(list(ray_origins))
-			ray_direction_diff_in = np.array(list(ray_direction_diff_in))
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, ray_diff_hem)]
+			ray_direction_diff_in = [-item for item in ray_diff_hem]
 
 			res_diff = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
 												ray_directions=np.array(ray_direction_diff_in))
+
 
 			# parameter i: index of the first hitten
 			# parameter j: boolean
@@ -98,17 +102,14 @@ def compute_beta(path, file, face_normals, face_centers):
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
 
-			ray_origins = map(lambda x: x[0] + x[1]*np.linalg.norm(file.bounds[1])*sp.translation_factor, zip(curr_tr_centre,ray_refl_hem))
-			ray_direction_refl_in = map(lambda x: -x, ray_refl_hem)
-
-			ray_origins = np.array(list(ray_origins))
-			ray_direction_refl_in = np.array(list(ray_direction_refl_in))
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre,ray_refl_hem)]
+			ray_direction_refl_in = [-item for item in ray_refl_hem]
 
 			res_refl = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
 												ray_directions=np.array(ray_direction_refl_in))
 
 			# parameter i: index of the first hitten
-			# parameter j: boolean 
+			# parameter j: boolean
 			tmp_acc_comp = [k for k, i in enumerate(res_refl) if i == count]
 			integer_count_refl = map(lambda x: np.dot(face_normals[count], ray_refl_hem[x]), tmp_acc_comp)
 
@@ -127,3 +128,8 @@ def compute_beta(path, file, face_normals, face_centers):
 			
 		np.savetxt(fileName, beta, fmt="%.10f")
 	return np.loadtxt(fileName)
+
+def test_my(vector_component, current_face, count_acc):
+	if vector_component == current_face:
+		return count_acc
+	count_acc += 1
