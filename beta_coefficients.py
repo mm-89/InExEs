@@ -82,10 +82,9 @@ def compute_beta(path, file, face_normals, face_centers):
 			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_diff_hem)]
 			ray_direction_diff_in = [-i for i in ray_diff_hem]
 
-			res_diff, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_diff_in),
-												multiple_hits=False,
-												return_locations=False)
+
+			res_diff = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_diff_in))
 
 			# parameter i: index of the first hitten
 			# parameter j: boolean 
@@ -102,10 +101,8 @@ def compute_beta(path, file, face_normals, face_centers):
 			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_refl_hem)]
 			ray_direction_refl_in = [-i for i in ray_refl_hem]
 
-			res_refl, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_refl_in),
-												multiple_hits=False,
-												return_locations=False)
+			res_refl = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
+												ray_directions=np.array(ray_direction_refl_in))
 
 			# parameter i: index of the first hitten
 			# parameter j: boolean 
