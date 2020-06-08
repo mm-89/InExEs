@@ -188,11 +188,10 @@ class Simulation:
 					proj = np.dot(self.face_normals, ray_source_direction)
 
 					#--------------------------------------------------------
-					inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
-																		ray_directions=ray_directions,
-																		multiple_hits=False,
-																		return_locations=False)
+					inf = self.posture.get_posture.ray.intersects_first(ray_origins=np.array(ray_origins), 
+																		ray_directions=np.array(ray_directions))
 					#--------------------------------------------------------
+
 					for k, (j, comp) in enumerate(zip(self.faces, inf)):
 						if(comp==j):
 							data_output_dir += abs(proj[k])*self.areas[k]/ \
@@ -319,10 +318,8 @@ class Simulation:
 		ray_origins = np.array([i - j*sp.translation_factor*self.posture.get_max_bounds for i,j in zip(self.ray_origins, ray_direction)])
 
 		#rays tracing
-		inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
-															ray_directions=ray_direction,
-															multiple_hits=False,
-															return_locations=False)
+		inf = self.posture.get_posture.ray.intersects_id(ray_origins=np.array(ray_origins), 
+														ray_directions=np.array(ray_direction))
 
 		#take only non-zero components (non-zero=not hit)
 		#face_nohit = np.nonzero(~inf)[0]
@@ -432,7 +429,8 @@ class Simulation:
 
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
-							
+		
+
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
