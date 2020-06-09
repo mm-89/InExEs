@@ -155,8 +155,9 @@ class Simulation:
 
 		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
-		self.sim_process_bar()
 		self.process_feedback()
+		#self.sim_process_bar()
+		
 
 		k = 0
 
@@ -184,8 +185,10 @@ class Simulation:
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
-				self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
-				self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+				'''if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
+					self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
+					self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+					'''
 				#UPDATE POPUP FEEDBACK
 				self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
 				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
@@ -241,8 +244,8 @@ class Simulation:
 				k += 1
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
-			self.popup_process.destroy()
-			self.popupFeedback.destroy()
+			#self.popup_process.destroy()
+			#self.popupFeedback.destroy()
 		
 
 		else:
@@ -461,7 +464,7 @@ class Simulation:
 		self.areas = new_area_vector
 
 	#GUI PROGRESS BAR :
-	def sim_process_bar(self):
+	'''def sim_process_bar(self):
 		self.popup_process = Tk()
 		self.popup_process.wm_title("Simulation process...")
 		self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
@@ -475,12 +478,11 @@ class Simulation:
 
 	def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
-		self.progressBar.update()
-		
+		self.progressBar.update()'''
+
 
 	def process_feedback(self):
-		print("Simulation begins")
-		self.popupFeedback = Tk()
+		self.popupFeedback = Toplevel()
 		self.popupFeedback.wm_title("Simulation process...")
 		self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
 		self.labelTimestep.grid(column = 0 , row = 1, pady = 10)
@@ -488,5 +490,10 @@ class Simulation:
 		self.labelPercentage2 = Label(self.popupFeedback, text="Percentage complete : ")
 		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
 
-		self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
-		self.stopBtn.grid(column = 0, row = 3)
+		self.Btnstop = Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
+		self.Btnstop.grid(column = 0, row = 3)
+
+
+	def destroy_popup(self):
+		self.popupFeedback.destroy()
+		
