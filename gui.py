@@ -35,11 +35,15 @@ class Root(Tk):
         self.outputFrame = LabelFrame(self.globalFrame, text = "Output")
         self.outputFrame.grid(column = 0, row = 3, pady= 10, sticky='w')
 
+        self.colorFrame = LabelFrame(self.globalFrame, text = "Color simulation")
+        self.colorFrame.grid(column = 0, row = 4, pady= 10, sticky='w')
+
         self.startFrame = LabelFrame(self.globalFrame, text = "Start simulation")
         self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='w')
 
         self.simInfosFrame = LabelFrame(self, text = "Simulation informations")
         self.simInfosFrame.grid(column = 1, row = 0, pady= 10, sticky='w')
+
         # ----------------------------------------------------------
 
 
@@ -74,6 +78,9 @@ class Root(Tk):
         #User input for output name
         self.ouputLabel = Label(self.outputFrame,text='Output name : ')
         self.ouputValue = Entry(self.outputFrame,bg = "white", width = 20)
+
+        #Color management
+        self.color_management()
         # ----------------------------------------------------------
 
         # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
@@ -446,6 +453,40 @@ class Root(Tk):
         self.ouputValue.insert(12, 'test')
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
         self.outputName = 'test'
+
+    #---------------------------------------------------------------
+
+    #COLORS MANAGEMENT -----------------------------------------
+    def colors_popup(self):
+        popupColor = Tk()
+        popupColor.wm_title("Choose the color to simulate")
+        #Colors :
+        Red = PhotoImage(master = popupColor ,file='ColorBtn/Red.png')
+        Blue = PhotoImage(master = popupColor ,file='ColorBtn/Blue.png')
+        # Color button list :
+        redBtn = Button(popupColor, image =Red, command = self.input_choosed_color("RED"), height = 40, width = 100  )
+        blueBtn = Button(popupColor, image =Blue, command = self.input_choosed_color("BLUE"), height = 40, width = 100 )
+        #Color button placement :
+        redBtn.grid(column = 0, row = 0)
+        blueBtn.grid(column = 0, row = 1)
+
+        #Close button
+        closeColorBtn = Button(popupColor, text = "Close", command = popupColor.destroy)
+        popupColor.mainloop()
+
+    def color_management(self):
+        self.colorInput = Entry(self.colorFrame, width=10, bg = "white")
+        self.colorInput.grid(column = 0, row = 0)
+
+        self.chooseColorBtn = Button(self.colorFrame, text="Choose a color", command = self.colors_popup)
+        self.chooseColorBtn.grid(column = 1, row = 0, padx = 4)
+
+
+    def input_choosed_color(self, color):
+        self.colorInput.insert(12, color)
+
+        
+
 
 
 
