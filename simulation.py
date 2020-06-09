@@ -482,16 +482,18 @@ class Simulation:
 
 
 	def process_feedback(self):
-		self.popupFeedback = Toplevel()
+		self.popupFeedback = Tk()
 		self.popupFeedback.wm_title("Simulation process...")
-		self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
+		self.labelTimestep = ttk.Label(self.popupFeedback, text="Current timestep : ")
 		self.labelTimestep.grid(column = 0 , row = 1, pady = 10)
 
-		self.labelPercentage2 = Label(self.popupFeedback, text="Percentage complete : ")
+		self.labelPercentage2 = ttk.Label(self.popupFeedback, text="Percentage complete : ")
 		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
 
-		self.Btnstop = Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
+		#self.popupFeedback.destroy = False
+		self.Btnstop = ttk.Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
 		self.Btnstop.grid(column = 0, row = 3)
+		#self.popupFeedback.destroy = True
 
 
 	def destroy_popup(self):
