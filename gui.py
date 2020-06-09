@@ -19,24 +19,27 @@ class Root(Tk):
 
 
         # FRAMES ---------------------------------------------------
-        self.meshFrame = LabelFrame(self, text = "Load a mesh")
-        self.meshFrame.grid(column = 0, row = 0)
+        self.globalFrame = Frame(self, bd= 2)
+        self.globalFrame.grid(column = 0, row = 0)
+
+        self.meshFrame = LabelFrame(self.globalFrame, text = "Load a mesh")
+        self.meshFrame.grid(column = 0, row = 0, pady= 10, sticky='w')
         #self.meshFrame.place(x=30,y=30,height=20,width=100)
 
-        self.dataFrame = LabelFrame(self, text = "Simulation Data")
-        self.dataFrame.grid(column = 0, row = 1)
+        self.dataFrame = LabelFrame(self.globalFrame, text = "Simulation Data")
+        self.dataFrame.grid(column = 0, row = 1, pady= 10, sticky='w')
 
-        self.dateFrame = LabelFrame(self, text = "Date and Timestep")
-        self.dateFrame.grid(column = 0, row = 2)
+        self.dateFrame = LabelFrame(self.globalFrame, text = "Date and Timestep")
+        self.dateFrame.grid(column = 0, row = 2, pady= 10, sticky='w')
 
-        self.outputFrame = LabelFrame(self, text = "Output")
-        self.outputFrame.grid(column = 0, row = 3)
+        self.outputFrame = LabelFrame(self.globalFrame, text = "Output")
+        self.outputFrame.grid(column = 0, row = 3, pady= 10, sticky='w')
 
-        self.startFrame = LabelFrame(self, text = "Start simulation")
-        self.startFrame.grid(column = 0, row = 7)
+        self.startFrame = LabelFrame(self.globalFrame, text = "Start simulation")
+        self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='w')
 
         self.simInfosFrame = LabelFrame(self, text = "Simulation informations")
-        self.simInfosFrame.grid(column = 2, row = 0)
+        self.simInfosFrame.grid(column = 1, row = 0, pady= 10, sticky='w')
         # ----------------------------------------------------------
 
 
@@ -106,8 +109,9 @@ class Root(Tk):
         self.ouputValue.grid(column = 2, row = 1)
 
         #Simulation infos
-        self.descriptionStats = Label(self.simInfosFrame, text="Informations for simulations")
-        self.descriptionStats.grid(column=1,row=1)
+        #self.descriptionStats = Label(self.simInfosFrame, text="Informations for simulations")
+        #self.descriptionStats.grid(column=1,row=1)
+        self.infos_frame_creation()
 
         #-----------------------------------------------------------
 
@@ -134,20 +138,7 @@ class Root(Tk):
         self.autoBtn.grid(column=0, row=9)
 
     def test(self):
-        '''ct = StringVar()
-        self.popupFeedback = Tk()
-        self.popupFeedback.wm_title("Simulation process...")
-        self.labelTimestep = Label(self.popupFeedback, text="Current timestep : ")
-        self.labelTimestep.grid(column = 1 , row = 1, pady = 10)
-        self.labelTimestep2 = Label(self.popupFeedback, textvariable=ct)
-        self.labelTimestep2.grid(column = 2 , row = 1)
-        self.stopBtn = Button(self.popupFeedback, text="Stop Simulation", command = self.popupFeedback.destroy)
-        self.stopBtn.grid(column = 1, row = 3)
-        self.popupFeedback.mainloop()
-        for i in range (100):
-            ct.set(str(i))'''
-        self.sim_process_bar()
-        self.update_value_process_bar()
+        self.infos_frame_creation()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -163,7 +154,7 @@ class Root(Tk):
     #LOAD DATA FUNCTIONS -------------------------------------------
     def load_data(self):
         self.btnDataLoad = Button(self.dataFrame, text="select a data file", command = self.file_dialog_data)
-        self.btnDataLoad.grid(column = 1, row = 3)
+        self.btnDataLoad.grid(column = 0, row = 3)
 
     def file_dialog_data(self):
         self.fileNameData = filedialog.askopenfilename(initialdir = "/", title = "select a data file")
@@ -369,7 +360,7 @@ class Root(Tk):
         self.get_output_name()
         self.error_catch()
         #Simulation informations/statistics :
-        #self.infos_frame_creation()
+        self.infos_frame_creation()
         #self.termf_display()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
@@ -422,19 +413,19 @@ class Root(Tk):
 
 
     def infos_frame_creation(self):
-        tmpMesh = self.mesh.split('/')
+        '''tmpMesh = self.mesh.split('/')
         tmpData = self.dataPath.split('/') 
         cutMeshName = tmpMesh[-1]
-        cutDataName = tmpData[-1]
+        cutDataName = tmpData[-1]'''
         self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : ")
         self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : ")
 
-        self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : "+cutMeshName)
-        self.infoNameData = Label(self.simInfosFrame, text="Data file used : "+cutDataName)
-        self.infoStartDate = Label(self.simInfosFrame, text="Start date : "+self.startDate)
-        self.infoEndDate = Label(self.simInfosFrame, text="End date : "+self.endDate)
-        self.infoTimestep = Label(self.simInfosFrame, text="Timestep : "+str(self.timestep))
-        self.infoOutput = Label(self.simInfosFrame, text="Output file : output/"+self.outputName+".csv")
+        self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : ")
+        self.infoNameData = Label(self.simInfosFrame, text="Data file used : ")
+        self.infoStartDate = Label(self.simInfosFrame, text="Start date : ")
+        self.infoEndDate = Label(self.simInfosFrame, text="End date : ")
+        self.infoTimestep = Label(self.simInfosFrame, text="Timestep : ")
+        self.infoOutput = Label(self.simInfosFrame, text="Output file : output/")
 
         self.betaLoadingLabel.grid(column=1, row=3)
         self.betaLoadingLabel.grid(column=1, row=4)
@@ -446,15 +437,6 @@ class Root(Tk):
         self.betaLoadingLabel.grid(column=1, row=9)
         self.betaLoadingLabel.grid(column=1, row=10)
 
-    def loading_bars(self):
-        print("loading...")
-
-    def termf_display(self):
-        termf = Frame(self.simInfosFrame, height=400, width=500)
-        termf.grid(column = 1, row = 2)
-        wid = termf.winfo_id()
-        os.system('xterm -into %d -geometry 40x20 -sb &' % wid)
-
     def autocomplete_form(self):
         self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
         self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
@@ -464,28 +446,6 @@ class Root(Tk):
         self.ouputValue.insert(12, 'test')
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
         self.outputName = 'test'
-
-
-    def sim_process_bar(self):
-        self.popup_process = Tk()
-        self.popup_process.wm_title("Simulation process...")
-        self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
-        self.progressBar['maximum'] = 100#self.total_timestep_of_simulation
-        self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
-        self.progressBar.grid(column = 1, row = 1, pady = 10)
-        self.stopBtn.grid(column = 1, row = 2)
-
-    def update_value_process_bar(self):
-        for i in range(101):
-            time.sleep(0.05)
-            #self.progressBar['value'] = i
-            #self.progressBar.update()
-            self.update_value_2(i)
-
-    def update_value_2(self, value):
-        self.progressBar['value'] = value
-        self.progressBar.update()
-
 
 
 
