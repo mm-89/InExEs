@@ -464,14 +464,15 @@ class Root(Tk):
         Red = PhotoImage(master = popupColor ,file='ColorBtn/Red.png')
         Blue = PhotoImage(master = popupColor ,file='ColorBtn/Blue.png')
         # Color button list :
-        redBtn = Button(popupColor, image =Red, command = self.input_choosed_color("RED"), height = 40, width = 100  )
-        blueBtn = Button(popupColor, image =Blue, command = self.input_choosed_color("BLUE"), height = 40, width = 100 )
+        redBtn = Button(popupColor, image =Red, command = lambda : self.input_choosed_color("RED"), height = 40, width = 100  )
+        blueBtn = Button(popupColor, image =Blue, command = lambda : self.input_choosed_color("BLUE"), height = 40, width = 100 )
         #Color button placement :
         redBtn.grid(column = 0, row = 0)
         blueBtn.grid(column = 0, row = 1)
 
         #Close button
         closeColorBtn = Button(popupColor, text = "Close", command = popupColor.destroy)
+        closeColorBtn.grid(column = 0, row = 2, padx = 5)
         popupColor.mainloop()
 
     def color_management(self):
@@ -484,6 +485,7 @@ class Root(Tk):
 
     def input_choosed_color(self, color):
         self.colorInput.insert(12, color)
+        
 
         
 
