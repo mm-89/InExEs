@@ -14,12 +14,12 @@ class Root(Tk):
     def __init__(self):
         super(Root,self).__init__()
         self.title("InExES")
-        self.minsize(800,600)
+        self.minsize(1000,600)
         #self.wm_iconbitmap('blabla.ico') get an icon 
 
 
         # FRAMES ---------------------------------------------------
-        self.globalFrame = Frame(self, bd= 2)
+        self.globalFrame = Frame(self, bd= 10, relief = RIDGE, padx = 12)
         self.globalFrame.grid(column = 0, row = 0)
 
         self.meshFrame = LabelFrame(self.globalFrame, text = "Load a mesh")
@@ -39,10 +39,10 @@ class Root(Tk):
         self.colorFrame.grid(column = 0, row = 4, pady= 10, sticky='w')
 
         self.startFrame = LabelFrame(self.globalFrame, text = "Start simulation")
-        self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='w')
+        self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='e')
 
         self.simInfosFrame = LabelFrame(self, text = "Simulation informations")
-        self.simInfosFrame.grid(column = 1, row = 0, pady= 10, sticky='w')
+        self.simInfosFrame.grid(column = 1, row = 0, padx = 15, sticky='nw')
 
         # ----------------------------------------------------------
 
@@ -58,7 +58,8 @@ class Root(Tk):
         self.btnShowMeshTimestep = Button(self.meshFrame, text = "show mesh in timestep", command = self.show_mesh_in_timestep)
 
         #Button to start simulation 
-        self.btnStartSimulation = Button(self.startFrame, text="start simualation", bg ="green", command=self.start_simulation)
+        StartBtnImg = PhotoImage(master = self.startFrame ,file='ColorBtn/start.png')
+        self.btnStartSimulation = Button(self.startFrame, text = "START SIMULATION", command=self.start_simulation)
 
         #User input for mesh path
         self.meshName = Entry(self.meshFrame, text = "", bg ="white", width = 20)
