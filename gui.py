@@ -20,7 +20,10 @@ class Root(Tk):
 
         # FRAMES ---------------------------------------------------
         self.globalFrame = Frame(self, bd= 10, relief = RIDGE, padx = 12)
-        self.globalFrame.grid(column = 0, row = 0)
+        self.globalFrame.grid(column = 0, row = 0, sticky='nw')
+
+        self.globalFrame2 = Frame(self, bd= 10, relief = RIDGE, padx = 12)
+        self.globalFrame2.grid(column = 1, row = 0, sticky='nw')
 
         self.meshFrame = LabelFrame(self.globalFrame, text = "Load a mesh")
         self.meshFrame.grid(column = 0, row = 0, pady= 10, sticky='w')
@@ -41,7 +44,7 @@ class Root(Tk):
         self.startFrame = LabelFrame(self.globalFrame, text = "Start simulation")
         self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='e')
 
-        self.simInfosFrame = LabelFrame(self, text = "Simulation informations")
+        self.simInfosFrame = LabelFrame(self.globalFrame2, text = "Simulation informations")
         self.simInfosFrame.grid(column = 1, row = 0, padx = 15, sticky='nw')
 
         # ----------------------------------------------------------
