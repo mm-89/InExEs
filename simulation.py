@@ -246,7 +246,8 @@ class Simulation:
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
 			#self.popup_process.destroy()
-			#self.popupFeedback.destroy()
+			self.destroy_popup()
+			self.popup_end_simulation()
 		
 
 		else:
@@ -470,7 +471,7 @@ class Simulation:
 		self.popup_process.wm_title("Simulation process...")
 		self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
 		self.progressBar['maximum'] = 100
-		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.popup_process.destroy)
+		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.destroy_popup)
 		self.progressBar.grid(column = 1, row = 1, pady = 10)
 		self.stopBtn.grid(column = 1, row = 2)
 
@@ -498,5 +499,15 @@ class Simulation:
 
 
 	def destroy_popup(self):
-		self.popupFeedback.destroy()
+		self.popup_process.destroy()
+
+	def popup_end_simulation(self):
+		self.popupEnd = Toplevel()
+		self.popupEnd.wm_title("Simulation done !")
+		self.labelEnd = ttk.Label(self.popupEnd, text="Simulation ended succesfully")
+		self.labelEnd.grid(column = 0 , row = 1, pady = 10)
+
+		self.btnEnd = ttk.Button(self.popupEnd, text="Close", command = self.popupEnd.destroy)
+		self.btnEnd.grid(column = 0, row = 2)
+		self.popupEnd.mainloop()
 		
