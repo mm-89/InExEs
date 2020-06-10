@@ -458,22 +458,22 @@ class Root(Tk):
 
     #COLORS MANAGEMENT -----------------------------------------
     def colors_popup(self):
-        popupColor = Tk()
-        popupColor.wm_title("Choose the color to simulate")
+        self.popupColor = Tk()
+        self.popupColor.wm_title("Choose the color to simulate")
         #Colors :
-        Red = PhotoImage(master = popupColor ,file='ColorBtn/Red.png')
-        Blue = PhotoImage(master = popupColor ,file='ColorBtn/Blue.png')
+        Red = PhotoImage(master = self.popupColor ,file='ColorBtn/Red.png')
+        Blue = PhotoImage(master = self.popupColor ,file='ColorBtn/Blue.png')
         # Color button list :
-        redBtn = Button(popupColor, image =Red, command = lambda : self.input_choosed_color("RED"), height = 40, width = 100  )
-        blueBtn = Button(popupColor, image =Blue, command = lambda : self.input_choosed_color("BLUE"), height = 40, width = 100 )
+        redBtn = Button(self.popupColor, image =Red, command = lambda : self.input_choosed_color("RED"), height = 40, width = 100  )
+        blueBtn = Button(self.popupColor, image =Blue, command = lambda : self.input_choosed_color("BLUE"), height = 40, width = 100 )
         #Color button placement :
         redBtn.grid(column = 0, row = 0)
         blueBtn.grid(column = 0, row = 1)
 
         #Close button
-        closeColorBtn = Button(popupColor, text = "Close", command = popupColor.destroy)
+        closeColorBtn = Button(self.popupColor, text = "Close", command = self.popupColor.destroy)
         closeColorBtn.grid(column = 0, row = 2, padx = 5)
-        popupColor.mainloop()
+        self.popupColor.mainloop()
 
     def color_management(self):
         self.colorInput = Entry(self.colorFrame, width=10, bg = "white")
@@ -485,7 +485,8 @@ class Root(Tk):
 
     def input_choosed_color(self, color):
         self.colorInput.insert(12, color)
-        
+        self.popupColor.destroy()
+
 
         
 
