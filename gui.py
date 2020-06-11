@@ -149,7 +149,8 @@ class Root(Tk):
         self.autoBtn.grid(column=0, row=9)
 
     def test(self):
-        self.infos_frame_creation()
+        #self.infos_frame_creation()
+        self.make_color_simulation()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -490,6 +491,17 @@ class Root(Tk):
     def input_choosed_color(self, color):
         self.colorInput.insert(12, color)
         self.popupColor.destroy()
+
+    def make_color_simulation(self):
+        try :
+            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+            simulation.set_zone_to_simulate("red")
+        except IOError:
+            self.popupmsg("An error occured ! Please verify simulation parameters...") 
+
+    def color_verification(self, color):
+        check = any
+        
 
 
         
