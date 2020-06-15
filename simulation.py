@@ -98,11 +98,11 @@ class Simulation:
 			self.areas = self.posture.get_area_faces
 			self.faces = [i for i in range(len(self.posture.get_faces))]
 		else:
-			self.ray_origins = self.posture.get_vertices_normals_minimized
+			self.ray_origins = self.posture.get_vertices
 			self.face_normals = self.posture.get_vertex_normals
 			self.areas = av.compute_vertex_area(self.posture.get_vertex_faces,
 												self.posture.get_area_faces)
-			self.faces = [i for i in range(len(self.posture.get_faces))]
+			self.faces = [i for i in range(len(self.posture.get_vertices))]
 
 		self.output_name = output_name
 
@@ -194,9 +194,8 @@ class Simulation:
 
 					for k, (j, comp) in enumerate(zip(self.faces, inf)):
 						if(comp==j):
-							data_output_dir += abs(proj[k])*self.areas[k]/ \
-							mt.cos(np.radians(self.data[current_line, dm.data_map["zenith"]]))
-							
+							data_output_dir += abs(proj[k])*self.areas[k]
+
 						data_output_dif += self.beta[k,0]*self.areas[k]/mt.pi
 
 						data_output_ref += self.beta[k,1]*self.areas[k]/mt.pi
@@ -430,7 +429,6 @@ class Simulation:
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
 		
-
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
