@@ -491,7 +491,7 @@ class Root(Tk):
 
     def input_choosed_color(self, color):
         self.colorInput.insert(12, color)
-        self.popupColor.destroy()
+        #self.popupColor.destroy()
 
     def make_color_simulation(self):
         try :
@@ -507,10 +507,24 @@ class Root(Tk):
     def dynamic_color_btn(self):
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")
-        for i in range(2):
-            newButton = Button(self.colorPopup, text=str(i),
-                        command=lambda j=i: self.input_choosed_color(str(j)))
-            newButton.grid()
+        self.colorPopup.minsize(600,400)
+        col = 0
+        r = 0
+        for i in range(100):
+            
+            newButton = Button(self.colorPopup, text=str(i+1),
+                        command=lambda j=i+1: self.input_choosed_color(str(j)))
+
+            if((i+1)%10 == 0):
+                print("on est dans le modulo", col, r, i+1)
+                newButton.grid(column = col, row = r)
+                col = 0
+                r = r + 1
+            else:
+                print("je suis dans le else", r, col)
+                newButton.grid(column = col, row = r)
+                col += 1
+
 
 
         
