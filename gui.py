@@ -150,7 +150,8 @@ class Root(Tk):
 
     def test(self):
         #self.infos_frame_creation()
-        self.make_color_simulation()
+        #self.make_color_simulation()
+        self.dynamic_color_btn()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -502,6 +503,14 @@ class Root(Tk):
     def color_verification(self, color):
         check = any
         
+
+    def dynamic_color_btn(self):
+        self.colorPopup = Tk()
+        self.colorPopup.wm_title("Choose the color to simulate")
+        for i in range(2):
+            newButton = Button(self.colorPopup, text=str(i),
+                        command=lambda j=i: self.input_choosed_color(str(j)))
+            newButton.grid()
 
 
         
