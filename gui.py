@@ -10,6 +10,7 @@ import csv
 import os
 import time
 import json
+import posture as ps
 
 class Root(Tk):
     def __init__(self):
@@ -152,8 +153,9 @@ class Root(Tk):
     def test(self):
         #self.infos_frame_creation()
         #self.make_color_simulation()
-        self.dynamic_color_btn()
-        self.read_json_color()
+        #self.dynamic_color_btn()
+        #self.read_json_color()
+        self.read_colors_from_ply()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -539,6 +541,24 @@ class Root(Tk):
                     print (key, value)
                 print('Name: ' + c['name'])
                 print('')
+
+    def read_colors_from_ply(self):
+        print("Reading PLY colors :")
+
+        rgbColors = [[]]
+
+        try:
+            self.posture = ps.Posture('postures/body_low_res/BabyLowRes_01.ply')
+        except IOError:
+            self.popupmsg("You need to choose a valid mesh before !") 
+
+        for k, item in enumerate(self.posture.get_faces_color):
+            if any(list == item for list in rgbColors):
+                print("already in color list")
+            else:
+                rgbColors.append(item)
+
+        print(rgbColors)
 
 
 
