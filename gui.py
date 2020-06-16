@@ -530,9 +530,12 @@ class Root(Tk):
     def read_json_color(self):
         with open('ColorBtn/colors.json') as json_file:
             data = json.load(json_file)
+            print(type(data[0]['rgb']))
             for c in data:
                 print('HEX code: ' + c['hexString'])
-                #print('RGB code: ' + c['rgb'])
+                for key, value in c['rgb'].items():
+                    print (key, value)
+                #print('RGB code: ' + type(c['rgb']))
                 print('Name: ' + c['name'])
                 print('')
 
