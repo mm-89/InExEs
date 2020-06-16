@@ -507,6 +507,7 @@ class Root(Tk):
         
 
     def dynamic_color_btn(self):
+        self.read_json_color()
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")
         self.colorPopup.minsize(600,400)
@@ -514,7 +515,7 @@ class Root(Tk):
         r = 0
         for i in range(100):
             
-            newButton = Button(self.colorPopup, text=str(i+1),
+            newButton = Button(self.colorPopup, text=str(i+1), fg =self.colors[i],
                         command=lambda j=i+1: self.input_choosed_color(str(j)))
 
             if((i+1)%10 == 0):
@@ -533,9 +534,9 @@ class Root(Tk):
             print(type(data[0]['rgb']))
             for c in data:
                 print('HEX code: ' + c['hexString'])
+                self.colors.append(c['hexString'])
                 for key, value in c['rgb'].items():
                     print (key, value)
-                #print('RGB code: ' + type(c['rgb']))
                 print('Name: ' + c['name'])
                 print('')
 
