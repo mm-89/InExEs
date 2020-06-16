@@ -9,6 +9,7 @@ import input_data_handle as idh
 import csv
 import os
 import time
+import json
 
 class Root(Tk):
     def __init__(self):
@@ -152,6 +153,7 @@ class Root(Tk):
         #self.infos_frame_creation()
         #self.make_color_simulation()
         self.dynamic_color_btn()
+        self.read_json_color()
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -524,6 +526,15 @@ class Root(Tk):
                 print("je suis dans le else", r, col)
                 newButton.grid(column = col, row = r)
                 col += 1
+
+    def read_json_color(self):
+        with open('ColorBtn/colors.json') as json_file:
+            data = json.load(json_file)
+            for c in data:
+                print('HEX code: ' + c['hexString'])
+                #print('RGB code: ' + c['rgb'])
+                print('Name: ' + c['name'])
+                print('')
 
 
 
