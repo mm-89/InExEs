@@ -156,6 +156,7 @@ class Root(Tk):
         #self.dynamic_color_btn()
         #self.read_json_color()
         self.read_colors_from_ply()
+        
 
     #LOAD MESH FUNCTIONS -------------------------------------------
     def load_mesh(self):
@@ -489,7 +490,7 @@ class Root(Tk):
         self.colorInput = Entry(self.colorFrame, width=10, bg = "white")
         self.colorInput.grid(column = 0, row = 0)
 
-        self.chooseColorBtn = Button(self.colorFrame, text="Choose a color", command = self.colors_popup)
+        self.chooseColorBtn = Button(self.colorFrame, text="Choose a color", command = self.dynamic_color_btn)
         self.chooseColorBtn.grid(column = 1, row = 0, padx = 4)
 
 
@@ -509,7 +510,8 @@ class Root(Tk):
         
 
     def dynamic_color_btn(self):
-        self.read_json_color()
+        #self.read_json_color()
+        self.read_colors_from_ply()
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")
         self.colorPopup.minsize(600,400)
@@ -562,9 +564,10 @@ class Root(Tk):
 
 
     def rgb_to_hex(self, rgb):
-        for cHex in rgb:
-            print('#%02x%02x%02x%02x' % cHex)
-            self.colors.append('#%02x%02x%02x%02x' % cHex)
+        for c in rgb:
+            cpyC = c
+            hexColor = '#{:02x}{:02x}{:02x}{:02x}'.format(cpyC[0],cpyC[1],cpyC[2],cpyC[3],)
+            self.colors.append(hexColor)
 
 
 
