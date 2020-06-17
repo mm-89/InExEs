@@ -558,6 +558,13 @@ class Root(Tk):
         rgbColorsSet = set(tuple(i) for i in rgbColors)
 
         print("list size : ", len(rgbColors), "set size : ", len(rgbColorsSet))
+        self.rgb_to_hex(rgbColorsSet)
+
+
+    def rgb_to_hex(self, rgb):
+        for cHex in rgb:
+            print('#%02x%02x%02x%02x' % cHex)
+            self.colors.append('#%02x%02x%02x%02x' % cHex)
 
 
 
