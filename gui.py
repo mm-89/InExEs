@@ -553,12 +553,11 @@ class Root(Tk):
             self.popupmsg("You need to choose a valid mesh before !") 
 
         for k, item in enumerate(self.posture.get_faces_color):
-            if any(list == item for list in rgbColors):
-                print("already in color list")
-            else:
-                rgbColors.append(item)
+            rgbColors.append(item)
 
-        print(rgbColors)
+        rgbColorsSet = set(tuple(i) for i in rgbColors)
+
+        print("list size : ", len(rgbColors), "set size : ", len(rgbColorsSet))
 
 
 
