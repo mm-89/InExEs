@@ -495,7 +495,7 @@ class Root(Tk):
 
 
     def input_choosed_color(self, color):
-        self.colorInput.insert(12, color)
+        self.colorInput.insert(12, color+',')
         #self.popupColor.destroy()
 
     def make_color_simulation(self):
@@ -519,8 +519,8 @@ class Root(Tk):
         r = 0
         for i in range(100):
             
-            newButton = Button(self.colorPopup, text=str(i+1), fg =self.colors[i],
-                        command=lambda j=i+1: self.input_choosed_color(str(j)))
+            newButton = Button(self.colorPopup, text=str(i+1)+': '+ self.colors[i], fg =self.colors[i],
+                        command=lambda j=i+1: self.input_choosed_color(self.colors[j-1]))
 
             if((i+1)%10 == 0):
                 newButton.grid(column = col, row = r)
@@ -529,6 +529,9 @@ class Root(Tk):
             else:
                 newButton.grid(column = col, row = r)
                 col += 1
+
+        self.colorSaveBtn = Button(self.colorPopup, text="Validate color(s)", command= print(self.colorInput.get()))
+        self.colorSaveBtn.grid()
 
     def read_json_color(self):
         with open('ColorBtn/colors.json') as json_file:
