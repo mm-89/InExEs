@@ -523,12 +523,10 @@ class Root(Tk):
                         command=lambda j=i+1: self.input_choosed_color(str(j)))
 
             if((i+1)%10 == 0):
-                print("on est dans le modulo", col, r, i+1)
                 newButton.grid(column = col, row = r)
                 col = 0
                 r = r + 1
             else:
-                print("je suis dans le else", r, col)
                 newButton.grid(column = col, row = r)
                 col += 1
 
@@ -564,10 +562,16 @@ class Root(Tk):
 
 
     def rgb_to_hex(self, rgb):
+        self.colorsDict = {}
+        rgb.pop()
         for c in rgb:
-            cpyC = c
-            hexColor = '#{:02x}{:02x}{:02x}{:02x}'.format(cpyC[0],cpyC[1],cpyC[2],cpyC[3],)
-            self.colors.append(hexColor)
+            cpyC = list(c)
+            if not cpyC:
+                print("empty list")
+            else:
+                hexColor = '#{:02x}{:02x}{:02x}'.format(cpyC[0],cpyC[1],cpyC[2])
+                self.colors.append(hexColor)
+                self.colorsDict.update({hexColor:cpyC})
 
 
 
