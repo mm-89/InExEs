@@ -498,6 +498,17 @@ class Root(Tk):
         self.colorInput.insert(12, color+',')
         #self.popupColor.destroy()
 
+    def validate_colors(self):
+        hexList = self.colorInput.get().split(',')
+        hexList.pop() #get rid of last element because it' always empty
+        rgbList = []
+        for c in hexList:
+            rgbList.append(self.colorsDict.get(c))
+        
+        print(hexList, len(hexList))
+        print(rgbList)
+        self.colorPopup.destroy()
+
     def make_color_simulation(self):
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
@@ -530,7 +541,7 @@ class Root(Tk):
                 newButton.grid(column = col, row = r)
                 col += 1
 
-        self.colorSaveBtn = Button(self.colorPopup, text="Validate color(s)", command= print(self.colorInput.get()))
+        self.colorSaveBtn = Button(self.colorPopup, text="Validate color(s)", command= self.validate_colors)
         self.colorSaveBtn.grid()
 
     def read_json_color(self):
