@@ -492,11 +492,8 @@ class Simulation:
 		self.labelPercentage2 = ttk.Label(self.popupFeedback, text="Percentage complete : ")
 		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
 
-		#self.popupFeedback.destroy = False
 		self.Btnstop = ttk.Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
 		self.Btnstop.grid(column = 0, row = 3)
-		#self.popupFeedback.destroy = True
-
 
 	def destroy_popup(self):
 		self.popup_process.destroy()
