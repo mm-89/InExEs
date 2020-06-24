@@ -141,6 +141,8 @@ class Root(Tk):
         #SPECIAL PARAMETERS :
         self.colors = []
         self.preciseTimestep = ''
+        self.inProgress = 'in progress'
+        self.done = 'done'
         #-----------------------------------------------------------
 
         #TEST BUTTON FUNCTIONS !
@@ -382,9 +384,13 @@ class Root(Tk):
         #self.termf_display()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
+            self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
             simulation.make_simulation()
+            
         except IOError:
-            self.popupmsg("An error occured ! Please verify simulation parameters...")        
+            self.popupmsg("An error occured ! Please verify simulation parameters...")  
+
+        #self.simLoadingLabel['text'] = "Simulation : " + self.done
 
     #---------------------------------------------------------------
 
@@ -435,8 +441,8 @@ class Root(Tk):
         tmpData = self.dataPath.split('/') 
         cutMeshName = tmpMesh[-1]
         cutDataName = tmpData[-1]
-        self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : " ,font = "TkDefaultFont 14 bold")
-        self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : ",font = "TkDefaultFont 14 bold")
+        self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : " + self.inProgress  ,font = "TkDefaultFont 14 bold")
+        self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : " + self.inProgress,font = "TkDefaultFont 14 bold")
 
         self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : " + cutMeshName,font = "TkDefaultFont 14 bold")
         self.infoNameData = Label(self.simInfosFrame, text="Data file used : " + cutDataName,font = "TkDefaultFont 14 bold")
@@ -494,8 +500,9 @@ class Root(Tk):
         self.chooseColorBtn.grid(column = 1, row = 0, padx = 4)
 
 
-    def input_choosed_color(self, color):
+    def input_choosed_color(self, color,index):
         self.colorInput.insert(12, color+',')
+        self.buttons[index].config(state="disabled")
         #self.popupColor.destroy()
 
     def validate_colors(self):
@@ -528,10 +535,12 @@ class Root(Tk):
         self.colorPopup.minsize(600,400)
         col = 0
         r = 0
-        for i in range(100):
+        self.buttons = []
+        for i in range(len(self.colors)):
+            index = i
             
             newButton = Button(self.colorPopup, text=str(i+1)+': '+ self.colors[i], fg =self.colors[i],
-                        command=lambda j=i+1: self.input_choosed_color(self.colors[j-1]))
+                        command=lambda j=i+1: self.input_choosed_color(self.colors[j-1], index))
 
             if((i+1)%10 == 0):
                 newButton.grid(column = col, row = r)
@@ -541,6 +550,7 @@ class Root(Tk):
                 newButton.grid(column = col, row = r)
                 col += 1
 
+            self.buttons.append(newButton)
         self.colorSaveBtn = Button(self.colorPopup, text="Validate color(s)", command= self.validate_colors)
         self.colorSaveBtn.grid()
 
@@ -562,7 +572,7 @@ class Root(Tk):
         rgbColors = [[]]
 
         try:
-            self.posture = ps.Posture('postures/body_low_res/BabyLowRes_01.ply')
+            self.posture = ps.Posture(self.mesh)
         except IOError:
             self.popupmsg("You need to choose a valid mesh before !") 
 
