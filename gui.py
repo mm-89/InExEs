@@ -124,7 +124,7 @@ class Root(Tk):
         #Simulation infos
         #self.descriptionStats = Label(self.simInfosFrame, text="Informations for simulations")
         #self.descriptionStats.grid(column=1,row=1)
-        self.infos_frame_creation()
+        #self.infos_frame_creation()
 
         #-----------------------------------------------------------
 
@@ -431,29 +431,29 @@ class Root(Tk):
 
 
     def infos_frame_creation(self):
-        '''tmpMesh = self.mesh.split('/')
+        tmpMesh = self.mesh.split('/')
         tmpData = self.dataPath.split('/') 
         cutMeshName = tmpMesh[-1]
-        cutDataName = tmpData[-1]'''
-        self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : ")
-        self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : ")
+        cutDataName = tmpData[-1]
+        self.betaLoadingLabel = Label(self.simInfosFrame, text="Beta coefficient : " ,font = "TkDefaultFont 14 bold")
+        self.simLoadingLabel = Label(self.simInfosFrame, text="Simulation : ",font = "TkDefaultFont 14 bold")
 
-        self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : ")
-        self.infoNameData = Label(self.simInfosFrame, text="Data file used : ")
-        self.infoStartDate = Label(self.simInfosFrame, text="Start date : ")
-        self.infoEndDate = Label(self.simInfosFrame, text="End date : ")
-        self.infoTimestep = Label(self.simInfosFrame, text="Timestep : ")
-        self.infoOutput = Label(self.simInfosFrame, text="Output file : output/")
+        self.infoNameMesh = Label(self.simInfosFrame, text="Mesh : " + cutMeshName,font = "TkDefaultFont 14 bold")
+        self.infoNameData = Label(self.simInfosFrame, text="Data file used : " + cutDataName,font = "TkDefaultFont 14 bold")
+        self.infoStartDate = Label(self.simInfosFrame, text="Start date : " + self.startDate,font = "TkDefaultFont 14 bold")
+        self.infoEndDate = Label(self.simInfosFrame, text="End date : " + self.endDate,font = "TkDefaultFont 14 bold")
+        self.infoTimestep = Label(self.simInfosFrame, text="Timestep : " + str(self.timestep),font = "TkDefaultFont 14 bold")
+        self.infoOutput = Label(self.simInfosFrame, text="Output file : output/" + self.outputName,font = "TkDefaultFont 14 bold")
 
         self.betaLoadingLabel.grid(column=1, row=3)
-        self.betaLoadingLabel.grid(column=1, row=4)
+        self.simLoadingLabel.grid(column=1, row=4)
 
-        self.betaLoadingLabel.grid(column=1, row=5)
-        self.betaLoadingLabel.grid(column=1, row=6)
-        self.betaLoadingLabel.grid(column=1, row=7)
-        self.betaLoadingLabel.grid(column=1, row=8)
-        self.betaLoadingLabel.grid(column=1, row=9)
-        self.betaLoadingLabel.grid(column=1, row=10)
+        self.infoNameMesh.grid(column=1, row=5)
+        self.infoNameData.grid(column=1, row=6)
+        self.infoStartDate.grid(column=1, row=7)
+        self.infoEndDate.grid(column=1, row=8)
+        self.infoTimestep.grid(column=1, row=9)
+        self.infoOutput.grid(column=1, row=10)
 
     def autocomplete_form(self):
         self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
