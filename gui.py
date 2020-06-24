@@ -570,11 +570,13 @@ class Root(Tk):
         print("Reading PLY colors :")
 
         rgbColors = [[]]
+        if(self.mesh == ''):
+            self.popupmsg("Mesh not found")
 
         try:
             self.posture = ps.Posture(self.mesh)
-        except IOError:
-            self.popupmsg("You need to choose a valid mesh before !") 
+        except ValueError:
+            self.popupmsg("Mesh not found") 
 
         for k, item in enumerate(self.posture.get_faces_color):
             rgbColors.append(item)
