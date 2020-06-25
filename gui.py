@@ -156,6 +156,9 @@ class Root(Tk):
         self.autoCompleteBtn = Button(self, text="auto complete with last form", command=self.autocomplete_with_saved_form)
         self.autoCompleteBtn.grid(column=0, row=10)
 
+        self.clearAllBtn = Button(self, text="clear form", command=self.clear_all)
+        self.clearAllBtn.grid(column=0, row=11)
+
     def test(self):
         test = '25/2/2998 10:25:56'
         startList = re.split('/| |:',test)
@@ -637,6 +640,22 @@ class Root(Tk):
         self.entry_4EDay.insert(12, endList[3])
         self.entry_5EDay.insert(12, endList[4])
         self.entry_6EDay.insert(12, endList[5])
+
+    def clear_all(self):
+        widget_list = self.all_children()
+        for item in widget_list:
+            if(isinstance(item, Entry)):
+                item.delete(0,'end')
+
+
+    def all_children (self) :
+        _list = self.winfo_children()
+
+        for item in _list :
+            if item.winfo_children() :
+                _list.extend(item.winfo_children())
+
+        return _list
 
 
 
