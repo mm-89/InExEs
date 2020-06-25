@@ -157,6 +157,7 @@ class Simulation:
 		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
 		#self.process_feedback()
 		self.sim_process_bar()
+		self.popup_process.update()
 		
 
 		k = 0
@@ -185,10 +186,10 @@ class Simulation:
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
-				if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
+				'''if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
 					self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
 					self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
-					
+				'''	
 				#UPDATE POPUP FEEDBACK
 				'''self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
 				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
@@ -469,13 +470,13 @@ class Simulation:
 	def sim_process_bar(self):
 		self.popup_process = Tk()
 		self.popup_process.wm_title("Simulation process...")
-		self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
-		self.progressBar['maximum'] = 100
+		#self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
+		#self.progressBar['maximum'] = 100
 		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.destroy_popup)
-		self.progressBar.grid(column = 1, row = 1, pady = 10)
+		#self.progressBar.grid(column = 1, row = 1, pady = 10)
 		self.stopBtn.grid(column = 1, row = 2)
 
-		self.labelPercentage = Label(self.popup_process, text="Percentage complete : 0% ")
+		self.labelPercentage = Label(self.popup_process, text="Simulation is processing, you can follow the progress on your terminal !")
 		self.labelPercentage.grid(column = 1, row = 3, pady = 10)
 
 	def update_value_process_bar(self, value):
