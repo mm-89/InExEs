@@ -11,6 +11,7 @@ import os
 import time
 import json
 import posture as ps
+import re
 
 class Root(Tk):
     def __init__(self):
@@ -152,12 +153,13 @@ class Root(Tk):
         self.autoBtn = Button(self, text="auto complete form", command=self.autocomplete_form)
         self.autoBtn.grid(column=0, row=9)
 
+        self.autoCompleteBtn = Button(self, text="auto complete with last form", command=self.autocomplete_with_saved_form)
+        self.autoCompleteBtn.grid(column=0, row=10)
+
     def test(self):
-        #self.infos_frame_creation()
-        #self.make_color_simulation()
-        #self.dynamic_color_btn()
-        #self.read_json_color()
-        self.read_colors_from_ply()
+        test = '25/2/2998 10:25:56'
+        startList = re.split('/| |:',test)
+        print(startList)
         
 
     #LOAD MESH FUNCTIONS -------------------------------------------
@@ -382,6 +384,8 @@ class Root(Tk):
         #Simulation informations/statistics :
         self.infos_frame_creation()
         #self.termf_display()
+        #save form
+        self.save_form()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
@@ -461,16 +465,6 @@ class Root(Tk):
         self.infoTimestep.grid(column=1, row=9)
         self.infoOutput.grid(column=1, row=10)
 
-    def autocomplete_form(self):
-        self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
-        self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
-        self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
-        self.insert_date_from_data()
-        self.timestepValue.insert(12, '60')
-        self.ouputValue.insert(12, 'test')
-        self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
-        self.outputName = 'test'
-
     #---------------------------------------------------------------
 
     #COLORS MANAGEMENT -----------------------------------------
@@ -528,7 +522,6 @@ class Root(Tk):
         
 
     def dynamic_color_btn(self):
-        #self.read_json_color()
         self.read_colors_from_ply()
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")
@@ -598,6 +591,52 @@ class Root(Tk):
                 hexColor = '#{:02x}{:02x}{:02x}'.format(cpyC[0],cpyC[1],cpyC[2])
                 self.colors.append(hexColor)
                 self.colorsDict.update({hexColor:cpyC})
+
+ #---------------------------------------------------------------
+
+    #SAVE AND AUTO COMPLETE FORM -----------------------------------------
+
+    def autocomplete_form(self):
+        self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
+        self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
+        self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
+        self.insert_date_from_data()
+        self.timestepValue.insert(12, '60')
+        self.ouputValue.insert(12, 'test')
+        self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
+        self.outputName = 'test'
+
+    def save_form(self):
+        self.saveMesh = self.mesh
+        self.saveData = self.dataPath
+        self.saveStart = self.startDate
+        self.saveEnd = self.endDate
+        self.saveTimestep = self.timestep
+        self.saveOutput = self.outputName
+
+    def autocomplete_with_saved_form(self):
+        self.meshName.insert(12,self.saveMesh)
+        self.dataName.insert(12,self.saveData)
+        self.timestepValue.insert(12,self.saveTimestep)
+        self.ouputValue.insert(12,self.saveOutput)
+        #Insert dates
+        #START DATE AUTO INPUT 
+        startList = re.split('/| |:',self.saveStart)
+        endList = re.split('/| |:',self.saveEnd)
+        self.entry_1SDay.insert(12, startList[0])
+        self.entry_2SDay.insert(12, startList[1])
+        self.entry_3SDay.insert(12, startList[2])
+        self.entry_4SDay.insert(12, startList[3])
+        self.entry_5SDay.insert(12, startList[4])
+        self.entry_6SDay.insert(12, startList[5])
+
+        #END DATE AUTO INPUT 
+        self.entry_1EDay.insert(12, endList[0])
+        self.entry_2EDay.insert(12, endList[1])
+        self.entry_3EDay.insert(12, endList[2])
+        self.entry_4EDay.insert(12, endList[3])
+        self.entry_5EDay.insert(12, endList[4])
+        self.entry_6EDay.insert(12, endList[5])
 
 
 
