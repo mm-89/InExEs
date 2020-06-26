@@ -360,7 +360,7 @@ class Root(Tk):
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.export_reference_frame()
-        except IOError:
+        except (IOError, ValueError) as e:
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
@@ -413,8 +413,11 @@ class Root(Tk):
 
 
     def error_catch(self):
-        start = dt.strptime(self.startDate,"%m/%d/%Y %H:%M:%S")
-        end = dt.strptime(self.endDate,"%m/%d/%Y %H:%M:%S")
+        try:
+            start = dt.strptime(self.startDate,"%m/%d/%Y %H:%M:%S")
+            end = dt.strptime(self.endDate,"%m/%d/%Y %H:%M:%S")
+        except ValueError:
+            self.popupmsg("An error occured : Missing start and end")
         if(start > end) :
             self.popupmsg("start date is posterior to end date !")
 
