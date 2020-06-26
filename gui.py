@@ -353,6 +353,7 @@ class Root(Tk):
             meshToShow.show()
         except IOError:
             self.popupmsg("Error : Mesh file not found !")
+            return
         
     
     def reference_frame(self):
@@ -409,7 +410,7 @@ class Root(Tk):
         label.pack(side="top", fill="x", pady=10)
         B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
         B1.pack()
-        popup.mainloop()
+        popup.update()
 
 
     def error_catch(self):
@@ -512,9 +513,8 @@ class Root(Tk):
         for c in hexList:
             rgbList.append(self.colorsDict.get(c))
         
-        print(hexList, len(hexList))
-        print(rgbList)
         self.colorPopup.destroy()
+        return rgbList
 
     def make_color_simulation(self):
         try :
@@ -536,10 +536,8 @@ class Root(Tk):
         r = 0
         self.buttons = []
         for i in range(len(self.colors)):
-            index = i
-            
             newButton = Button(self.colorPopup, text=str(i+1)+': '+ self.colors[i], fg =self.colors[i],
-                        command=lambda j=i+1: self.input_choosed_color(self.colors[j-1], index))
+                        command=lambda j=i+1: self.input_choosed_color(self.colors[j-1], j-1))
 
             if((i+1)%10 == 0):
                 newButton.grid(column = col, row = r)
@@ -571,11 +569,12 @@ class Root(Tk):
         rgbColors = [[]]
         if(self.mesh == ''):
             self.popupmsg("Mesh not found")
-
-        try:
-            self.posture = ps.Posture(self.mesh)
-        except ValueError:
-            self.popupmsg("Mesh not found") 
+        else:
+            try:
+                self.posture = ps.Posture(self.mesh)
+            except ValueError:
+                self.popupmsg("Mesh not found") 
+                return
 
         for k, item in enumerate(self.posture.get_faces_color):
             rgbColors.append(item)
