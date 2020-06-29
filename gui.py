@@ -508,13 +508,23 @@ class Root(Tk):
 
     def validate_colors(self):
         hexList = self.colorInput.get().split(',')
+        print("Hex list : ", hexList)
         hexList.pop() #get rid of last element because it' always empty
         rgbList = []
+        
         for c in hexList:
             rgbList.append(self.colorsDict.get(c))
         
         self.colorPopup.destroy()
-        return rgbList
+        #Making sure there the same color twice
+        print(self.colorsDict)
+        self.colorsDict.popitem()
+        print(self.colorsDict)
+        print(rgbList)
+        tmp = set(tuple(x) for x in rgbList)
+        final = list(tmp)
+        print(rgbList)
+        print(final)
 
     def make_color_simulation(self):
         try :
@@ -594,8 +604,9 @@ class Root(Tk):
                 print("empty list")
             else:
                 hexColor = '#{:02x}{:02x}{:02x}'.format(cpyC[0],cpyC[1],cpyC[2])
-                self.colors.append(hexColor)
-                self.colorsDict.update({hexColor:cpyC})
+                if(hexColor is not None):
+                    self.colors.append(hexColor)
+                    self.colorsDict.update({hexColor:cpyC})
 
  #---------------------------------------------------------------
 
