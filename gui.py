@@ -144,6 +144,8 @@ class Root(Tk):
         self.preciseTimestep = ''
         self.inProgress = 'in progress'
         self.done = 'done'
+        self.hexString = ''
+
         #-----------------------------------------------------------
 
         #TEST BUTTON FUNCTIONS !
@@ -502,13 +504,14 @@ class Root(Tk):
 
 
     def input_choosed_color(self, color,index):
+        self.hexString += color+','
         self.colorInput.insert(12, color+',')
         self.buttons[index].config(state="disabled")
         #self.popupColor.destroy()
 
     def validate_colors(self):
-        hexList = self.colorInput.get().split(',')
-        print("Hex list : ", hexList)
+        #hexList = self.colorInput.get().split(',')
+        hexList = self.hexString.split(',')
         hexList.pop() #get rid of last element because it' always empty
         rgbList = []
         
@@ -517,10 +520,6 @@ class Root(Tk):
         
         self.colorPopup.destroy()
         #Making sure there the same color twice
-        print(self.colorsDict)
-        self.colorsDict.popitem()
-        print(self.colorsDict)
-        print(rgbList)
         tmp = set(tuple(x) for x in rgbList)
         final = list(tmp)
         print(rgbList)
