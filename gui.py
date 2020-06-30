@@ -162,9 +162,7 @@ class Root(Tk):
         self.clearAllBtn.grid(column=0, row=11)
 
     def test(self):
-        test = '25/2/2998 10:25:56'
-        startList = re.split('/| |:',test)
-        print(startList)
+        self.timestep_selector()
         
 
     #LOAD MESH FUNCTIONS -------------------------------------------
@@ -379,6 +377,52 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")      
 
 
+    def timestep_selector(self):
+        self.timestepSelector = Tk()
+        self.timestepSelector.wm_title("Please select a timestep")
+
+        self.timestepE1 = Entry(self.timestepSelector, width=2, bg = "white")
+        self.labelE1 = Label(self.timestepSelector, text='MM/')
+        self.timestepE2 = Entry(self.timestepSelector, width=2, bg = "white")
+        self.labelE2 = Label(self.timestepSelector, text='DD/')
+        self.timestepE3 = Entry(self.timestepSelector, width=4, bg = "white")
+
+        self.timestepE4 = Entry(self.timestepSelector, width=2, bg = "white")
+        self.labelE4 = Label(self.timestepSelector, text='H:')
+        self.timestepE5 = Entry(self.timestepSelector, width=2, bg = "white")
+        self.labelE5 = Label(self.timestepSelector, text='M:')
+        self.timestepE6 = Entry(self.timestepSelector, width=2, bg = "white")
+
+        self.timestepE1.grid(column = 0, row = 1)
+        self.labelE1.grid(column = 1, row = 1)
+        self.timestepE2.grid(column = 2, row = 1)
+        self.labelE2.grid(column = 3, row = 1)
+        self.timestepE3.grid(column = 4, row = 1)
+
+        self.timestepE4.grid(column = 5, row = 1)
+        self.labelE4.grid(column = 6, row = 1)
+        self.timestepE5.grid(column = 7, row = 1)
+        self.labelE5.grid(column = 8, row = 1)
+        self.timestepE6.grid(column = 9, row = 1)
+
+        self.timestepSelectorEntries = [self.timestepE1, self.timestepE2, self.timestepE3, self.timestepE4, self.timestepE5, self.timestepE6]
+
+        self.timestepE1.bind('<KeyRelease>', lambda e: self._check(0, 2))
+        self.timestepE2.bind('<KeyRelease>', lambda e: self._check(1, 2))
+        self.timestepE3.bind('<KeyRelease>', lambda e: self._check(2, 4))
+        self.timestepE4.bind('<KeyRelease>', lambda e: self._check(3, 2))
+        self.timestepE5.bind('<KeyRelease>', lambda e: self._check(4, 2))
+        self.timestepE6.bind('<KeyRelease>', lambda e: self._check(5, 2))
+        B1 = Button(self.timestepSelector, text="Proceed", command = self.show_mesh_in_timestep)
+        B1.grid()
+        timestepSelector.update()
+
+
+    def _check3(self, index, size):
+        entry = self.timestepSelectorEntries[index]
+        next_index = index + 1
+        next_entry = self.timestepSelectorEntries[next_index] if next_index < len(self.timestepSelectorEntries) else None
+        data = entry.get()
     #---------------------------------------------------------------
 
 
