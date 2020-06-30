@@ -407,12 +407,12 @@ class Root(Tk):
 
         self.timestepSelectorEntries = [self.timestepE1, self.timestepE2, self.timestepE3, self.timestepE4, self.timestepE5, self.timestepE6]
 
-        self.timestepE1.bind('<KeyRelease>', lambda e: self._check(0, 2))
-        self.timestepE2.bind('<KeyRelease>', lambda e: self._check(1, 2))
-        self.timestepE3.bind('<KeyRelease>', lambda e: self._check(2, 4))
-        self.timestepE4.bind('<KeyRelease>', lambda e: self._check(3, 2))
-        self.timestepE5.bind('<KeyRelease>', lambda e: self._check(4, 2))
-        self.timestepE6.bind('<KeyRelease>', lambda e: self._check(5, 2))
+        self.timestepE1.bind('<KeyRelease>', lambda e: self._check3(0, 2))
+        self.timestepE2.bind('<KeyRelease>', lambda e: self._check3(1, 2))
+        self.timestepE3.bind('<KeyRelease>', lambda e: self._check3(2, 4))
+        self.timestepE4.bind('<KeyRelease>', lambda e: self._check3(3, 2))
+        self.timestepE5.bind('<KeyRelease>', lambda e: self._check3(4, 2))
+        self.timestepE6.bind('<KeyRelease>', lambda e: self._check3(5, 2))
         B1 = Button(self.timestepSelector, text="Proceed", command = self.get_date_timestep_selector)
         B1.grid()
         timestepSelector.update()
