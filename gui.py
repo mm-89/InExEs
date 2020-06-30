@@ -413,7 +413,7 @@ class Root(Tk):
         self.timestepE4.bind('<KeyRelease>', lambda e: self._check(3, 2))
         self.timestepE5.bind('<KeyRelease>', lambda e: self._check(4, 2))
         self.timestepE6.bind('<KeyRelease>', lambda e: self._check(5, 2))
-        B1 = Button(self.timestepSelector, text="Proceed", command = self.show_mesh_in_timestep)
+        B1 = Button(self.timestepSelector, text="Proceed", command = self.get_date_timestep_selector)
         B1.grid()
         timestepSelector.update()
 
@@ -423,6 +423,17 @@ class Root(Tk):
         next_index = index + 1
         next_entry = self.timestepSelectorEntries[next_index] if next_index < len(self.timestepSelectorEntries) else None
         data = entry.get()
+
+        if len(data) > size or not data.isdigit():
+            self._backspace(entry)
+        if len(data) >= size and next_entry:
+            next_entry.focus()
+
+
+    def get_date_timestep_selector(self):
+        self.selectedTimestep = self.timestepSelectorEntries[0].get() + '/' + self.timestepSelectorEntries[1].get() + '/' + self.timestepSelectorEntries[2].get() + ' ' + self.timestepSelectorEntries[3].get() + ':' + self.timestepSelectorEntries[4].get() + ':' + self.timestepSelectorEntries[5].get()
+        print(self.selectedTimestep)
+    
     #---------------------------------------------------------------
 
 
