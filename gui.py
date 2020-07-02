@@ -58,7 +58,7 @@ class Root(Tk):
         self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
         
         #Button to show mesh orientation
-        self.btnShowOrientation = Button(self.meshFrame, text="show mesh orientation", command=self.reference_frame)
+        self.btnShowOrientation = Button(self.meshFrame, text="export reference frame", command=self.reference_frame)
 
         #Button to show mesh in a precise timestep
         self.btnShowMeshTimestep = Button(self.meshFrame, text = "show mesh in timestep", command = self.timestep_selector)
