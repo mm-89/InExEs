@@ -433,8 +433,8 @@ class Simulation:
 			tm.exchange.export.export_mesh(my_new_mesh, "output/" + "ref_frame_" + \
 												fileName + "_" + item + ".ply")
 
-			#OSVALDO'S GUI MODIFICATIONS
-			self.popupmsg("Reference frame exported successfully !")
+		#OSVALDO'S GUI MODIFICATIONS
+		self.popupmsg("Reference frame exported successfully !")
 
 		
 
@@ -501,14 +501,14 @@ class Simulation:
 
 	def popupmsg(self,msg):
 		popup = Tk()
-		popup.wm_title("Error found !")
+		popup.wm_title("Success !")
 		label = ttk.Label(popup, text=msg)
 		label.pack(side="top", fill="x", pady=10)
 		B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
 		B1.pack()
 		popup.update()
 
-	#PLEASE DO NET ERASE CAN BE USEFULL !
+	#PLEASE DO NOT ERASE CAN BE USEFULL !
 	'''def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
 		self.progressBar.update()

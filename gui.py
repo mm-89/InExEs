@@ -357,6 +357,8 @@ class Root(Tk):
         
     
     def reference_frame(self):
+        self.get_dates_infos()
+        self.get_output_name()
         self.error_catch()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
