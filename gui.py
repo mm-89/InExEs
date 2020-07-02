@@ -369,7 +369,7 @@ class Root(Tk):
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.show_one_timestep(selectedTimestep)
-        except IOError:
+        except (IOError, ValueError) as e:
             self.popupmsg("An error occured ! Please verify parameters...")      
 
 
