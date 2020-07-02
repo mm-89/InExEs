@@ -326,6 +326,7 @@ class Simulation:
 
 
 	def show_one_timestep(self, date):
+		print("date : ", date, type(date))
 
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
