@@ -365,13 +365,17 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
-        selectedTimestep = self.get_date_timestep_selector
+        selectedTimestep = self.get_date_timestep_selector()
         if(selectedTimestep == ''):
             self.popupmsg("You need to choose a timestep !")
+
+        self.get_dates_infos()
+        self.get_output_name()
+        self.error_catch()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.show_one_timestep(selectedTimestep)
-        except (IOError, ValueError) as e:
+        except (IOError) as e:
             self.popupmsg("An error occured ! Please verify parameters...")      
 
 
@@ -432,8 +436,7 @@ class Root(Tk):
 
 
     def get_date_timestep_selector(self):
-        return self.timestepSelectorEntries[0].get() + '/' + self.timestepSelectorEntries[1].get() + '/' + self.timestepSelectorEntries[2].get() + ' ' + self.timestepSelectorEntries[3].get() + ':' + self.timestepSelectorEntries[4].get() + ':' + self.timestepSelectorEntries[5].get()
-        
+        return self.timestepSelectorEntries[0].get() + '/' + self.timestepSelectorEntries[1].get() + '/' + self.timestepSelectorEntries[2].get() + ' ' + self.timestepSelectorEntries[3].get() + ':' + self.timestepSelectorEntries[4].get() + ':' + self.timestepSelectorEntries[5].get() 
     
     #---------------------------------------------------------------
 
