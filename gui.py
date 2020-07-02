@@ -365,7 +365,11 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
+        if(self.mesh == ""):
+            self.popupmsg("You need to select a mesh before !")
         selectedTimestep = self.get_date_timestep_selector
+        if(selectedTimestep == ''):
+            self.popupmsg("You need to choose a timestep !")
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             simulation.show_one_timestep(selectedTimestep)
@@ -411,7 +415,7 @@ class Root(Tk):
         self.timestepE6.bind('<KeyRelease>', lambda e: self._check3(5, 2))
         B1 = Button(self.timestepSelector, text="Proceed", command = self.show_mesh_in_timestep)
         B1.grid()
-        timestepSelector.update()
+        self.timestepSelector.update()
 
 
     def _check3(self, index, size):
