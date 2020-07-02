@@ -17,6 +17,7 @@ from tqdm import tqdm
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
+import gui as ui
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -432,6 +433,11 @@ class Simulation:
 			tm.exchange.export.export_mesh(my_new_mesh, "output/" + "ref_frame_" + \
 												fileName + "_" + item + ".ply")
 
+			#OSVALDO'S GUI MODIFICATIONS
+			self.popupmsg("Reference frame exported successfully !")
+
+		
+
 
 	def set_zone_to_simulate(self, RGB_map):
 		"""
@@ -480,7 +486,30 @@ class Simulation:
 		self.labelPercentage = Label(self.popup_process, text="Simulation is processing, you can follow the progress on your terminal !")
 		self.labelPercentage.grid(column = 1, row = 3, pady = 10)
 
-	def update_value_process_bar(self, value):
+	def destroy_popup(self):
+    		self.popup_process.destroy()
+
+	def popup_end_simulation(self):
+		self.popupEnd = Toplevel()
+		self.popupEnd.wm_title("Simulation done !")
+		self.labelEnd = ttk.Label(self.popupEnd, text="Simulation ended succesfully")
+		self.labelEnd.grid(column = 0 , row = 1, pady = 10)
+
+		self.btnEnd = ttk.Button(self.popupEnd, text="Close", command = self.popupEnd.destroy)
+		self.btnEnd.grid(column = 0, row = 2)
+		self.popupEnd.mainloop()
+
+	def popupmsg(self,msg):
+		popup = Tk()
+		popup.wm_title("Error found !")
+		label = ttk.Label(popup, text=msg)
+		label.pack(side="top", fill="x", pady=10)
+		B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+		B1.pack()
+		popup.update()
+
+	#PLEASE DO NET ERASE CAN BE USEFULL !
+	'''def update_value_process_bar(self, value):
 		self.progressBar['value'] = value
 		self.progressBar.update()
 
@@ -495,18 +524,5 @@ class Simulation:
 		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
 
 		self.Btnstop = ttk.Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
-		self.Btnstop.grid(column = 0, row = 3)
-
-	def destroy_popup(self):
-		self.popup_process.destroy()
-
-	def popup_end_simulation(self):
-		self.popupEnd = Toplevel()
-		self.popupEnd.wm_title("Simulation done !")
-		self.labelEnd = ttk.Label(self.popupEnd, text="Simulation ended succesfully")
-		self.labelEnd.grid(column = 0 , row = 1, pady = 10)
-
-		self.btnEnd = ttk.Button(self.popupEnd, text="Close", command = self.popupEnd.destroy)
-		self.btnEnd.grid(column = 0, row = 2)
-		self.popupEnd.mainloop()
+		self.Btnstop.grid(column = 0, row = 3)'''
 		
