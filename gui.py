@@ -365,8 +365,6 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
     def show_mesh_in_timestep(self):
-        if(self.mesh == ""):
-            self.popupmsg("You need to select a mesh before !")
         selectedTimestep = self.get_date_timestep_selector
         if(selectedTimestep == ''):
             self.popupmsg("You need to choose a timestep !")
@@ -378,6 +376,9 @@ class Root(Tk):
 
 
     def timestep_selector(self):
+        if(self.mesh == ""):
+            self.popupmsg("You need to select a mesh before !")
+            return
         self.timestepSelector = Tk()
         self.timestepSelector.wm_title("Please select a timestep")
 
