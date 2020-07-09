@@ -465,6 +465,7 @@ class Root(Tk):
             self.popupmsg("An error occured ! Please verify simulation parameters...")  
 
         self.simLoadingLabel['text'] = "Simulation : " + self.done
+        self.simInfosFrame.update()
 
     #---------------------------------------------------------------
 
