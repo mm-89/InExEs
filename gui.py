@@ -453,6 +453,9 @@ class Root(Tk):
         #self.termf_display()
         #save form
         self.save_form()
+        if(self.colorInput.get() != ''):
+            print("Color simulation possible")
+            #self.make_color_simulation()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
@@ -461,7 +464,7 @@ class Root(Tk):
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...")  
 
-        #self.simLoadingLabel['text'] = "Simulation : " + self.done
+        self.simLoadingLabel['text'] = "Simulation : " + self.done
 
     #---------------------------------------------------------------
 
