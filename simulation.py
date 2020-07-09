@@ -497,7 +497,7 @@ class Simulation:
 
 		self.btnEnd = ttk.Button(self.popupEnd, text="Close", command = self.popupEnd.destroy)
 		self.btnEnd.grid(column = 0, row = 2)
-		self.popupEnd.mainloop()
+		self.popupEnd.update()
 
 	def popupmsg(self,msg):
 		popup = Tk()
