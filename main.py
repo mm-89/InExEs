@@ -1,5 +1,13 @@
 import simulation as sim
+import sun_ray_direction as srd
+import posture as ps
+import output as op
+import gui
 
+import matplotlib.pyplot as plt
+import trimesh as tm
+
+from tkinter import *
 #-------------------------------------------
 #------------------NAMELIST-----------------
 #-------------------------------------------
@@ -36,7 +44,7 @@ end_date    = '06/02/2009 00:01:00'
 
 #-------------------------------------------------------------------------
 
-my_simulation = sim.Simulation(start_date, 
+'''my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
 								my_posture_file,
@@ -46,7 +54,7 @@ my_simulation = sim.Simulation(start_date,
 								data_path=my_data_file,
 								loop_on_faces=True		#0:faces;1:vertices
 								)
-
+'''
 #my_simulation.set_start_angle(start_angle_azimuth)
 
 #to make sure how your mesh is orientated in the space----
@@ -58,4 +66,11 @@ my_simulation = sim.Simulation(start_date,
 #my_simulation.set_zone_to_simulate("blgree")
 
 #to make a whole simulation---------------------------------
-my_simulation.make_simulation()
+#my_simulation.make_simulation() USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
+
+#-------------------------------------------
+#------------------GUI-----------------
+#-------------------------------------------
+window = gui.Root()
+window.mainloop()
+
