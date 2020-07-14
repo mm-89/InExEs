@@ -460,6 +460,7 @@ class Simulation:
 		
 
 
+	
 	def set_zone_to_simulate(self, RGB_map):
 		"""
 		Prototype: with this instance I'd like to
@@ -471,20 +472,23 @@ class Simulation:
 		"""
 		vec_id = []
 		ver = False
+		compon_RGB = int(len(RGB_map) / 4)
 		if(self.loop_on_faces):
 			for k, item in enumerate(self.posture.get_faces_color):
-				if(np.array_equal(item, cm.color_map[RGB_map])): 
-					vec_id.append(k)
-					ver = True
+				for i in range(compon_RGB):
+					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
+						vec_id.append(k)
+						ver = True
 		else:
 			for k, item in enumerate(self.posture.get_vertices_color):
-				if(np.array_equal(item,cm.color_map[RGB_map])): 
-					vec_id.append(k)
-					ver = True
+				for i in range(compon_RGB):
+					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
+						vec_id.append(k)
+						ver = True
 
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
-							
+		
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
