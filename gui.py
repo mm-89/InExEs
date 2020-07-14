@@ -461,7 +461,7 @@ class Root(Tk):
         self.save_form()
         if(self.colorInput.get() != ''):
             print("Color simulation possible")
-            #self.make_color_simulation()
+            self.make_color_simulation()
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
             self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
@@ -592,14 +592,14 @@ class Root(Tk):
         self.colorPopup.destroy()
         #Making sure there the same color twice
         tmp = set(tuple(x) for x in rgbList)
-        final = list(tmp)
+        self.rgbMap = list(tmp)
         print(rgbList)
-        print(final)
+        print(self.final)
 
     def make_color_simulation(self):
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
-            simulation.set_zone_to_simulate("red")
+            simulation.set_zone_to_simulate(self.rgbMap)
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...") 
 
