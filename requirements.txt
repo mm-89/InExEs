@@ -1,5 +1,4 @@
 matplotlib
-trimesh
 shapely
 scipy
 networkx

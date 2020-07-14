@@ -1,108 +1,197 @@
-from math import *
+import math as mt
 import numpy as np
 import random
 
-#PARAMS : comp
-#OUTPUT : array of theta and phi value 
-#DESCRIPTION : get theta and phi values for ?
+import shared_parameters as sp
+
+
 def from_cartesian_to_polar(comp):
-
-    #compute theta
-    theta = acos(comp[2])
-
-    #compute phi
-    phi = np.arctan2(comp[1], comp[0])
-
-    return np.array([theta, phi])
-
-
-def from_polar_to_cartesian(comp):
     """
-    Note: comp[0] has to be zenith angle
-    while comp[1] has to be azimuth angle
+    Convert cartesian coordinates
+    of InExEs referent frame
+    [x, y, z] into polar-spherical
+    coordinates [zenith, azimut].
+
+    Parameters:
+    ------------
+    comp :   (, 3) float
+        versor cartesian coordinates
+        in InExEs reference frame
+
+    Returns:
+    -----------
+    polar_coordinates :   (, 2) float
+        polar-spherical coordinates
+        in InExEs reference frame
+
     """
-    x = sin(comp[0])*cos(comp[1])
-    y = sin(comp[0])*sin(comp[1])
-    z = cos([comp[0]])
+    polar_coordinates = np.array([mt.acos(comp[1]),
+                        np.arctan2(comp[0], -comp[2])])
+    return polar_coordinates
+
+
+def from_polar_to_cartesian(zenith, azimuth):
+    """
+    Convert polar atronomical coordinates
+    [zenith, azimuth] into cartesian
+    coordinates [x, y, z].
+
+    Parameters:
+    ------------
+    zenith :   (, 1) float
+        zenith angle in degree. 
+        Possible values from 0°
+        to 180°
+    azimuth :   (, 1) float
+        azimuth angle in degree. 
+        Possible values from 0°
+        to 360°
+
+    Returns:
+    -----------
+    x : cartesian coordinate x
+    y : cartesian coordinate y
+    z : cartesian coordinate z
+
+    [x, y, z] is a versor ==
+    x2 + y2 + z2 = 1
     
-    return x, y, z
+    Note: this function has been written 
+    to transform input data of the model
+    and it is used only for this
+    """
+ 
+    x = mt.sin(np.radians(zenith))*mt.sin(np.radians(azimuth))
+    y = mt.cos(np.radians(zenith))
+    z = - mt.sin(np.radians(zenith))*mt.cos(np.radians(azimuth))
 
-#PARAMS : theta, phi
-#OUTPUT : 
-#DESCRIPTION : 
-def matrix_rotation(theta, phi):
-    #first rotation in xy axis 
-    first = np.array([[cos(phi), -sin(phi), 0.],[sin(phi), cos(phi), 0.],[0., 0., 1.]])
+    return np.array([x, y, z])
     
-    #second rotation in xz axis
-    second = np.array([[cos(theta), 0., sin(theta)],[0., 1., 0.],[-sin(theta), 0., cos(theta)]])
 
-    return np.dot(first, second)
+def rotation_matrix_3D_xy(angle):
+	"""
+	Classical rotational 3D matrix around z-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[mt.cos(angle), -mt.sin(angle), 0],
+					[mt.sin(angle), mt.cos(angle), 0],
+					[0, 0, 1]])
+
+def rotation_matrix_3D_yz(angle):
+	"""
+	Classical rotational 3D matrix around x-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[1, 0, 0],
+					[0, mt.cos(angle), -mt.sin(angle)],
+					[0, mt.sin(angle), mt.cos(angle)]])
 
 
-#PARAMS : N
-#OUTPUT : 
-#DESCRIPTION : perfectly uniform random point generation on a hemisphere
-def point_hemisphere_uniform(N):
+def rotation_matrix_3D_xz(angle):
+	"""
+	Classical rotational 3D matrix around y-axis 
+	of angle "angle" (counterclockwise)
+	"""
+	return np.array([[mt.cos(angle), 0, mt.sin(angle)],
+					[0, 1, 0],
+					[-mt.sin(angle), 0, mt.cos(angle)]])
+
+
+def uniform_points_hemisphere(N, diff):
+    """
+    Generate N points on the upper
+    hemisphere uniformly distribuited.
+
+
+    Ref. Markus Deserno 2004
+
+    Parameters:
+    ------------
+    N :   int
+        total points number
+
+    diff :  bool
+        if True it gives N points
+        on the upper hemisphere
+        if False it gives N points
+        on the lower hemisphere
+
+    Returns:
+    -----------
+    polar_coordinates :   (N, 3) float
+        cartesian coordinates of N
+        points uniformly distribuited
+        on upper hemisphere
+
+    Note1: it needs to be well orientated
+    Note2: this methos sometimes cannot
+    generated exaclty N points but some 
+    more or less.
+    """
     res = []
 
     n_c = 0
-    m_theta = int(round((pi*N/4)**0.5))
+    m_theta = int(round((mt.pi*N/4)**0.5))
 
-    d_theta = pi/m_theta
-    d_phi = 4*pi/(d_theta*N)
+    d_theta = mt.pi/m_theta
+    d_phi = 4*mt.pi/(d_theta*N)
 
     for i in range(m_theta):
-        theta = pi*(i + 0.5)/(2*m_theta)
-        m_phi = int(round(2*pi*sin(theta)/d_phi))
+        theta = mt.pi*(i + 0.5)/(2*m_theta)
+        
+        if not diff:
+            theta = mt.pi*(i + 0.5)/(2*m_theta) + mt.pi/2.
+            
+        m_phi = int(round(2*mt.pi*mt.sin(theta)/d_phi))
 
         for j in range(m_phi):
-            phi = 2*pi*j/m_phi
+            phi = 2*mt.pi*j/m_phi
 
-            x = sin(theta)*cos(phi)
-            y = sin(theta)*sin(phi)
-            z = cos(theta)
+            x = mt.sin(theta)*mt.sin(phi)
+            y = mt.cos(theta)
+            z = - mt.sin(theta)*mt.cos(phi)
     
             res.append(np.array([x, y, z]))
             n_c += 1
     
-    return res[:N]
+    return np.array(res[:N])
 
 
+def random_points_hemisphere(N, diff):
+	"""
+	Generate N points on the upper
+	hemisphere randomly distribuited.
 
-#PARAMS : N
-#OUTPUT : 
-#DESCRIPTION : random points generation on a hemisphere
-def point_hemisphere_random(N):
+	Ref. any about Monte Carlo
+	inverse problem
 
-    res = []
+	Parameters:
+	------------
+	N :   int
+		total points number
 
-    for i in range(N):  #just to have same dimensionality of uniform one
-        phi = 2*pi*random.uniform(0,1)
-        theta = np.arccos(random.uniform(0,1))
+	Returns:
+	-----------
+	polar_coordinates :   (N, 3) float
+		cartesian coordinates of N
+		points randomly distribuited
+		on upper hemisphere. Each
+		row is a versor.
+	"""
+	res = []
 
-        x = sin(theta)*cos(phi)
-        y = sin(theta)*sin(phi)
-        z = (cos(theta))
-    
-        res.append(np.array([x, y, z]))
+	for i in range(N):
 
-    return res
+		phi = random.uniform(0, 2*mt.pi)
+		if(diff):
+			theta = mt.acos(random.uniform(0, 1))
+		else:
+			theta = mt.acos(random.uniform(-1., 0))
 
+		x = mt.sin(theta)*mt.sin(phi)
+		y = mt.cos(theta)
+		z = - mt.sin(theta)*mt.cos(phi)
 
-#PARAMS : N, theta, phi, random
-#OUTPUT : 
-#DESCRIPTION : 
-def make_rays_in_a_hemisphere(N, theta, phi, random=True):
-    if(random):
-        my_points = point_hemisphere_random(N)
-    else:
-        my_points = point_hemisphere_uniform(N)
-  
-    my_points_new = []
+		res.append(np.array([x, y, z]))
 
-    for i in my_points:
-        my_points_new.append(np.dot(matrix_rotation(theta, phi), i))
-
-    return my_points_new
-    
+	return np.array(res)
