@@ -174,7 +174,6 @@ class Simulation:
 		self.popup_process.update()
 		
 
-		k = 0
 		acc = 0
 
 		start = time.time()
@@ -198,7 +197,6 @@ class Simulation:
 				rad_ref = 0 
 				
 				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
-				print("Percent complete: ", round(k/self.total_timestep_of_simulation*100,1))
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
@@ -263,7 +261,6 @@ class Simulation:
 				current_line += 1
 
 				acc += 1
-				k += 1
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.close()
 			#self.popup_process.destroy()
