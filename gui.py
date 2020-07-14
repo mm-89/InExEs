@@ -28,6 +28,9 @@ class Root(Tk):
         self.globalFrame2 = Frame(self, bd= 10, relief = RIDGE, padx = 12)
         self.globalFrame2.grid(column = 1, row = 0, sticky='nw')
 
+        self.globalFrame3 = Frame(self, bd= 10, relief = RIDGE, padx = 12)
+        self.globalFrame3.grid(column = 0, row = 1, sticky='nw')
+
         self.meshFrame = LabelFrame(self.globalFrame, text = "Load a mesh")
         self.meshFrame.grid(column = 0, row = 0, pady= 10, sticky='w')
         #self.meshFrame.place(x=30,y=30,height=20,width=100)
@@ -49,6 +52,9 @@ class Root(Tk):
 
         self.simInfosFrame = LabelFrame(self.globalFrame2, text = "Simulation informations")
         self.simInfosFrame.grid(column = 1, row = 0, padx = 15, sticky='nw')
+
+        self.commandsFrame = LabelFrame(self.globalFrame3, text = "Others commands")
+        self.commandsFrame.grid(column = 1, row = 0, padx = 15, sticky='w')
 
         # ----------------------------------------------------------
 
@@ -152,14 +158,14 @@ class Root(Tk):
         self.tBtn = Button(self, text="test function", command=self.test)
         self.tBtn.grid(column=0, row=8)
 
-        self.autoBtn = Button(self, text="auto complete form", command=self.autocomplete_form)
-        self.autoBtn.grid(column=0, row=9)
+        self.autoBtn = Button(self.globalFrame3, text="auto complete form", command=self.autocomplete_form)
+        self.autoBtn.grid(column=1, row=1)
 
-        self.autoCompleteBtn = Button(self, text="auto complete with last form", command=self.autocomplete_with_saved_form)
-        self.autoCompleteBtn.grid(column=0, row=10)
+        self.autoCompleteBtn = Button(self.globalFrame3, text="auto complete with last form", command=self.autocomplete_with_saved_form)
+        self.autoCompleteBtn.grid(column=1, row=2)
 
-        self.clearAllBtn = Button(self, text="clear form", command=self.clear_all)
-        self.clearAllBtn.grid(column=0, row=11)
+        self.clearAllBtn = Button(self.globalFrame3, text="clear form", command=self.clear_all)
+        self.clearAllBtn.grid(column=1, row=3)
 
     def test(self):
         self.timestep_selector()
