@@ -23,7 +23,7 @@
 #        removed immediately, and some functions will alter
 #        the mesh to ensure consistent results.
 
-N = 10000
+N = 10
 translation_factor = 2.
 random_points = False
 
