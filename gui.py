@@ -598,8 +598,8 @@ class Root(Tk):
 
     def make_color_simulation(self):
         try :
-            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
-            simulation.set_zone_to_simulate(self.rgbList)
+            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath,loop_on_faces=True)
+            simulation.set_zone_to_simulate(self.rgbList[0]+self.rgbList[1] )
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...") 
 
