@@ -584,22 +584,22 @@ class Root(Tk):
         #hexList = self.colorInput.get().split(',')
         hexList = self.hexString.split(',')
         hexList.pop() #get rid of last element because it' always empty
-        rgbList = []
+        self.rgbList = []
         
         for c in hexList:
-            rgbList.append(self.colorsDict.get(c))
+            self.rgbList.append(self.colorsDict.get(c))
         
         self.colorPopup.destroy()
         #Making sure there the same color twice
-        tmp = set(tuple(x) for x in rgbList)
+        tmp = set(tuple(x) for x in self.rgbList)
         self.rgbMap = list(tmp)
-        print(rgbList)
-        print(self.final)
+        print(self.rgbList)
+        print(self.rgbMap)
 
     def make_color_simulation(self):
         try :
             simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
-            simulation.set_zone_to_simulate(self.rgbMap)
+            simulation.set_zone_to_simulate(self.rgbList)
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...") 
 
