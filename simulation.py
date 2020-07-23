@@ -473,9 +473,12 @@ class Simulation:
 		vec_id = []
 		ver = False
 		compon_RGB = int(len(RGB_map) / 4)
+		print("On commence a look les couleurs", self.loop_on_faces, compon_RGB)
 		if(self.loop_on_faces):
 			for k, item in enumerate(self.posture.get_faces_color):
 				for i in range(compon_RGB):
+					print("COMPON_RGB : ",i)
+					print("FACE COLORS ITEM", item)
 					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
 						vec_id.append(k)
 						ver = True
@@ -513,6 +516,9 @@ class Simulation:
 		for item in vec_id:
 			new_faces_vector.append(item)
 		self.faces = new_faces_vector
+
+
+
 	#GUI PROGRESS BAR :
 	def sim_process_bar(self):
 		self.popup_process = Tk()
