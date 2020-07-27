@@ -11,8 +11,8 @@ import random
 random.seed(12)
 
 import beta_coefficients as bc
-import shared_parameters as sp
-#meshes for test
+
+#meshes for test ----------------------------------------
 
 my_cube = "postures_test/cube_test.ply"
 my_tetrahedron = "postures_test/tetrahedron_test.ply"
@@ -38,8 +38,7 @@ class Test_Beta_Coefficients(unittest.TestCase):
         self.beta_coeff_cube = bc.compute_beta(my_cube,
                                 my_mesh_cube,
                                 my_mesh_cube.face_normals,
-                                my_mesh_cube.triangles_center + \
-                                my_mesh_cube.face_normals*sp.normalization_factor)
+                                my_mesh_cube.triangles_center)
 
         #diff and refl parameter - analitical
         self.top_diff, self.top_diff_err = quad(integral_cube, 0, pi/2., args=(0.))
@@ -53,8 +52,7 @@ class Test_Beta_Coefficients(unittest.TestCase):
         self.beta_coeff_tetr = bc.compute_beta(my_tetrahedron,
                                 my_mesh_tetrahedron,
                                 my_mesh_tetrahedron.face_normals,
-                                my_mesh_tetrahedron.triangles_center + \
-                                my_mesh_tetrahedron.face_normals*sp.normalization_factor)
+                                my_mesh_tetrahedron.triangles_center)
 
         #diff parameter - analitical
         #divide the domain in 1/4 of sphere + 1/8 of sphere
@@ -103,10 +101,14 @@ class Test_Beta_Coefficients(unittest.TestCase):
                                 delta=self.beta_coeff_cube[5, 2])
 
         # surface 7 diff - bot
-        self.assertEqual(self.beta_coeff_cube[6, 0], 0.)
+        self.assertAlmostEqual(self.beta_coeff_cube[6, 0], 
+							0.,
+							delta=self.beta_coeff_cube[6, 2])
 
         # surface 8 diff - bot
-        self.assertEqual(self.beta_coeff_cube[7, 0], 0.)
+        self.assertAlmostEqual(self.beta_coeff_cube[7, 0], 
+								0.,
+								delta=self.beta_coeff_cube[7, 2])
 
         # surface 9 diff - lateral
         self.assertAlmostEqual(self.beta_coeff_cube[8, 0], 
@@ -139,10 +141,14 @@ class Test_Beta_Coefficients(unittest.TestCase):
                                 delta=self.beta_coeff_cube[1, 3])
 
         # surface 3 refl - top
-        self.assertEqual(self.beta_coeff_cube[2, 1], 0.)
+        self.assertAlmostEqual(self.beta_coeff_cube[2, 1], 
+								0.,
+								delta=self.beta_coeff_cube[2, 2])
 
         # surface 4 diff - top
-        self.assertEqual(self.beta_coeff_cube[3, 1], 0.)
+        self.assertAlmostEqual(self.beta_coeff_cube[3, 1], 
+								0.,
+								delta=self.beta_coeff_cube[4, 2])
 
         # surface 5 refl - lateral
         self.assertAlmostEqual(self.beta_coeff_cube[4, 1], 
