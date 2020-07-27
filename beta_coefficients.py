@@ -95,9 +95,10 @@ def compute_beta(path, file, face_normals, face_centers):
 			# parameter i: index of the first hitten
 			# parameter j: boolean
 			tmp_acc_comp = [k for k, i in enumerate(res_diff) if i == count]
-			integer_count_diff = map(lambda x: np.dot(face_normals[count], ray_diff_hem[x]), tmp_acc_comp)
+			integer_count_diff = [np.dot(face_normals[count], ray_diff_hem[x]) for x in tmp_acc_comp]
 
 			integer_tot_diff = 2*mt.pi*sum(integer_count_diff)/sp.N
+			var_diff = 2*mt.pi*sum([ (x - integer_tot_diff/(2*mt.pi))**2 for x in  integer_count_diff])/sp.N
 
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
@@ -111,16 +112,19 @@ def compute_beta(path, file, face_normals, face_centers):
 			# parameter i: index of the first hitten
 			# parameter j: boolean
 			tmp_acc_comp = [k for k, i in enumerate(res_refl) if i == count]
-			integer_count_refl = map(lambda x: np.dot(face_normals[count], ray_refl_hem[x]), tmp_acc_comp)
+			integer_count_refl = [np.dot(face_normals[count], ray_refl_hem[x]) for x in tmp_acc_comp]
 
 			integer_tot_refl = 2*mt.pi*sum(integer_count_refl)/sp.N
+			var_refl = 2*mt.pi*sum([ (x - integer_tot_refl/(2*mt.pi))**2 for x in  integer_count_refl])/sp.N
 
 			#----------------------------------------------------------------------------
 
 			#print diff and refl ratio
 			#print diff and refl standard deviations
 			beta.append(np.array([integer_tot_diff,
-								integer_tot_refl]))
+								integer_tot_refl,
+								var_diff**0.5,
+								var_refl**0.5]))
 			
 			print("Computing beta ... ", 
 				round(count/len(face_normals)*100,1), 
