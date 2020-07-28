@@ -1,4 +1,5 @@
 import beta_coefficients as bc
+import skin_reflection as sr
 import math_refl_diff as mrd
 import shared_parameters as sp
 
@@ -7,6 +8,8 @@ import sys
 import numpy as np
 
 class Posture:
+
+	compute_skin_refl = False
 
 	def __init__(self, my_file):
 		self.path = my_file
@@ -26,6 +29,15 @@ class Posture:
 											self.my_file,
 											self.my_file.vertex_normals,
 											self.vertices_normals_minimized)
+
+		if(self.compute_skin_refl):
+			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path,
+											self.my_file,
+											self.my_file.face_normals,
+											self.my_file.triangles_center)
+
+			if len(np.shape(self.skinRefl_coeff[0])) != len(np.shape(self.skinRefl_coeff[2])):
+				raise TypeError("Something gone wrong in skinRefl upload")
 			
 
 	def get_angles_from_normals(self):
