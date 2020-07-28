@@ -191,6 +191,3 @@ class Test_Math_Refl_Diff(unittest.TestCase):
 		for x, y in zip(mtrx1, mtrx2):
 			self.assertListAlmostEqual(x, y, delta)
 	#------------------------------------------------------------------------
-
-if __name__ == '__main__':
-    unittest.main()
