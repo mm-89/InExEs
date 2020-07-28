@@ -232,5 +232,5 @@ class Test_Beta_Coefficients(unittest.TestCase):
                                 self.bot_refl_tr, 
                                 delta=10*self.beta_coeff_tetr[3, 3])
 
-if __name__ == '__main__':
-    unittest.main()
+#if __name__ == '__main__':
+#    unittest.main()
