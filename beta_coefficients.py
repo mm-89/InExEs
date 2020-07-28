@@ -76,20 +76,20 @@ def compute_beta(path, file, face_normals, face_centers):
 			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
 		#in this case fnm is triangle centres
 
-		bounds_no = np.linalg.norm(file.bounds[1])
+		bounds_no = float(np.linalg.norm(file.bounds[1]))
 		tf_no = sp.translation_factor
 
 		for count, item in enumerate(face_centers):
 
 			# translate each diff_hem of face center point
 			curr_tr_centre = [item for i in range(sp.N)]
-	
-			# diffuse part of beta coefficient ----------------------------------------
-			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, ray_diff_hem)]
-			ray_direction_diff_in = [-item for item in ray_diff_hem]
 
-			res_diff = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_diff_in))
+			# diffuse part of beta coefficient ----------------------------------------
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_diff_hem))]
+			ray_direction_diff_in = [-item for item in np.array(ray_diff_hem)]
+
+			res_diff = file.ray.intersects_first(ray_origins=ray_origins, 
+												ray_directions=ray_direction_diff_in)
 
 
 			# parameter i: index of the first hitten
@@ -103,11 +103,11 @@ def compute_beta(path, file, face_normals, face_centers):
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
 
-			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre,ray_refl_hem)]
-			ray_direction_refl_in = [-item for item in ray_refl_hem]
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_refl_hem))]
+			ray_direction_refl_in = [-item for item in np.array(ray_refl_hem)]
 
-			res_refl = file.ray.intersects_first(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_refl_in))
+			res_refl = file.ray.intersects_first(ray_origins=ray_origins, 
+												ray_directions=ray_direction_refl_in)
 
 			# parameter i: index of the first hitten
 			# parameter j: boolean
