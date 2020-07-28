@@ -151,10 +151,10 @@ def uniform_points_hemisphere(N, diff):
             y = mt.cos(theta)
             z = - mt.sin(theta)*mt.cos(phi)
     
-            res.append(np.array([x, y, z]))
+            res.append([x, y, z])
             n_c += 1
     
-    return np.array(res[:N])
+    return res[:N]
 
 
 def random_points_hemisphere(N, diff):
@@ -192,6 +192,6 @@ def random_points_hemisphere(N, diff):
 		y = mt.cos(theta)
 		z = - mt.sin(theta)*mt.cos(phi)
 
-		res.append(np.array([x, y, z]))
+		res.append([x, y, z])
 
-	return np.array(res)
+	return res
