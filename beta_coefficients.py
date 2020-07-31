@@ -132,8 +132,3 @@ def compute_beta(path, file, face_normals, face_centers):
 			
 		np.savetxt(fileName, beta, fmt="%.10f")
 	return np.loadtxt(fileName)
-
-def test_my(vector_component, current_face, count_acc):
-	if vector_component == current_face:
-		return count_acc
-	count_acc += 1
