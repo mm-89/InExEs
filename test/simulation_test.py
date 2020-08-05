@@ -5,7 +5,7 @@ sys.path.insert(0, '../')
 
 import csv
 import numpy as np
-from math import pi
+from math import pi, sqrt
 
 import simulation as sim
 from math_refl_diff import from_polar_to_cartesian as fpc
@@ -14,32 +14,50 @@ from math_refl_diff import from_polar_to_cartesian as fpc
 #blablabla
 #--------------------------------------------------
 
-delta_range = 1e-15
+delta_range_dir = 1e-16
+delta_range = 1e-4
 
-# parameters for simulation---------------
+# CUBE parameters for simulation---------------
 
 my_posture_file_cube = "postures_test/cube_test.ply"
 output_name_cube = "this_test_cube"
 input_test = "input/input_test.csv"
 timestep = 60.
-latitude = 45
+latitude = 45.
 start_date  = '01/01/2009 00:01:00'
 end_date    = '01/01/2009 23:59:00'
 
-#----------------------------------------
-
-# make simulation output-----------------
-
-my_sim = sim.Simulation(start_date, 
+my_sim_cube = sim.Simulation(start_date, 
 			end_date, 
 			timestep, 
 			my_posture_file_cube,
 			output_name_cube,
 			latitude=latitude,
 			read_data=True,
-                        data_path=input_test)
-								
-my_sim.make_simulation()
+			data_path=input_test)
+#-----------------------------------------
+# TETRAHEDRON parameters for simulation---
+
+my_posture_file_tetr = "postures_test/tetrahedron_test.ply"
+output_name_tetr = "this_test_tetrahedron"
+input_test = "input/input_test.csv"
+timestep = 60.
+latitude = 45.
+start_date  = '01/01/2009 00:01:00'
+end_date    = '01/01/2009 23:59:00'
+
+my_sim_tetr = sim.Simulation(start_date, 
+			end_date, 
+			timestep, 
+			my_posture_file_tetr,
+			output_name_tetr,
+			latitude=latitude,
+			read_data=True,
+ 			data_path=input_test)
+		
+#-----------------------------------------						
+my_sim_cube.make_simulation()
+my_sim_tetr.make_simulation()
 #-----------------------------------------
 
 def open_output(path):
@@ -137,21 +155,58 @@ class TestGeneral(unittest.TestCase):
 		self.refl_cube = make_refl_diff_cube(self.cub_ref_tot)
 
 		#------------------------------------------------------------------
+		# charge data for tetrahedron--------------------------------------
+		
+		tetr_dir, tetr_dif, tetr_ref = open_output(output_name_tetr)
 
-        
-	def test_simulation_direct(self):
-		#print(self.cub_dir_tot, self.rad_cub_fin)
-		self.assertListAlmostEqual(self.cub_dir_tot, self.rad_cub_fin, delta=delta_range)
+		self.tet_dir_tot = [i/60. for i in tetr_dir] # output is in Joule
+		self.tet_dif_tot = [i/60. for i in tetr_dif] # output is in Joule
+		self.tet_ref_tot = [i/60. for i in tetr_ref] # output is in Joule
+
+		tetr_faces = [[1./sqrt(3), 1./sqrt(3), -1./sqrt(3)], 
+					[-1./sqrt(3), 1./sqrt(3), 1./sqrt(3)], 
+					[1./sqrt(3), -1./sqrt(3), 1./sqrt(3)], 
+					[-1./sqrt(3), -1./sqrt(3), -1./sqrt(3)]]
+
+		tot_rad_tetr_rcv = []
+		for item in tetr_faces:
+			tot_rad_tetr_rcv.append( simulate_face(directions, item) )
+
+		self.rad_tet_fin = []
+		for item in np.array(tot_rad_tetr_rcv).T:
+			self.rad_tet_fin.append( sum(item)/4 )
 
 
-	def test_simulation_diffuse(self):
-		#print(self.cub_dir_tot, self.rad_cub_fin)
-		self.assertListAlmostEqual(self.cub_dif_tot, self.diff_cube, delta=1e-4)
+		self.diff_tetr = make_refl_diff_cube(self.tet_dif_tot)
+		self.refl_tetr = make_refl_diff_cube(self.tet_ref_tot)
+		
+		#------------------------------------------------------------------
+
+    # CUBE--------------
+
+	def test_simulation_direct_cube(self):
+		self.assertListAlmostEqual(self.cub_dir_tot, self.rad_cub_fin, delta=delta_range_dir)
 
 
-	def test_simulation_reflect(self):
-		#print(self.cub_dir_tot, self.rad_cub_fin)
-		self.assertListAlmostEqual(self.cub_ref_tot, self.refl_cube, delta=1e-4)
+	def test_simulation_diffuse_cube(self):
+		self.assertListAlmostEqual(self.cub_dif_tot, self.diff_cube, delta=delta_range)
+
+
+	def test_simulation_reflect_cube(self):
+		self.assertListAlmostEqual(self.cub_ref_tot, self.refl_cube, delta=delta_range)
+
+	# TETRAHEDRON--------
+
+	def test_simulation_direct_cube(self):
+		self.assertListAlmostEqual(self.tet_dir_tot, self.rad_tet_fin, delta=delta_range_dir)
+
+
+	def test_simulation_diffuse_cube(self):
+		self.assertListAlmostEqual(self.tet_dif_tot, self.diff_tetr, delta=delta_range)
+
+
+	def test_simulation_reflect_cube(self):
+		self.assertListAlmostEqual(self.tet_ref_tot, self.refl_tetr, delta=delta_range)
 
 	#------------------------------------------------------------------------
 	# this is needed because, as far as I know,
