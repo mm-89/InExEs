@@ -509,9 +509,6 @@ class Simulation:
 		for item in vec_id:
 			new_faces_vector.append(item)
 		self.faces = new_faces_vector
-<<<<<<< HEAD
-=======
-
 
 
 	#GUI PROGRESS BAR :
@@ -566,5 +563,3 @@ class Simulation:
 
 		self.Btnstop = ttk.Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
 		self.Btnstop.grid(column = 0, row = 3)'''
-		
->>>>>>> 1afd76c30d7b6ddd9c5bbcfe5115ec3600ed6fad
