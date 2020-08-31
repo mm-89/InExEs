@@ -173,7 +173,7 @@ class Simulation:
 									self.data[current_line, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 
 				#compute only light days
-				if(self.data[current_line, dm.data_map["zenith"]]<85.):
+				if(self.data[current_line, dm.data_map["zenith"]]<90.):
 				
 					ray_directions = [-ray_source_direction for item in range(len(self.ray_origins))]
 
