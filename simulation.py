@@ -14,6 +14,29 @@ import datetime
 import time
 import csv
 import os
+from tqdm import tqdm
+
+from tkinter import *
+from tkinter import ttk
+import tkinter as tk
+import gui as ui
+#--------------- IMPORT FOR PYEMBREE TESTS ---------------
+"""from copy import deepcopy
+
+from pyembree import __version__ as _ver
+from pyembree import rtcore_scene
+from pyembree.mesh_construction import TriangleMesh
+
+from pkg_resources import parse_version
+
+from .ray_util import contains_points
+
+from .. import util
+from .. import caching
+from .. import intersections
+
+from ..constants import log_time"""
+#--------------- IMPORT FOR PYEMBREE TESTS END ---------------
 
 class Simulation:
 
@@ -144,6 +167,13 @@ class Simulation:
 		print("Start simulation...")
 		print("")
 
+		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
+		#self.process_feedback()
+		self.sim_process_bar()
+		self.popup_process.update()
+		
+
 		acc = 0
 
 		start = time.time()
@@ -167,6 +197,18 @@ class Simulation:
 				rad_ref = 0 
 				
 				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
+				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+				#loadingBarSim.set_description("Simulating...".format(k))
+				#loadingBarSim.update(1)
+				'''if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
+					self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
+					self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+				'''	
+				#UPDATE POPUP FEEDBACK
+				'''self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
+				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+				self.popupFeedback.update()'''
+
 
 				#compute source rays direction
 				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
@@ -217,6 +259,12 @@ class Simulation:
 				current_line += 1
 
 				acc += 1
+			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+			#loadingBarSim.close()
+			#self.popup_process.destroy()
+			self.destroy_popup()
+			self.popup_end_simulation()
+		
 
 		else:
 
@@ -237,6 +285,7 @@ class Simulation:
 				rad_dir = 0
 				
 				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
+
 
 				#compute source rays direction
 				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
@@ -292,6 +341,7 @@ class Simulation:
 
 
 	def show_one_timestep(self, date):
+		print("date : ", date, type(date))
 
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
@@ -400,7 +450,13 @@ class Simulation:
 			tm.exchange.export.export_mesh(my_new_mesh, "output/" + "ref_frame_" + \
 												fileName + "_" + item + ".ply")
 
+		#OSVALDO'S GUI MODIFICATIONS
+		self.popupmsg("Reference frame exported successfully !")
 
+		
+
+
+	
 	def set_zone_to_simulate(self, RGB_map):
 		"""
 		Prototype: with this instance I'd like to
@@ -453,3 +509,62 @@ class Simulation:
 		for item in vec_id:
 			new_faces_vector.append(item)
 		self.faces = new_faces_vector
+<<<<<<< HEAD
+=======
+
+
+
+	#GUI PROGRESS BAR :
+	def sim_process_bar(self):
+		self.popup_process = Tk()
+		self.popup_process.wm_title("Simulation process...")
+		#self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
+		#self.progressBar['maximum'] = 100
+		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.destroy_popup)
+		#self.progressBar.grid(column = 1, row = 1, pady = 10)
+		self.stopBtn.grid(column = 1, row = 2)
+
+		self.labelPercentage = Label(self.popup_process, text="Simulation is processing, you can follow the progress on your terminal !")
+		self.labelPercentage.grid(column = 1, row = 3, pady = 10)
+
+	def destroy_popup(self):
+    		self.popup_process.destroy()
+
+	def popup_end_simulation(self):
+		self.popupEnd = Toplevel()
+		self.popupEnd.wm_title("Simulation done !")
+		self.labelEnd = ttk.Label(self.popupEnd, text="Simulation ended succesfully")
+		self.labelEnd.grid(column = 0 , row = 1, pady = 10)
+
+		self.btnEnd = ttk.Button(self.popupEnd, text="Close", command = self.popupEnd.destroy)
+		self.btnEnd.grid(column = 0, row = 2)
+		self.popupEnd.update()
+
+	def popupmsg(self,msg):
+		popup = Tk()
+		popup.wm_title("Success !")
+		label = ttk.Label(popup, text=msg)
+		label.pack(side="top", fill="x", pady=10)
+		B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+		B1.pack()
+		popup.update()
+
+	#PLEASE DO NOT ERASE CAN BE USEFULL !
+	'''def update_value_process_bar(self, value):
+		self.progressBar['value'] = value
+		self.progressBar.update()
+
+
+	def process_feedback(self):
+		self.popupFeedback = Toplevel()
+		self.popupFeedback.wm_title("Simulation process...")
+		self.labelTimestep = ttk.Label(self.popupFeedback, text="Current timestep : ")
+		self.labelTimestep.grid(column = 0 , row = 1, pady = 10)
+
+		self.labelPercentage2 = ttk.Label(self.popupFeedback, text="Percentage complete : ")
+		self.labelPercentage2.grid(column = 0, row = 2, pady = 10)
+
+		self.Btnstop = ttk.Button(self.popupFeedback, text="Stop Simulation", command = self.destroy_popup)
+		self.Btnstop.grid(column = 0, row = 3)'''
+		
+>>>>>>> 1afd76c30d7b6ddd9c5bbcfe5115ec3600ed6fad
