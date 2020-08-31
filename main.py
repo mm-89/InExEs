@@ -1,12 +1,10 @@
 import simulation as sim
-<<<<<<< HEAD
 from color_map import color_map as cm
-=======
 import sun_ray_direction as srd
 import posture as ps
 import output as op
+
 import gui
->>>>>>> 1afd76c30d7b6ddd9c5bbcfe5115ec3600ed6fad
 
 import matplotlib.pyplot as plt
 import trimesh as tm
@@ -48,7 +46,10 @@ end_date    = '01/07/2009 22:39:00'
 
 #-------------------------------------------------------------------------
 
-'''my_simulation = sim.Simulation(start_date, 
+#USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
+
+
+my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
 								my_posture_file,
@@ -58,27 +59,25 @@ end_date    = '01/07/2009 22:39:00'
 								data_path=my_data_file,
 								loop_on_faces=True		#0:faces;1:vertices
 								)
-'''
+
 #my_simulation.set_start_angle(start_angle_azimuth)
 
 #to make sure how your mesh is orientated in the space----
 #my_simulation.export_reference_frame()
 
 #to visualize a particular timestep-----------------------
-my_simulation.show_one_timestep(end_date)
+#my_simulation.show_one_timestep(end_date)
 
 #my_simulation.set_zone_to_simulate(cm["green"])
 
 #to make a whole simulation---------------------------------
-<<<<<<< HEAD
-#my_simulation.make_simulation()
-=======
-#my_simulation.make_simulation() USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
+my_simulation.make_simulation() 
 
+
+"""
 #-------------------------------------------
 #------------------GUI-----------------
 #-------------------------------------------
 window = gui.Root()
 window.mainloop()
-
->>>>>>> 1afd76c30d7b6ddd9c5bbcfe5115ec3600ed6fad
+"""
