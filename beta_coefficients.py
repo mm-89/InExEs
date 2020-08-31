@@ -5,6 +5,8 @@ import math as mt
 import numpy as np
 import random
 
+import time 
+
 def compute_beta(path, file, face_normals, face_centers):
 	"""
 	Generate beta coefficient (see
@@ -73,61 +75,60 @@ def compute_beta(path, file, face_normals, face_centers):
 			# N rays on lower hemisphere
 			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
 		#in this case fnm is triangle centres
+
+		bounds_no = float(np.linalg.norm(file.bounds[1]))
+		tf_no = sp.translation_factor
+
 		for count, item in enumerate(face_centers):
 
 			# translate each diff_hem of face center point
 			curr_tr_centre = [item for i in range(sp.N)]
-		
-			# diffuse part of beta coefficient ----------------------------------------
-			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_diff_hem)]
-			ray_direction_diff_in = [-i for i in ray_diff_hem]
 
-			res_diff, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_diff_in),
-												multiple_hits=False,
-												return_locations=False)
+			# diffuse part of beta coefficient ----------------------------------------
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_diff_hem))]
+			ray_direction_diff_in = [-item for item in np.array(ray_diff_hem)]
+
+			res_diff = file.ray.intersects_first(ray_origins=ray_origins, 
+												ray_directions=ray_direction_diff_in)
+
 
 			# parameter i: index of the first hitten
-			# parameter j: boolean 
-			integer_count_diff = []
-			for k, i in enumerate(res_diff):
-				if( i==count ):
-					integer_count_diff.append( np.dot(face_normals[count],ray_diff_hem[k]) )
+			# parameter j: boolean
+			tmp_acc_comp = [k for k, i in enumerate(res_diff) if i == count]
+			integer_count_diff = [np.dot(face_normals[count], ray_diff_hem[x]) for x in tmp_acc_comp]
 
 			integer_tot_diff = 2*mt.pi*sum(integer_count_diff)/sp.N
+			var_diff = 2*mt.pi*sum([ (x - integer_tot_diff/(2*mt.pi))**2 for x in  integer_count_diff])/sp.N
 
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
 
-			ray_origins = [i + j*np.linalg.norm(file.bounds[1])*sp.translation_factor for i, j in zip(curr_tr_centre,ray_refl_hem)]
-			ray_direction_refl_in = [-i for i in ray_refl_hem]
+			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_refl_hem))]
+			ray_direction_refl_in = [-item for item in np.array(ray_refl_hem)]
 
-			res_refl, _ = file.ray.intersects_id(ray_origins=np.array(ray_origins), 
-												ray_directions=np.array(ray_direction_refl_in),
-												multiple_hits=False,
-												return_locations=False)
+			res_refl = file.ray.intersects_first(ray_origins=ray_origins, 
+												ray_directions=ray_direction_refl_in)
 
 			# parameter i: index of the first hitten
-			# parameter j: boolean 
-			integer_count_refl = []
-			for k, i in enumerate(res_refl):
-				if( i==count ):
-					integer_count_refl.append( np.dot(face_normals[count],ray_refl_hem[k]) )
+			# parameter j: boolean
+			tmp_acc_comp = [k for k, i in enumerate(res_refl) if i == count]
+			integer_count_refl = [np.dot(face_normals[count], ray_refl_hem[x]) for x in tmp_acc_comp]
 
 			integer_tot_refl = 2*mt.pi*sum(integer_count_refl)/sp.N
+			var_refl = 2*mt.pi*sum([ (x - integer_tot_refl/(2*mt.pi))**2 for x in  integer_count_refl])/sp.N
 
 			#----------------------------------------------------------------------------
 
 			#print diff and refl ratio
 			#print diff and refl standard deviations
 			beta.append(np.array([integer_tot_diff,
-								integer_tot_refl]))
+								integer_tot_refl,
+								var_diff**0.5,
+								var_refl**0.5]))
 			
 			print("Computing beta ... ", 
 				round(count/len(face_normals)*100,1), 
 				" percent complete", end="\r")
 			
 		np.savetxt(fileName, beta, fmt="%.10f")
-		return np.loadtxt(fileName)
-
-	return np.array(res), res_theta
+	return np.loadtxt(fileName)
