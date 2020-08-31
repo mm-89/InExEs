@@ -14,7 +14,7 @@ from math_refl_diff import from_polar_to_cartesian as fpc
 #blablabla
 #--------------------------------------------------
 
-delta_range_dir = 1e-16
+delta_range_dir = 1e-14
 delta_range = 1e-4
 
 # CUBE parameters for simulation---------------
@@ -197,15 +197,15 @@ class TestGeneral(unittest.TestCase):
 
 	# TETRAHEDRON--------
 
-	def test_simulation_direct_cube(self):
+	def test_simulation_direct_tetr(self):
 		self.assertListAlmostEqual(self.tet_dir_tot, self.rad_tet_fin, delta=delta_range_dir)
 
 
-	def test_simulation_diffuse_cube(self):
+	def test_simulation_diffuse_tetr(self):
 		self.assertListAlmostEqual(self.tet_dif_tot, self.diff_tetr, delta=delta_range)
 
 
-	def test_simulation_reflect_cube(self):
+	def test_simulation_reflect_tetr(self):
 		self.assertListAlmostEqual(self.tet_ref_tot, self.refl_tetr, delta=delta_range)
 
 	#------------------------------------------------------------------------
