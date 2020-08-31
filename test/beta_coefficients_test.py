@@ -231,3 +231,6 @@ class Test_Beta_Coefficients(unittest.TestCase):
         self.assertAlmostEqual(self.beta_coeff_tetr[3, 1], 
                                 self.bot_refl_tr, 
                                 delta=10*self.beta_coeff_tetr[3, 3])
+
+if __name__ == '__main__':
+		unittest.main()

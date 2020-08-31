@@ -36,3 +36,6 @@ class TestGeneral(unittest.TestCase):
 
     def test_sun_zenith_angle(self):
         self.assertListEqual(self.sun_declination_angle_result, self.sun_declination_angle)
+
+if __name__ == '__main__':
+    unittest.main()
