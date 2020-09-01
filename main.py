@@ -4,6 +4,8 @@ import sun_ray_direction as srd
 import posture as ps
 import output as op
 
+import shared_parameters as sp
+
 import gui
 
 import matplotlib.pyplot as plt
@@ -48,8 +50,9 @@ end_date    = '01/07/2009 22:39:00'
 
 #USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
 
+if not sp.GUI_window:
 
-my_simulation = sim.Simulation(start_date, 
+	my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
 								my_posture_file,
@@ -60,24 +63,24 @@ my_simulation = sim.Simulation(start_date,
 								loop_on_faces=True		#0:faces;1:vertices
 								)
 
-#my_simulation.set_start_angle(start_angle_azimuth)
 
-#to make sure how your mesh is orientated in the space----
-#my_simulation.export_reference_frame()
+	#my_simulation.set_start_angle(start_angle_azimuth)
 
-#to visualize a particular timestep-----------------------
-#my_simulation.show_one_timestep(end_date)
+	#to make sure how your mesh is orientated in the space----
+	#my_simulation.export_reference_frame()
 
-#my_simulation.set_zone_to_simulate(cm["green"])
+	#to visualize a particular timestep-----------------------
+	#my_simulation.show_one_timestep(end_date)
 
-#to make a whole simulation---------------------------------
-my_simulation.make_simulation() 
+	#my_simulation.set_zone_to_simulate(cm["green"])
 
+	#to make a whole simulation---------------------------------
+	my_simulation.make_simulation() 
 
-"""
-#-------------------------------------------
-#------------------GUI-----------------
-#-------------------------------------------
-window = gui.Root()
-window.mainloop()
-"""
+else:
+	
+	#-------------------------------------------
+	#------------------GUI-----------------
+	#-------------------------------------------
+	window = gui.Root()
+	window.mainloop()

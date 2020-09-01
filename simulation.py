@@ -167,11 +167,12 @@ class Simulation:
 		print("Start simulation...")
 		print("")
 
-		#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-		#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
-		#self.process_feedback()
-		self.sim_process_bar()
-		self.popup_process.update()
+		if sp.GUI_window:
+			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+			#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
+			#self.process_feedback()
+			self.sim_process_bar()
+			self.popup_process.update()
 		
 
 		acc = 0
@@ -259,11 +260,12 @@ class Simulation:
 				current_line += 1
 
 				acc += 1
-			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-			#loadingBarSim.close()
-			#self.popup_process.destroy()
-			self.destroy_popup()
-			self.popup_end_simulation()
+			if sp.GUI_window:
+				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+				#loadingBarSim.close()
+				#self.popup_process.destroy()
+				self.destroy_popup()
+				self.popup_end_simulation()
 		
 
 		else:
@@ -451,7 +453,8 @@ class Simulation:
 												fileName + "_" + item + ".ply")
 
 		#OSVALDO'S GUI MODIFICATIONS
-		self.popupmsg("Reference frame exported successfully !")
+		if sp.GUI_window:
+			self.popupmsg("Reference frame exported successfully !")
 
 		
 
