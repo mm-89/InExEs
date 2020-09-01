@@ -23,6 +23,8 @@
 #        removed immediately, and some functions will alter
 #        the mesh to ensure consistent results.
 
+GUI_window = True
+
 N = 10000
 translation_factor = 2.
 random_points = False
