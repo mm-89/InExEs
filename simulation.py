@@ -487,7 +487,7 @@ class Simulation:
 
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
-		
+
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
@@ -500,7 +500,7 @@ class Simulation:
 
 		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
 		for i, item in enumerate(vec_id):
-			new_beta_vector[i] = self.beta[item]
+			new_beta_vector[i] = self.beta[item, 0:2]
 		self.beta = new_beta_vector
 
 		new_area_vector = np.zeros(shape=len(vec_id))

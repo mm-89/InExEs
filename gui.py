@@ -611,6 +611,7 @@ class Root(Tk):
         
 
     def dynamic_color_btn(self):
+        self.colors = []
         self.read_colors_from_ply()
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")
