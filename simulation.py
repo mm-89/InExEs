@@ -4,7 +4,6 @@ import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
 import color_map as cm
-import area_vertices as av
 import shared_parameters as sp
 
 import trimesh as tm
