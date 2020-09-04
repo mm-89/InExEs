@@ -59,8 +59,7 @@ if not sp.GUI_window:
 								output_name,
 								latitude=latitude,
 								read_data=True,
-								data_path=my_data_file,
-								loop_on_faces=True		#0:faces;1:vertices
+								data_path=my_data_file
 								)
 
 

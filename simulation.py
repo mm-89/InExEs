@@ -48,8 +48,7 @@ class Simulation:
 				output_name,
 				latitude=None,
 				read_data= False, 
-				data_path=None,
-				loop_on_faces=True
+				data_path=None
 				):
 
 		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
@@ -64,8 +63,6 @@ class Simulation:
 		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
-
-		self.loop_on_faces = loop_on_faces
 
 		if(self.read_data):
 
@@ -114,18 +111,10 @@ class Simulation:
 
 		self.name = posture
 
-		# to manage faces or vertices loop on
-		if(self.loop_on_faces):
-			self.ray_origins = self.posture.get_triangles_center
-			self.face_normals = self.posture.get_normals
-			self.areas = self.posture.get_area_faces
-			self.faces = [i for i in range(len(self.posture.get_faces))]
-		else:
-			self.ray_origins = self.posture.get_vertices
-			self.face_normals = self.posture.get_vertex_normals
-			self.areas = av.compute_vertex_area(self.posture.get_vertex_faces,
-												self.posture.get_area_faces)
-			self.faces = [i for i in range(len(self.posture.get_vertices))]
+		self.ray_origins = self.posture.get_triangles_center
+		self.face_normals = self.posture.get_normals
+		self.areas = self.posture.get_area_faces
+		self.faces = [i for i in range(len(self.posture.get_faces))]
 
 		self.output_name = output_name
 
@@ -472,18 +461,12 @@ class Simulation:
 		vec_id = []
 		ver = False
 		compon_RGB = int(len(RGB_map) / 4)
-		if(self.loop_on_faces):
-			for k, item in enumerate(self.posture.get_faces_color):
-				for i in range(compon_RGB):
-					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
-						vec_id.append(k)
-						ver = True
-		else:
-			for k, item in enumerate(self.posture.get_vertices_color):
-				for i in range(compon_RGB):
-					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
-						vec_id.append(k)
-						ver = True
+
+		for k, item in enumerate(self.posture.get_faces_color):
+			for i in range(compon_RGB):
+				if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
+					vec_id.append(k)
+					ver = True
 
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
