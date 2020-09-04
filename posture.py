@@ -19,16 +19,11 @@ class Posture:
                                 validate=sp.validate)
 
 
-		if(True):
-			self.beta_coeff = bc.compute_beta(self.path,
-											self.my_file,
-											self.my_file.face_normals,
-											self.my_file.triangles_center)
-		else:
-			self.beta_coeff = bc.compute_beta(self.path,
-											self.my_file,
-											self.my_file.vertex_normals,
-											self.vertices_normals_minimized)
+
+		self.beta_coeff = bc.compute_beta(self.path,
+										self.my_file,
+										self.my_file.face_normals,
+										self.my_file.triangles_center)
 
 		if(self.compute_skin_refl):
 			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path,
