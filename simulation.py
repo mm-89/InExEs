@@ -331,24 +331,30 @@ class Simulation:
 
 
 	def show_one_timestep(self, date):
-		print("date : ", date, type(date))
 
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		self.day_of_beginning = (self.start_date.date() - \
-								datetime.date(self.start_date.year, 1, 1)).days + 1
+		current_day = (date_to_vis.date() - \
+								datetime.date(date_to_vis.year, 1, 1)).days + 1
 
-		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
-		current_day = self.day_of_beginning
-
+		current_second = date_to_vis.second + date_to_vis.minute*60 + date_to_vis.hour*3600
 
 		#make rays of sun (direction)
 		if(self.read_data):
-			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
-									self.data[self.start_row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
+
+			#check if the data exists
+			if(idh.is_data_exists_in_file(date_to_vis, self.data)==False or \
+				idh.is_data_exists_in_file(date_to_vis, self.data)==False):
+				print("Selected dates does not exist in the file ", data_path)
+			else:
+				row_data = idh.select_rows_in_file(date_to_vis, self.data)
+				print(row_data)
+
+			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[row_data, dm.data_map["zenith"]], \
+									self.data[row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
 
