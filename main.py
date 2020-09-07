@@ -1,96 +1,85 @@
 import simulation as sim
+from color_map import color_map as cm
 import sun_ray_direction as srd
-import os
-import csv
-import time
+import posture as ps
 import output as op
+
+import shared_parameters as sp
+
+import gui
+
 import matplotlib.pyplot as plt
+import trimesh as tm
 
-#NAMELIST------------------------------------
-
-
+from tkinter import *
+#-------------------------------------------
+#------------------NAMELIST-----------------
+#-------------------------------------------
 #POSTURE PARAMETERS--------------------------
-#choosing and charging the posture by path
-"""meshes = os.listdir("postures/head_high_res")
-for i in range(len(meshes)):
-	print("(", i, ")", meshes[i])
+#choosing and charging the posture
 
-file_number = input("Choose the mesh with the associate number ( x ) ")
-my_posture_file = "postures/head_high_res/"+meshes[int(file_number)]"""
-my_data_file = "input/csv_data/irradiance 2009 example.csv"
+my_data_file = "input/irradiance_2009.csv"
 
-my_posture_file = "postures/head_high_res/head.ply"
-output_name = "data"
-#LIGHT SOURCE PARAMETERS---------------------
-#it has to be defined
+#my_posture_file = "postures/cube.ply"
+my_posture_file = "postures/body_high_res/baby.ply"
 
-sun_ray_source = srd.Sun_ray_direction(latitude=8.1)
+output_name = "eyelash_random_2"
 
 #SIMULATION PARAMETERS------------------------
 #timestep of simulation
 
 timestep = 60.
 
-#POSTURE PARAMETERS--------------------------
+#GEO PARAMETERS----------------------------
+
+latitude = 40.
+
+#SIM POSTURE PARAMETERS--------------------------
 #need start angle
 
-start_angle_theta = 0.
-start_angle_phi = 180.
+start_angle_azimuth = 0.
 
 #DATA PARAMETERS------------------------------
 #set start date
 
-s_year = 2010
-s_month = 7
-s_day = 11
-s_hour = 7
-s_minute = 0
-s_second = 0
-
-#----------------------------------------
-#set end date
-
-e_year = 2010
-e_month = 7
-e_day = 11
-e_hour = 17
-e_minute = 0
-e_second = 0
+#--------------mm-dd-yyyy-hh-mm-ss
+start_date  = '01/01/2009 12:01:00'
+end_date    = '01/07/2009 22:39:00'
 
 #-------------------------------------------------------------------------
-#vector of current data
+    
+#USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
 
-start_date = [s_year, s_month, s_day, s_hour, s_minute, s_second]
-end_date = [e_year, e_month, e_day, e_hour, e_minute, e_second]
+if not sp.GUI_window:
 
-#-----------------------------------------
-
-my_simulation = sim.Simulation(start_date, 
+	my_simulation = sim.Simulation(start_date, 
 								end_date, 
 								timestep, 
-								my_posture_file, 
-								sun_ray_source,
-								start_angle_theta,
-								start_angle_phi,
-								output_name)
-
-#to visualize a particular timestep
-#my_simulation.show_one_timestep(start_date)
-
-#to do a whole simulation
-my_simulation.make_simulation()
+								my_posture_file,
+								output_name,
+								latitude=latitude,
+								read_data=True,
+								data_path=my_data_file
+								)
 
 
-#TO GIVE UP
-#one day
-"""
-data = []
-for i in range(86400):
-	projz = sun_ray_source.get_sun_direction(1,i)
-	data.append(projz)
+	#my_simulation.set_start_angle(start_angle_azimuth)
 
-time = [i for i in range(len(data))]
+	#to make sure how your mesh is orientated in the space----
+	#my_simulation.export_reference_frame()
 
-plt.plot(time, data)
-plt.show()
-"""
+	#to visualize a particular timestep-----------------------
+	#my_simulation.show_one_timestep(start_date)
+
+	#my_simulation.set_zone_to_simulate(cm["green"])
+
+	#to make a whole simulation---------------------------------
+	#my_simulation.make_simulation() 
+
+else:
+	
+	#-------------------------------------------
+	#------------------GUI-----------------
+	#-------------------------------------------
+	window = gui.Root()
+	window.mainloop()

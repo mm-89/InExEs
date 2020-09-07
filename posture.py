@@ -1,49 +1,79 @@
-import trimesh as tm
+import beta_coefficients as bc
+import skin_reflection as sr
 import math_refl_diff as mrd
+import shared_parameters as sp
+
+import trimesh as tm
+import sys
 import numpy as np
-import time
 
 class Posture:
 
+	compute_skin_refl = False
+
 	def __init__(self, my_file):
-		self.my_file = tm.load(my_file)
-
-		normals = self.my_file.face_normals
-		angles_normals = []
-		for comp in normals:
-			angles_normals.append(mrd.from_cartesian_to_polar(comp))
-		
-		self.angles_normals = angles_normals
-		self.normals_minimized = self.my_file.face_normals/1000.
-		#start = time.time()
-		self.compute_beta(my_file,random=False)
-		#print(time.time() - start)
+		self.path = my_file
+		self.my_file = tm.load(my_file, 
+                                use_embree=sp.py_embree,
+                                process=sp.process,
+                                validate=sp.validate)
 
 
+
+		self.beta_coeff = bc.compute_beta(self.path,
+										self.my_file,
+										self.my_file.face_normals,
+										self.my_file.triangles_center)
+
+		if(self.compute_skin_refl):
+			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path,
+											self.my_file,
+											self.my_file.face_normals,
+											self.my_file.triangles_center)
+
+			if len(np.shape(self.skinRefl_coeff[0])) != len(np.shape(self.skinRefl_coeff[2])):
+				raise TypeError("Something gone wrong in skinRefl upload")
+			
+
+	def get_angles_from_normals(self):
+		return self.angles_normals
+
+
+	def show_posture(self):
+		self.my_file.show()
+
+
+	def plyTests(self):
+		self.my_file.remove_degenerate_faces()
+		self.my_file.remove_duplicate_faces()
+		self.my_file.remove_infinite_values()
+		self.my_file.remove_unreferenced_vertices()
+		v = self.my_file.is_volume
+		w = self.my_file.is_winding_consistent
+		wa = self.my_file.is_watertight
+		if(not v) or (not w) or (not wa):
+			self.my_file.fill_holes()
+			if(not v) or (not w) or (not wa):
+				print("Mesh is corrupted")
+				sys.exit()
+				
+				
 	@property
-	#PARAMS : self
-	#OUTPUT : ply file loaded
-	#DESCRIPTION : return an instance of our mesh
 	def get_posture(self):
 		return self.my_file
 
+
 	@property
-	#PARAMS : self
-	#OUTPUT : face's normals
-	#DESCRIPTION : return the face's normals of our mesh
 	def get_normals(self):
 		return self.my_file.face_normals
 
+
 	@property
-	#PARAMS : self
-	#OUTPUT : face's areas
-	#DESCRIPTION : return the face's areas of our mesh
 	def get_area_faces(self):
 		return self.my_file.area_faces
 
-	#PARAMS : self
-	#OUTPUT : mesh area
-	#DESCRIPTION : return mesh's area
+
+	@property
 	def get_total_area(self):
 		return self.my_file.area
 
@@ -52,134 +82,53 @@ class Posture:
 	def get_normals_minimized(self):
     		return self.normals_minimized
 
-	#PARAMS : self, random value
-	#OUTPUT : nothing
-	#DESCRIPTION : Define the array of beta values by an existing file 
-	#			   Or by calculation --> create the beta coeff file
-	def compute_beta(self, path, random=True):
-		path = path.split('/')
-		mesh_name = path[-1]
-		print("You will need to choose a N value, press enter for default value (default value N = 5)")
-		value = input("N value : ")
-		if value == '': 
-			N = 5 #DEFAULT VALUE OF BETA
-			value = "5"
-		else:
-			N = int(value)
-		print("You choose N =", N)
-    	#Try to find a beta_coefficient file
-		fileName = "input/beta_coefficient_" + value + "_" + mesh_name + ".txt"
-		try:
-			with open("input/beta_coefficient_" + value + "_" + mesh_name + ".txt") as f:
-				print("Beta file found")
-				#print(f.readlines())
-				#We put the file content = to beta coeff value
-				self.betaCoeff = f.readlines()
-				#print(self.betaCoeff)
-				return
-		except IOError:
-			#If not we ask user for an N value, compute beta and create a beta coeff file
-			print("No beta file found for this N value, a new beta file will be created please wait")
-					
-			ray_ori_all = self.my_file.triangles_center + self.normals_minimized
-
-			ray_dir = []
-			beta = []
-
-			angles = self.angles_normals
-			
-			if(random):
-				for counter, t in enumerate(ray_ori_all):
-
-					ray_ori = [t for i in range(N)]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0],
-																angles[counter][1], random=True)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori,
-															ray_directions=ray_dir)
-					cpt_false = np.nonzero(~res)[0]
-					beta.append(len(cpt_false)/N)
-
-					print("Computing beta ... ", 
-						round(counter/len(ray_ori_all)*100,1), 
-						" percent complete", end="\r")
-
-			else:
-
-				for counter, comp in enumerate(ray_ori_all):
-
-					ray_ori = [comp for i in range(N)]
-					ray_dir = mrd.make_rays_in_a_hemisphere(N, angles[counter][0], 
-																angles[counter][1], random=False)
-
-					res = self.my_file.ray.intersects_any(ray_origins=ray_ori, 
-															ray_directions=ray_dir)
-				
-					cpt_false = np.nonzero(~res)[0]
-					beta.append(len(cpt_false)/N)
-
-					print("Computing beta ... ", 
-						round(counter/len(ray_ori_all)*100,1), 
-						" percent complete", end="\r")
-
-			print(beta)
-			with open("input/beta_coefficient_" + value + "_" + mesh_name + ".txt", 'w+') as f:
-				for line in beta:
-						f.write(str(line))
-
-			self.betaCoeff = beta
-			
 
 	@property
-	#PARAMS : self
-	#OUTPUT : mesh faces as array
-	#DESCRIPTION : return the mesh faces 
+	def get_vertices_normals_minimized(self):
+		return self.vertices_normals_minimized
+
+
+	@property
+	def get_beta(self):
+		return self.beta_coeff
+
+
+	@property
 	def get_faces(self):
 		return self.my_file.faces
 	
+	
 	@property
-	#PARAMS : self
-	#OUTPUT : mesh vertices as array
-	#DESCRIPTION : return the mesh vertices
 	def get_vertices(self):
 		return self.my_file.vertices
 
+
 	@property
-	#PARAMS : self
-	#OUTPUT : array of barycenters
-	#DESCRIPTION : get the barycenter of each triangle
-	def get_vertices_barycenter(self):
+	def get_triangles_center(self):
 		return self.my_file.triangles_center
 
-	#PARAMS : self
-	#OUTPUT : array of barycenters
-	#DESCRIPTION : get the barycenter of each triangle
-	def get_angles_from_normals(self):
-		return self.angles_normals
+
+	@property
+	def get_faces_color(self):
+		return self.my_file.visual.face_colors
 
 
-	#PARAMS : self
-	#OUTPUT : face's normals
-	#DESCRIPTION : Set a new value for the face's minimised normals NEED TO BE MORE PRECISE (explain why for exemple)
-	def set_normals_minimized(self, fact=0.001):
-		return self.face_normals*fact
+	@property
+	def get_vertices_color(self):
+		return self.my_file.visual.vertex_colors
 
 
-	#PARAMS : self
-	#OUTPUT : nothing
-	#DESCRIPTION : Display the mesh
-	def show_posture(self):
-		self.my_file.show()
+	@property
+	def get_vertex_faces(self):
+		return self.my_file.vertex_faces
 
 
-	#PARAMS : self
-	#OUTPUT : nothing
-	#DESCRIPTION : Clean and test the ply file before simulation
-	def plyTests(self):
-		self.my_file.remove_degenerate_faces()
-		self.my_file.remove_duplicate_faces()
-		self.my_file.remove_infinite_values()
-		self.my_file.remove_unreferenced_vertices()
-    	
+	@property
+	def get_vertex_normals(self):
+		return self.my_file.vertex_normals
 
-
+	
+	@property
+	def get_max_bounds(self):
+		return np.linalg.norm(self.my_file.bounds[1])
+	
