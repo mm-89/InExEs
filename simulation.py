@@ -7,6 +7,8 @@ import color_map as cm
 import area_vertices as av
 import shared_parameters as sp
 
+#test
+
 import trimesh as tm
 import numpy as np
 import math as mt
