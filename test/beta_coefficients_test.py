@@ -3,6 +3,8 @@ import sys
 
 sys.path.insert(0, '../')
 
+import os, glob
+
 import trimesh as tm
 from scipy.integrate import quad
 from math import cos, sin, atan, pi
@@ -11,6 +13,14 @@ import random
 random.seed(12)
 
 import beta_coefficients as bc
+
+#--------------------------------------------------------
+#delete previous tests
+
+for fileHere in glob.glob("input/beta_*"):
+    os.remove(fileHere)
+
+#--------------------------------------------------------
 
 #meshes for test ----------------------------------------
 
