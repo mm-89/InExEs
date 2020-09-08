@@ -14,7 +14,6 @@ import datetime
 import time
 import csv
 import os
-from tqdm import tqdm
 
 from tkinter import *
 from tkinter import ttk
