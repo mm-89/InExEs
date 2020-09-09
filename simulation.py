@@ -4,7 +4,6 @@ import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
 import color_map as cm
-import area_vertices as av
 import shared_parameters as sp
 
 #test
@@ -21,6 +20,8 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import gui as ui
+
+
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -39,6 +40,7 @@ from .. import intersections
 from ..constants import log_time"""
 #--------------- IMPORT FOR PYEMBREE TESTS END ---------------
 
+
 class Simulation:
 
 	def __init__(self,
@@ -49,8 +51,7 @@ class Simulation:
 				output_name,
 				latitude=None,
 				read_data= False, 
-				data_path=None,
-				loop_on_faces=True
+				data_path=None
 				):
 
 		self.start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
@@ -65,8 +66,6 @@ class Simulation:
 		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
-
-		self.loop_on_faces = loop_on_faces
 
 		if(self.read_data):
 
@@ -115,6 +114,7 @@ class Simulation:
 
 		self.name = posture
 
+<<<<<<< HEAD
 		# to manage faces or vertices loop on
 		if(self.loop_on_faces):
 			self.ray_origins = self.posture.get_triangles_center
@@ -127,6 +127,12 @@ class Simulation:
 			self.areas = av.compute_vertex_area(self.posture.get_vertex_faces,
 												self.posture.get_area_faces)
 			self.faces = [i for i in range(len(self.posture.get_vertices))]
+=======
+		self.ray_origins = self.posture.get_triangles_center
+		self.face_normals = self.posture.get_normals
+		self.areas = self.posture.get_area_faces
+		self.faces = [i for i in range(len(self.posture.get_faces))]
+>>>>>>> 784d02682229478c882379a9e53f3dc77b1177a1
 
 		self.output_name = output_name
 
@@ -220,7 +226,6 @@ class Simulation:
 				if(self.data[current_line, dm.data_map["zenith"]]<90.):
 				
 					ray_directions = [-ray_source_direction for item in range(len(self.ray_origins))]
-
 					ray_origins = [i - j*sp.translation_factor*self.posture.get_max_bounds for i, j in zip(self.ray_origins, ray_directions)]
 
 					#just to check
@@ -344,24 +349,30 @@ class Simulation:
 
 
 	def show_one_timestep(self, date):
-		print("date : ", date, type(date))
 
 		#this just to visualize
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		self.day_of_beginning = (self.start_date.date() - \
-								datetime.date(self.start_date.year, 1, 1)).days + 1
+		current_day = (date_to_vis.date() - \
+								datetime.date(date_to_vis.year, 1, 1)).days + 1
 
-		current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
-		current_day = self.day_of_beginning
-
+		current_second = date_to_vis.second + date_to_vis.minute*60 + date_to_vis.hour*3600
 
 		#make rays of sun (direction)
 		if(self.read_data):
-			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[self.start_row_data, dm.data_map["zenith"]], \
-									self.data[self.start_row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
+
+			#check if the data exists
+			if(idh.is_data_exists_in_file(date_to_vis, self.data)==False or \
+				idh.is_data_exists_in_file(date_to_vis, self.data)==False):
+				print("Selected dates does not exist in the file ", data_path)
+			else:
+				row_data = idh.select_rows_in_file(date_to_vis, self.data)
+				print(row_data)
+
+			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[row_data, dm.data_map["zenith"]], \
+									self.data[row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
 
@@ -473,22 +484,16 @@ class Simulation:
 		vec_id = []
 		ver = False
 		compon_RGB = int(len(RGB_map) / 4)
-		if(self.loop_on_faces):
-			for k, item in enumerate(self.posture.get_faces_color):
-				for i in range(compon_RGB):
-					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
-						vec_id.append(k)
-						ver = True
-		else:
-			for k, item in enumerate(self.posture.get_vertices_color):
-				for i in range(compon_RGB):
-					if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
-						vec_id.append(k)
-						ver = True
+
+		for k, item in enumerate(self.posture.get_faces_color):
+			for i in range(compon_RGB):
+				if(np.array_equal(item, RGB_map[i*4 : 4 + i*4])): 
+					vec_id.append(k)
+					ver = True
 
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
-		
+
 		new_vector = []
 		for item in vec_id:
 			new_vector.append(self.ray_origins[item])
@@ -501,7 +506,7 @@ class Simulation:
 
 		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
 		for i, item in enumerate(vec_id):
-			new_beta_vector[i] = self.beta[item]
+			new_beta_vector[i] = self.beta[item, 0:2]
 		self.beta = new_beta_vector
 
 		new_area_vector = np.zeros(shape=len(vec_id))

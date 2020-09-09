@@ -13,6 +13,8 @@ import json
 import posture as ps
 import re
 
+curr_dir = os.getcwd()
+
 class Root(Tk):
     def __init__(self):
         super(Root,self).__init__()
@@ -85,7 +87,9 @@ class Root(Tk):
         self.endDateLabel = Label(self.dateFrame, text = "End date")
         #User input for timestep
         self.timestepLabel = Label(self.dateFrame,text='Timestep : ')
-        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 2)
+        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 2,
+                                    textvariable=StringVar(self.dateFrame, 
+                                            value='60.'))
         self.timestepValue.bind('<KeyRelease>', lambda e: self._check_timestep())
 
         #User input for output name
@@ -177,7 +181,7 @@ class Root(Tk):
         self.btnMeshLoad.grid(column = 1, row = 1)
 
     def file_dialog_mesh(self):
-        self.fileName = filedialog.askopenfilename(initialdir = "/", title = "select a mesh")
+        self.fileName = filedialog.askopenfilename(initialdir = curr_dir + "/postures", title = "select a mesh")
         self.meshName.insert(12, self.fileName)
         self.mesh = self.fileName
     #---------------------------------------------------------------
@@ -188,7 +192,7 @@ class Root(Tk):
         self.btnDataLoad.grid(column = 0, row = 3)
 
     def file_dialog_data(self):
-        self.fileNameData = filedialog.askopenfilename(initialdir = "/", title = "select a data file")
+        self.fileNameData = filedialog.askopenfilename(initialdir = curr_dir + "/input", title = "select a data file")
         self.dataName.insert(12, self.fileNameData)
         self.dataPath = self.fileNameData
         self.insert_date_from_data()
@@ -459,16 +463,29 @@ class Root(Tk):
         #self.termf_display()
         #save form
         self.save_form()
+        try:
+            self.curr_simulation = sim.Simulation(self.startDate,
+                                        self.endDate,
+                                        self.timestep,
+                                        self.mesh,
+                                        self.outputName,
+                                        self.latitude,
+                                        self.readData,
+                                        self.dataPath)
+            self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
+
+        except IOError:
+            self.popupmsg("An error occured ! Please verify simulation parameters...")
+
         if(self.colorInput.get() != ''):
             print("Color simulation possible")
             self.make_color_simulation()
-        try :
-            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath)
-            self.betaLoadingLabel['text'] = "Beta coefficient : " + self.done
-            simulation.make_simulation()
-            
+        
+        try:      
+            self.curr_simulation.make_simulation()
         except IOError:
-            self.popupmsg("An error occured ! Please verify simulation parameters...")  
+            self.popupmsg("An error occured ! Please verify simulation parameters...")
+            
 
         self.simLoadingLabel['text'] = "Simulation : " + self.done
         self.simInfosFrame.update()
@@ -601,8 +618,8 @@ class Root(Tk):
 
     def make_color_simulation(self):
         try :
-            simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath,loop_on_faces=True)
-            simulation.set_zone_to_simulate(self.addColors)
+            #simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath,loop_on_faces=True)
+            self.curr_simulation.set_zone_to_simulate(self.addColors)
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...") 
 
@@ -611,6 +628,7 @@ class Root(Tk):
         
 
     def dynamic_color_btn(self):
+        self.colors = []
         self.read_colors_from_ply()
         self.colorPopup = Tk()
         self.colorPopup.wm_title("Choose the color to simulate")

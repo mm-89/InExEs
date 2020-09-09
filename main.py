@@ -20,8 +20,8 @@ from tkinter import *
 
 my_data_file = "input/irradiance_2009.csv"
 
-my_posture_file = "postures/cube.ply"
-#my_posture_file = "postures/body_high_res/baby.ply"
+#my_posture_file = "postures/cube.ply"
+my_posture_file = "postures/body_high_res/baby.ply"
 
 output_name = "eyelash_random_2"
 
@@ -43,11 +43,11 @@ start_angle_azimuth = 0.
 #set start date
 
 #--------------mm-dd-yyyy-hh-mm-ss
-start_date  = '01/01/2009 00:01:00'
+start_date  = '01/01/2009 12:01:00'
 end_date    = '01/07/2009 22:39:00'
 
 #-------------------------------------------------------------------------
-
+    
 #USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
 
 if not sp.GUI_window:
@@ -59,8 +59,7 @@ if not sp.GUI_window:
 								output_name,
 								latitude=latitude,
 								read_data=True,
-								data_path=my_data_file,
-								loop_on_faces=True		#0:faces;1:vertices
+								data_path=my_data_file
 								)
 
 
@@ -70,12 +69,12 @@ if not sp.GUI_window:
 	#my_simulation.export_reference_frame()
 
 	#to visualize a particular timestep-----------------------
-	#my_simulation.show_one_timestep(end_date)
+	#my_simulation.show_one_timestep(start_date)
 
 	#my_simulation.set_zone_to_simulate(cm["green"])
 
 	#to make a whole simulation---------------------------------
-	my_simulation.make_simulation() 
+	#my_simulation.make_simulation() 
 
 else:
 	
