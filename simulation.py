@@ -13,14 +13,13 @@ import datetime
 import time
 import csv
 import os
-from tqdm import tqdm
-
-#test
 
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import gui as ui
+
+
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -38,6 +37,7 @@ from .. import intersections
 
 from ..constants import log_time"""
 #--------------- IMPORT FOR PYEMBREE TESTS END ---------------
+
 
 class Simulation:
 
@@ -209,7 +209,6 @@ class Simulation:
 				if(self.data[current_line, dm.data_map["zenith"]]<90.):
 				
 					ray_directions = [-ray_source_direction for item in range(len(self.ray_origins))]
-
 					ray_origins = [i - j*sp.translation_factor*self.posture.get_max_bounds for i, j in zip(self.ray_origins, ray_directions)]
 
 					#just to check

@@ -24,18 +24,18 @@ def compute_beta(path, file, face_normals, face_centers):
 		charged using posture
 		class
 
-	faces_normals : (N, 3) float
+	faces_normals : (n, 3) float
 		cartesian coordinates [x, y, z] of N
 		triangles normals of the posture 
 	
-	faces_normals_minimized : (N, 3) float
+	faces_normals_minimized : (n, 3) float
 		cartesian coordinates [x, y, z] of N
 		triangles normals of the posture 
 		previously normalized
 
 	Returns:
 	-----------
-	beta_coeff : (N, 2) float
+	beta_coeff : (n, 2) float
 		beta coefficient for each
 		face of the posture. First
 		component is the diffused one,
@@ -86,14 +86,12 @@ def compute_beta(path, file, face_normals, face_centers):
 
 			# diffuse part of beta coefficient ----------------------------------------
 			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_diff_hem))]
-			ray_direction_diff_in = [-item for item in np.array(ray_diff_hem)]
+			ray_direction_diff_in = [-i for i in np.array(ray_diff_hem)] #NO ITEM AGAIN
 
 			res_diff = file.ray.intersects_first(ray_origins=ray_origins, 
 												ray_directions=ray_direction_diff_in)
 
 
-			# parameter i: index of the first hitten
-			# parameter j: boolean
 			tmp_acc_comp = [k for k, i in enumerate(res_diff) if i == count]
 			integer_count_diff = [np.dot(face_normals[count], ray_diff_hem[x]) for x in tmp_acc_comp]
 
@@ -104,13 +102,11 @@ def compute_beta(path, file, face_normals, face_centers):
 			# reflective part of beta coefficient---------------------------------------
 
 			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_refl_hem))]
-			ray_direction_refl_in = [-item for item in np.array(ray_refl_hem)]
+			ray_direction_refl_in = [-i for i in np.array(ray_refl_hem)] #NO ITEM AGAIN
 
 			res_refl = file.ray.intersects_first(ray_origins=ray_origins, 
 												ray_directions=ray_direction_refl_in)
 
-			# parameter i: index of the first hitten
-			# parameter j: boolean
 			tmp_acc_comp = [k for k, i in enumerate(res_refl) if i == count]
 			integer_count_refl = [np.dot(face_normals[count], ray_refl_hem[x]) for x in tmp_acc_comp]
 
