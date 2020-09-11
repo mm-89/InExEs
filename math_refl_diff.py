@@ -128,7 +128,7 @@ def uniform_points_hemisphere(N, diff):
     generated exaclty N points but some 
     more or less.
     """
-    res = []
+    res = np.zeros((2*N,3)) # 2N to be sure if it creates more points... (?)
 
     n_c = 0
     m_theta = int(round((mt.pi*N/4)**0.5))
@@ -151,7 +151,7 @@ def uniform_points_hemisphere(N, diff):
             y = mt.cos(theta)
             z = - mt.sin(theta)*mt.cos(phi)
     
-            res.append([x, y, z])
+            res[n_c] = np.array([x, y, z])
             n_c += 1
     
     return res[:N]
@@ -178,7 +178,7 @@ def random_points_hemisphere(N, diff):
 		on upper hemisphere. Each
 		row is a versor.
 	"""
-	res = []
+	res = np.zeros((N,3))
 
 	for i in range(N):
 
@@ -192,6 +192,6 @@ def random_points_hemisphere(N, diff):
 		y = mt.cos(theta)
 		z = - mt.sin(theta)*mt.cos(phi)
 
-		res.append([x, y, z])
+		res[i] = np.array([x, y, z])
 
 	return res

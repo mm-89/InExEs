@@ -3,10 +3,9 @@ import sun_ray_direction as srd
 import math_refl_diff as mrd
 import input_data_handle as idh
 import data_map as dm
-import color_map as cm
+#import color_map as cm
 import shared_parameters as sp
-
-#test
+from progressbar import *
 
 import trimesh as tm
 import numpy as np
@@ -15,13 +14,14 @@ import datetime
 import time
 import csv
 import os
+from tqdm import tqdm
+import matplotlib as mpl
+from matplotlib import cm
 
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import gui as ui
-
-
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -39,7 +39,6 @@ from .. import intersections
 
 from ..constants import log_time"""
 #--------------- IMPORT FOR PYEMBREE TESTS END ---------------
-
 
 class Simulation:
 
@@ -114,25 +113,10 @@ class Simulation:
 
 		self.name = posture
 
-<<<<<<< HEAD
-		# to manage faces or vertices loop on
-		if(self.loop_on_faces):
-			self.ray_origins = self.posture.get_triangles_center
-			self.face_normals = self.posture.get_normals
-			self.areas = self.posture.get_area_faces
-			self.faces = [i for i in range(len(self.posture.get_faces))]
-		else:
-			self.ray_origins = self.posture.get_vertices
-			self.face_normals = self.posture.get_vertex_normals
-			self.areas = av.compute_vertex_area(self.posture.get_vertex_faces,
-												self.posture.get_area_faces)
-			self.faces = [i for i in range(len(self.posture.get_vertices))]
-=======
 		self.ray_origins = self.posture.get_triangles_center
 		self.face_normals = self.posture.get_normals
 		self.areas = self.posture.get_area_faces
 		self.faces = [i for i in range(len(self.posture.get_faces))]
->>>>>>> 784d02682229478c882379a9e53f3dc77b1177a1
 
 		self.output_name = output_name
 
@@ -160,9 +144,15 @@ class Simulation:
 		if os.path.exists("output/" + self.output_name + ".csv"):
 			os.remove("output/" + self.output_name + ".csv")
 
+		# Average over the mesh
 		file_out = open("output/" + self.output_name + ".csv", mode='a')
 		file_writer = csv.writer(file_out, delimiter=",",
     										quoting=csv.QUOTE_NONNUMERIC)
+		
+		# Full body results
+		file_out_full = "output/{}_fullBody.txt".format(self.output_name)
+		file_writer_full = open(file_out_full, 'w')
+
 
 		#write the header
 		file_writer.writerow(["datetime", 
@@ -191,11 +181,23 @@ class Simulation:
 			current_line = self.start_row_data
 			data_update = self.start_date
 
+			vertex_degree = self.posture.get_posture.vertex_degree
+			vertex_faces = self.posture.get_posture.vertex_faces
+			areas = self.areas
+			area_tot = np.sum(areas)
+		
+			dimlines = self.total_timestep_of_simulation+1
+			
+			full_body_time = np.zeros((dimlines, self.posture.number_faces))
+	
 			while(current_line < self.end_row_data + 1):
-
-				print("Current date of simulation: ", 
-					data_update.strftime("%b %d %Y %H:%M:%S"))
-
+				
+				progress_bar(acc, dimlines)
+				
+				# Total dose distributed on the mesh faces [J/m2]
+				data_output_total = np.zeros(self.posture.number_faces)
+						
+				# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
 				data_output_dir = 0
 				data_output_dif = 0
 				data_output_ref = 0
@@ -204,7 +206,6 @@ class Simulation:
 				rad_dif = 0
 				rad_ref = 0 
 				
-				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.set_description("Simulating...".format(k))
 				#loadingBarSim.update(1)
@@ -225,8 +226,9 @@ class Simulation:
 				#compute only light days
 				if(self.data[current_line, dm.data_map["zenith"]]<90.):
 				
-					ray_directions = [-ray_source_direction for item in range(len(self.ray_origins))]
-					ray_origins = [i - j*sp.translation_factor*self.posture.get_max_bounds for i, j in zip(self.ray_origins, ray_directions)]
+					ray_directions = np.ones((self.posture.number_faces, 3))*(-ray_source_direction)
+		
+					ray_origins = self.ray_origins - ray_directions*sp.translation_factor*self.posture.get_max_bounds
 
 					#just to check
 					if not len(ray_origins)==len(ray_directions):
@@ -241,17 +243,22 @@ class Simulation:
 																		ray_directions=np.array(ray_directions))
 					#--------------------------------------------------------
 
-					for k, (j, comp) in enumerate(zip(self.faces, inf)):
-						if(comp==j):
-							data_output_dir += abs(proj[k])*self.areas[k]
-
-						data_output_dif += self.beta[k,0]*self.areas[k]/mt.pi
-
-						data_output_ref += self.beta[k,1]*self.areas[k]/mt.pi
-							
+					expo_mask = (inf==np.arange(self.posture.number_faces))
+		
 					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
 					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
 					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
+					
+					data_output_total[expo_mask] += proj[expo_mask] * rad_dir
+					data_output_total += self.beta[:,0]/mt.pi * rad_dif
+					data_output_total += self.beta[:,1]/mt.pi * rad_ref
+					data_output_total *= self.timestep
+					
+					full_body_time[acc] = data_output_total
+						
+					data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask])
+					data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi)
+					data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi)
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"),
 							rad_dir*data_output_dir*self.timestep/sum(self.areas),
@@ -266,6 +273,9 @@ class Simulation:
 				current_line += 1
 
 				acc += 1
+
+			np.savetxt(file_out_full, full_body_time, fmt='%4.3f')
+
 			if sp.GUI_window:
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.close()
@@ -344,7 +354,7 @@ class Simulation:
 
 				acc += 1
 
-		print("Total time of simulation: ", time.time() - start, " seconds")
+		print("\nTotal time of simulation: {:.1f} seconds".format(time.time() - start))
 
 
 
@@ -393,14 +403,14 @@ class Simulation:
 		white_col = [255, 255, 255]
 
 		#set white if the component is false (no hit)
-		#or set black if the component is true (hit some faces)
+		#or set black if the component is true (hit some faces)        
 		col_ver = []
 		for j, comp in enumerate(inf):
 			if(comp==j):
 				col_ver.append(white_col)
 			else:
 				col_ver.append(black_col)
-
+			           
 		#try to re-write a mesh
 		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
 								faces=self.posture.get_faces,
@@ -408,17 +418,88 @@ class Simulation:
 								face_colors=col_ver)
 
 		#if you want to visualize a ray
-		#ray_visualize = tm.load_path(np.hstack((
-		#ray_origins[100],
-		#ray_origins[100] + ray_direction[100])).reshape(-1, 2, 3))
+		
+		ray_visualize = tm.load_path(np.hstack((
+		ray_origins[100],
+		ray_origins[100] + ray_direction[100])).reshape(-1, 2, 3))
 
+		xaxis = tm.load_path(np.array([[1,0,0],[2,0,0]]).reshape( 2, 3))
+		yaxis = tm.load_path(np.array([[1,0,0],[1,1,0]]).reshape( 2, 3))
+		zaxis = tm.load_path(np.array([[1,0,0],[1,0,1]]).reshape( 2, 3))
+		
 		scene = tm.Scene([
 						my_new_mesh,
-						#ray_visualize
+						ray_visualize,
+						xaxis, yaxis, zaxis
 						])
 
 		scene.show()
 
+
+	def save_simu_timespan(self, begin_date, duration='00 02 00', vis_timestep=5.):
+		
+		try:
+		
+			result_path = "output/{}_fullBody_faces.txt".format(self.output_name)
+			
+			# Check if the simulation results exist
+			with open(result_path, mode='r') as txt_file:
+		
+				begin_datetime = datetime.datetime.strptime(begin_date, '%m/%d/%Y %H:%M:%S')
+				
+				# duration in 'days hours minutes'
+				iduration = int((float(duration[-2:])*60. + float(duration[-5:-3])*3600. + \
+							float(duration[:-6])*24*3600.) / self.timestep) #in indices
+				ibegin = idh.select_rows_in_file(begin_datetime, self.data)
+				iend = ibegin+iduration
+				
+				# timestep in minutes
+				itimestep = int(vis_timestep*60./self.timestep)
+				
+				# Check if the time range requested as been simulated
+				# using the indices of the full data file
+				if ibegin<self.start_row_data or iend > self.end_row_data:
+					print('Selected time range out of the simulated one.')
+				else:
+					
+					# retrieve the simulated data using its own indices
+					# only on the requested time range
+					ibegin_sim = ibegin-self.start_row_data
+					iend_sim = iend-self.start_row_data
+					
+					full_body_time_f = np.array([temp.split() for temp in \
+							txt_file.readlines()[ibegin_sim:iend_sim+1]]).astype(float)
+					
+					norm = mpl.colors.Normalize(vmin=np.amin(full_body_time_f),\
+									    vmax=np.amax(full_body_time_f))
+		
+					scalarMap = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap('jet')) #cmap_Palwilch)
+		
+					data_update = begin_datetime
+					
+					for idata in range(ibegin_sim, iend_sim+1, itimestep):
+						my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
+													faces=self.posture.get_faces,
+													process=True,
+													face_colors=scalarMap.to_rgba(full_body_time_f[idata])[:,:-1])
+														
+						scene = tm.Scene([my_new_mesh])
+						scene.set_camera(angles=(0,0.,0.),distance=4., fov=(30.,50.))
+						
+						impng = scene.save_image()
+		
+						out_file = open("images/{}_{}.png".format(self.output_name, \
+										 data_update.strftime("%b %d %Y %H:%M:%S")), "wb")
+						out_file.write(impng)
+						out_file.close()
+		
+						data_update += datetime.timedelta(minutes=vis_timestep)
+							
+		except IOError:
+		
+			print("File {} don't find or don't exist.".format(result_path))
+
+		
 
 	def set_start_angle(self, angle):
 		self.start_angle_azimuth = angle*mt.pi/180.
