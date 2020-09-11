@@ -1,5 +1,6 @@
 import shared_parameters as sp
 import math_refl_diff as mrd
+from progressbar import *
 
 import math as mt
 import numpy as np
@@ -7,7 +8,7 @@ import random
 
 import time 
 
-def compute_beta(path, file, face_normals, face_centers):
+def compute_beta(path, file):
 	"""
 	Generate beta coefficient (see
 	guidelines) for a specific posture.
@@ -24,18 +25,18 @@ def compute_beta(path, file, face_normals, face_centers):
 		charged using posture
 		class
 
-	faces_normals : (n, 3) float
+	faces_normals : (N, 3) float
 		cartesian coordinates [x, y, z] of N
 		triangles normals of the posture 
 	
-	faces_normals_minimized : (n, 3) float
+	faces_normals_minimized : (N, 3) float
 		cartesian coordinates [x, y, z] of N
 		triangles normals of the posture 
 		previously normalized
 
 	Returns:
 	-----------
-	beta_coeff : (n, 2) float
+	beta_coeff : (N, 2) float
 		beta coefficient for each
 		face of the posture. First
 		component is the diffused one,
@@ -43,7 +44,7 @@ def compute_beta(path, file, face_normals, face_centers):
 	"""
 	path = path.split('/')
 	mesh_name = path[-1]
-	fileName = "input/beta_" + mesh_name.rsplit(".", -1)[0] + "_" + str(sp.N) + ".txt"
+	fileName = "input/beta_{}_{}.txt".format(mesh_name.rsplit(".", -1)[0], sp.N)
 
 	try:
 		with open(fileName) as f:
@@ -54,16 +55,20 @@ def compute_beta(path, file, face_normals, face_centers):
 
 			if(len(beta_coeff)==0):
 				print("File of Beta coefficient corrupeted")
-				print("Total number of read lines are: ", len(beta_coeff))
+				print("Total number of read lines are: {}".format(np.shape(beta_coeff)[0]))
 
 			return beta_coeff
 
 	except IOError:
 		#If not we ask user for an N value, compute beta and create a beta coeff file
 		print("No beta file found for this N value, a new beta file will be created please wait")
-
+		start = time.time()
+		
+		dimfaces = np.shape(file.triangles_center)[0]
+		
 		#[0] is diffused, [1] is reflecte
-		beta = []
+		beta = np.zeros((dimfaces,4))
+		
 		if(sp.random_points):
 			# N rays on upper hemisphere
 			ray_diff_hem = mrd.random_points_hemisphere(sp.N, True)
@@ -79,52 +84,55 @@ def compute_beta(path, file, face_normals, face_centers):
 		bounds_no = float(np.linalg.norm(file.bounds[1]))
 		tf_no = sp.translation_factor
 
-		for count, item in enumerate(face_centers):
+		# Dot product of all hem vectors with all face normals
+		dot_mat_diff = np.matmul(ray_diff_hem, file.face_normals.T) # (N, number_faces)
+		dot_mat_refl = np.matmul(ray_refl_hem, file.face_normals.T) # (N, number_faces)
+
+		for count, face in enumerate(file.triangles_center):
+
+			progress_bar(count, np.shape(file.triangles_center)[0])
 
 			# translate each diff_hem of face center point
-			curr_tr_centre = [item for i in range(sp.N)]
-
+			face_N = np.ones((sp.N, 3))*face
+			ray_origins = face_N + ray_diff_hem*bounds_no*tf_no
+			
 			# diffuse part of beta coefficient ----------------------------------------
-			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_diff_hem))]
-			ray_direction_diff_in = [-i for i in np.array(ray_diff_hem)] #NO ITEM AGAIN
-
 			res_diff = file.ray.intersects_first(ray_origins=ray_origins, 
-												ray_directions=ray_direction_diff_in)
+												ray_directions=-ray_diff_hem)
+			visi_mask = (res_diff==count)
 
-
-			tmp_acc_comp = [k for k, i in enumerate(res_diff) if i == count]
-			integer_count_diff = [np.dot(face_normals[count], ray_diff_hem[x]) for x in tmp_acc_comp]
-
-			integer_tot_diff = 2*mt.pi*sum(integer_count_diff)/sp.N
-			var_diff = 2*mt.pi*sum([ (x - integer_tot_diff/(2*mt.pi))**2 for x in  integer_count_diff])/sp.N
+			integer_tot_diff = 2*mt.pi*np.sum(dot_mat_diff[visi_mask, count])/sp.N
+			
+			var_diff = np.sum((dot_mat_diff[visi_mask, count] - \
+					  integer_tot_diff/(2*mt.pi))**2) * 2*mt.pi/sp.N
+			
 
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
 
-			ray_origins = [i + j*bounds_no*tf_no for i, j in zip(curr_tr_centre, np.array(ray_refl_hem))]
-			ray_direction_refl_in = [-i for i in np.array(ray_refl_hem)] #NO ITEM AGAIN
+			ray_origins = face_N + ray_refl_hem*bounds_no*tf_no
 
 			res_refl = file.ray.intersects_first(ray_origins=ray_origins, 
-												ray_directions=ray_direction_refl_in)
+												ray_directions=-ray_refl_hem)
 
-			tmp_acc_comp = [k for k, i in enumerate(res_refl) if i == count]
-			integer_count_refl = [np.dot(face_normals[count], ray_refl_hem[x]) for x in tmp_acc_comp]
+			visi_mask = (res_refl==count)
 
-			integer_tot_refl = 2*mt.pi*sum(integer_count_refl)/sp.N
-			var_refl = 2*mt.pi*sum([ (x - integer_tot_refl/(2*mt.pi))**2 for x in  integer_count_refl])/sp.N
-
+			integer_tot_refl = 2*mt.pi*np.sum(dot_mat_refl[visi_mask, count])/sp.N
+			
+			var_refl = np.sum((dot_mat_refl[visi_mask, count] - \
+					  integer_tot_refl/(2*mt.pi))**2) * 2*mt.pi/sp.N
 			#----------------------------------------------------------------------------
 
 			#print diff and refl ratio
 			#print diff and refl standard deviations
-			beta.append(np.array([integer_tot_diff,
+			beta[count] = np.array([integer_tot_diff,
 								integer_tot_refl,
 								var_diff**0.5,
-								var_refl**0.5]))
+								var_refl**0.5])
 			
-			print("Computing beta ... ", 
-				round(count/len(face_normals)*100,1), 
-				" percent complete", end="\r")
-			
+		print('\nBeta computing took {:.1f} seconds.'.format(time.time()-start))
+		
 		np.savetxt(fileName, beta, fmt="%.10f")
-	return np.loadtxt(fileName)
+
+		
+		return beta
