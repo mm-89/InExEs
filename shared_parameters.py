@@ -22,6 +22,7 @@
 #        If True, degenerate and duplicate faces will be
 #        removed immediately, and some functions will alter
 #        the mesh to ensure consistent results.
+#
 
 GUI_window = True
 
