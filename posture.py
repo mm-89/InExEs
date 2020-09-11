@@ -18,10 +18,16 @@ class Posture:
                                 process=sp.process,
                                 validate=sp.validate)
 
-		self.beta_coeff = bc.compute_beta(self.path,
-										self.my_file,
-										self.my_file.face_normals,
-										self.my_file.triangles_center)
+
+
+		self.beta_coeff = bc.compute_beta(self.path, self.my_file)
+
+		
+		self.max_bounds = np.linalg.norm(self.my_file.bounds[1])
+	
+		self.number_faces = np.shape(self.my_file.triangles_center)[0]
+		
+		self.number_vertices = np.shape(self.my_file.vertices)[0]
 
 		if(self.compute_skin_refl):
 			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path,
@@ -32,7 +38,7 @@ class Posture:
 			if len(np.shape(self.skinRefl_coeff[0])) != len(np.shape(self.skinRefl_coeff[2])):
 				raise TypeError("Something gone wrong in skinRefl upload")
 			
-
+	
 	def get_angles_from_normals(self):
 		return self.angles_normals
 
@@ -120,7 +126,6 @@ class Posture:
 	def get_vertex_faces(self):
 		return self.my_file.vertex_faces
 
-
 	@property
 	def get_vertex_normals(self):
 		return self.my_file.vertex_normals
@@ -129,4 +134,11 @@ class Posture:
 	@property
 	def get_max_bounds(self):
 		return np.linalg.norm(self.my_file.bounds[1])
+
+	@property
+	def get_number_faces(self):
+		return np.shape(self.my_file.triangles_center)[0]
 	
+	@property
+	def get_number_vertices(self):
+		return np.shape(self.my_file.vertices)[0]
