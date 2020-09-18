@@ -88,6 +88,10 @@ def compute_beta(path, file):
 		dot_mat_diff = np.matmul(ray_diff_hem, file.face_normals.T) # (N, number_faces)
 		dot_mat_refl = np.matmul(ray_refl_hem, file.face_normals.T) # (N, number_faces)
 
+		# Integrate for theta >= 0, so keep only positive dot products
+		dot_mat_diff[dot_mat_diff<0.] = 0.
+		dot_mat_refl[dot_mat_refl<0.] = 0.
+		
 		for count, face in enumerate(file.triangles_center):
 
 			progress_bar(count, np.shape(file.triangles_center)[0])

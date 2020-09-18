@@ -6,6 +6,9 @@ import shared_parameters as sp
 import trimesh as tm
 import sys
 import numpy as np
+import xml.etree.ElementTree as ET
+
+zone_path = "zones_anatomiques.xml"
 
 class Posture:
 
@@ -135,10 +138,79 @@ class Posture:
 	def get_max_bounds(self):
 		return np.linalg.norm(self.my_file.bounds[1])
 
-	@property
-	def get_number_faces(self):
-		return np.shape(self.my_file.triangles_center)[0]
-	
-	@property
-	def get_number_vertices(self):
-		return np.shape(self.my_file.vertices)[0]
+
+	def correct_colors(self):
+		
+		col = []
+		try:
+			with open(zone_path, 'rb') as xml_file :
+				tree = ET.parse(xml_file)
+				root = tree.getroot()
+				
+				for element in root.iter('Zone'):
+					col.append([element.attrib['red'], element.attrib['green'],\
+				   element.attrib['blue'], '255'])					
+		except IOError:
+			print("File ", protections, " don't find or don't exist.")		
+
+		col = np.array(col).astype(int)
+		
+		if np.unique(self.get_faces_color, axis=0).shape != col.shape:
+			print('Some colors are undefined. Start correcting colors...')
+		
+			new_face_colors = np.copy(self.get_faces_color).astype(int)
+			
+			for iface in range(self.number_faces):
+				imin = np.argmin(np.sum((col-new_face_colors[iface])**2, axis=1))
+				new_face_colors[iface] = col[imin]
+				
+			self.my_file.visual.face_colors = new_face_colors
+			
+
+
+	def get_zone_mask(self, zone):
+		
+		mask = np.zeros(self.number_faces, dtype=bool)
+		
+		# Find the colors corresponding to the zone name in the xml file
+		col = []
+		cfound = False
+		
+		try:
+			with open(zone_path, 'rb') as xml_file :
+				tree = ET.parse(xml_file)
+				root = tree.getroot()
+				
+				# Check if it is a single zone
+				for element in root.iter('Zone'):
+					if element.attrib['name']==zone:
+						col.append([element.attrib['red'], element.attrib['green'],\
+				   element.attrib['blue'], '255'])						
+						cfound = True
+						
+				# If not, look for the composed zones
+				if not cfound:
+					for element in root.iter("ComposedZone"):
+						if element.attrib['name'] == zone:
+							for child in element:
+								
+								#check if the child is a composed zone
+								if child.tag=='Zone':
+									col.append([child.attrib['red'],\
+					  child.attrib['green'], child.attrib['blue'], '255'])
+								else:
+									for grandchild in child:
+										col.append([grandchild.attrib['red'],\
+					   grandchild.attrib['green'], grandchild.attrib['blue'], '255'])									
+
+				# Convert to face index using the face colors of the mesh
+				for color in col:
+					color = np.array([int(i) for i in color])
+					
+					ifaces = np.where((self.get_faces_color==color).all(axis=1))[0]
+					mask[ifaces] = True
+					
+				return mask
+						
+		except IOError:
+			print("File ", protections, " don't find or don't exist.")		

@@ -5,6 +5,7 @@ import input_data_handle as idh
 import data_map as dm
 #import color_map as cm
 import shared_parameters as sp
+import protections as prt
 from progressbar import *
 
 import trimesh as tm
@@ -48,6 +49,8 @@ class Simulation:
 				timestep, 
 				posture,
 				output_name,
+				protection_lib,
+				protections,
 				latitude=None,
 				read_data= False, 
 				data_path=None
@@ -60,8 +63,15 @@ class Simulation:
 								datetime.date(self.start_date.year, 1, 1)).days + 1
 
 		self.posture = ps.Posture(posture)
+		
+		# Try to correct the color code of the mesh which doesn't correspond to the
+		# anatomical code
+#		self.posture.correct_colors()
+		
 		self.beta = self.posture.get_beta
 
+		self.IP = prt.get_IP(protection_lib, protections, self.posture)
+		
 		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
@@ -119,7 +129,8 @@ class Simulation:
 		self.faces = [i for i in range(len(self.posture.get_faces))]
 
 		self.output_name = output_name
-
+		self.output_file = "output/{}-{}/".format(self.start_date.strftime("%Y %b %d %H:%M:%S").replace(' ','_'),\
+						self.end_date.strftime("%Y %b %d %H:%M:%S").replace(' ','_'))
 
 	def make_simulation(self):
 
@@ -141,16 +152,19 @@ class Simulation:
 		#data_output_dif = np.zeros(shape=len(self.ray_origins))
 		#data_output_ref = np.zeros(shape=len(self.ray_origins))
 		
-		if os.path.exists("output/" + self.output_name + ".csv"):
-			os.remove("output/" + self.output_name + ".csv")
+		if os.path.exists("{}{}.csv".format(self.output_file, self.output_name)):
+			os.remove("{}{}.csv".format(self.output_file, self.output_name))
 
+		if not os.path.exists(self.output_file):
+			os.mkdir(self.output_file)
+						
 		# Average over the mesh
-		file_out = open("output/" + self.output_name + ".csv", mode='a')
+		file_out = open("{}{}_average.csv".format(self.output_file, self.output_name), mode='a')
 		file_writer = csv.writer(file_out, delimiter=",",
     										quoting=csv.QUOTE_NONNUMERIC)
 		
 		# Full body results
-		file_out_full = "output/{}_fullBody.txt".format(self.output_name)
+		file_out_full = "{}{}_fullBody.txt".format(self.output_file, self.output_name)
 		file_writer_full = open(file_out_full, 'w')
 
 
@@ -237,7 +251,10 @@ class Simulation:
 			
 					#compute dot product between ray direction and face normals
 					proj = np.dot(self.face_normals, ray_source_direction)
-
+					
+					# Set to zero if negative, i.e coming from more than pi/2
+					proj[proj<0.] = 0.
+					
 					#--------------------------------------------------------
 					inf = self.posture.get_posture.ray.intersects_first(ray_origins=np.array(ray_origins), 
 																		ray_directions=np.array(ray_directions))
@@ -253,12 +270,14 @@ class Simulation:
 					data_output_total += self.beta[:,0]/mt.pi * rad_dif
 					data_output_total += self.beta[:,1]/mt.pi * rad_ref
 					data_output_total *= self.timestep
+					data_output_total /= self.IP
 					
 					full_body_time[acc] = data_output_total
 						
-					data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask])
-					data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi)
-					data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi)
+					data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask]\
+											  /self.IP[expo_mask])
+					data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi/self.IP)
+					data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi/self.IP)
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"),
 							rad_dir*data_output_dir*self.timestep/sum(self.areas),
@@ -360,14 +379,14 @@ class Simulation:
 
 	def show_one_timestep(self, date):
 
-		#this just to visualize
+		# Visualize the exposed zones for one time step
+		
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
 
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
 		current_day = (date_to_vis.date() - \
 								datetime.date(date_to_vis.year, 1, 1)).days + 1
-
 		current_second = date_to_vis.second + date_to_vis.minute*60 + date_to_vis.hour*3600
 
 		#make rays of sun (direction)
@@ -379,49 +398,35 @@ class Simulation:
 				print("Selected dates does not exist in the file ", data_path)
 			else:
 				row_data = idh.select_rows_in_file(date_to_vis, self.data)
-				print(row_data)
 
 			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[row_data, dm.data_map["zenith"]], \
 									self.data[row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
 		else:
 			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
 
-		ray_direction = np.array([-ray_source_direction for i in range(len(self.ray_origins))])
+		ray_directions = np.ones((self.posture.number_faces, 3))*(-ray_source_direction)
+		ray_origins = self.ray_origins - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+
+		inf = self.posture.get_posture.ray.intersects_first(ray_origins= ray_origins, 
+															ray_directions= ray_directions)
+
+		expo_mask = (inf==np.arange(self.posture.number_faces))
+
+		col = np.zeros((self.posture.number_faces, 3)) # Black color
+		col[expo_mask] = [255, 255, 255] #White color
 		
-		ray_origins = np.array([i - j*sp.translation_factor*self.posture.get_max_bounds for i,j in zip(self.ray_origins, ray_direction)])
-
-		#rays tracing
-		inf = self.posture.get_posture.ray.intersects_first(ray_origins=ray_origins, 
-														ray_directions=ray_direction)
-
-		#take only non-zero components (non-zero=not hit)
-		#face_nohit = np.nonzero(~inf)[0]
-
-		#to highlithg illuminated comparet to in shadow faces
-		
-		black_col = [0, 0, 0]
-		white_col = [255, 255, 255]
-
-		#set white if the component is false (no hit)
-		#or set black if the component is true (hit some faces)        
-		col_ver = []
-		for j, comp in enumerate(inf):
-			if(comp==j):
-				col_ver.append(white_col)
-			else:
-				col_ver.append(black_col)
-			           
-		#try to re-write a mesh
+		# Re-write a mesh
 		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
 								faces=self.posture.get_faces,
 								process=True, 
-								face_colors=col_ver)
+								face_colors=col)
 
-		#if you want to visualize a ray
+		# Add a ray and the reference frame
 		
+		ray_or = self.posture.get_triangles_center[100]-ray_directions[100]*3
 		ray_visualize = tm.load_path(np.hstack((
-		ray_origins[100],
-		ray_origins[100] + ray_direction[100])).reshape(-1, 2, 3))
+		ray_or,
+		ray_or + ray_directions[100])).reshape(-1, 2, 3))
 
 		xaxis = tm.load_path(np.array([[1,0,0],[2,0,0]]).reshape( 2, 3))
 		yaxis = tm.load_path(np.array([[1,0,0],[1,1,0]]).reshape( 2, 3))
@@ -430,17 +435,66 @@ class Simulation:
 		scene = tm.Scene([
 						my_new_mesh,
 						ray_visualize,
-						xaxis, yaxis, zaxis
+							xaxis, yaxis, zaxis
 						])
 
+		bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
+		scene.set_camera(angles=(0.,0.,0.), distance=4.*bounds_no, fov=(30.,50.))
+		
 		scene.show()
 
 
+	def show_face_colors(self):
+
+		print("You are visualizing the anatonomical zones.")
+		
+		# show the zone color
+		col = self.posture.get_faces_color
+		
+		#try to re-write a mesh
+		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
+								faces=self.posture.get_faces,
+								process=True, 
+								face_colors=col)
+
+		my_new_mesh.export(file_obj='postures/{}_new-face-colors.ply'.format(self.output_name), file_type='ply')
+		
+		scene = tm.Scene([my_new_mesh])
+		scene.show()
+		
+		
+	def show_IP(self):
+		
+		# Show where there is protection
+		IP_vis = self.IP-1
+		norm = mpl.colors.Normalize(vmin=np.amin(IP_vis), vmax=np.amax(IP_vis))
+		
+		scalarMap = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap('jet'))
+		
+		#try to re-write a mesh
+		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
+								faces=self.posture.get_faces,
+								process=True, 
+								face_colors=scalarMap.to_rgba(IP_vis))
+
+		my_new_mesh.export(file_obj='{}{}_IP.ply'.format(self.output_file, self.output_name), file_type='ply')
+
+		scene = tm.Scene([my_new_mesh])
+
+#		bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
+#		scene.set_camera(angles=(-np.pi/8.,0.,0.),distance=3.3*bounds_no,\
+#											    fov=(30.,50.))
+		scene.show()
+		
+		
 	def save_simu_timespan(self, begin_date, duration='00 02 00', vis_timestep=5.):
 		
 		try:
 		
-			result_path = "output/{}_fullBody_faces.txt".format(self.output_name)
+			result_path = "{}{}_fullBody.txt".format(self.output_file, self.output_name)
+			
+			if not os.path.exists("{}images".format(self.output_file)):
+				os.mkdir("{}images".format(self.output_file))
 			
 			# Check if the simulation results exist
 			with open(result_path, mode='r') as txt_file:
@@ -453,7 +507,7 @@ class Simulation:
 				ibegin = idh.select_rows_in_file(begin_datetime, self.data)
 				iend = ibegin+iduration
 				
-				# timestep in minutes
+				# vis_timestep in minutes
 				itimestep = int(vis_timestep*60./self.timestep)
 				
 				# Check if the time range requested as been simulated
@@ -467,32 +521,46 @@ class Simulation:
 					ibegin_sim = ibegin-self.start_row_data
 					iend_sim = iend-self.start_row_data
 					
-					full_body_time_f = np.array([temp.split() for temp in \
-							txt_file.readlines()[ibegin_sim:iend_sim+1]]).astype(float)
+					sim_res = np.array([temp.split() for temp in \
+							txt_file.readlines()[ibegin_sim:iend_sim]]).astype(float)
 					
-					norm = mpl.colors.Normalize(vmin=np.amin(full_body_time_f),\
-									    vmax=np.amax(full_body_time_f))
+					norm = mpl.colors.Normalize(vmin=0.,\
+									    vmax=np.amax(sim_res)) #np.amin(sim_res)
 		
 					scalarMap = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap('jet')) #cmap_Palwilch)
 		
+					fig = mpl.pyplot.figure()
+					ax = fig.add_subplot(111)
+					mpl.pyplot.colorbar(scalarMap, ax=ax)
+					mpl.pyplot.show()
+					
 					data_update = begin_datetime
 					
-					for idata in range(ibegin_sim, iend_sim+1, itimestep):
+					bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
+						
+					# Start from 0 because imported only the requested results
+					for idata in range(0):#, iduration, itimestep):
 						my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
 													faces=self.posture.get_faces,
 													process=True,
-													face_colors=scalarMap.to_rgba(full_body_time_f[idata])[:,:-1])
-														
-						scene = tm.Scene([my_new_mesh])
-						scene.set_camera(angles=(0,0.,0.),distance=4., fov=(30.,50.))
+													face_colors=scalarMap.to_rgba(sim_res[idata])[:,:-1])
+													
+						my_new_mesh.export(file_obj='{}{}_{:03d}.ply'.format(self.output_file, \
+						 self.output_name, idata), file_type='ply')
 						
+						scene = tm.Scene([my_new_mesh])
+						scene.set_camera(angles=(-np.pi/8.,0.,0.),distance=3.3*bounds_no,\
+											    fov=(30.,50.))
 						impng = scene.save_image()
 		
-						out_file = open("images/{}_{}.png".format(self.output_name, \
-										 data_update.strftime("%b %d %Y %H:%M:%S")), "wb")
+						out_file = open("{}images/{}_{}.png".format(self.output_file,\
+								  self.output_name, data_update.strftime("%Y %b %d %H:%M:%S")), "wb")
 						out_file.write(impng)
 						out_file.close()
 		
+						np.savetxt('{}{}_val_{:03d}.txt'.format(self.output_file,\
+								  self.output_name, idata), sim_res[idata], fmt='%4.3f')
+						
 						data_update += datetime.timedelta(minutes=vis_timestep)
 							
 		except IOError:
@@ -507,7 +575,6 @@ class Simulation:
 
 	def show_one_timestep_input_irradiace(self, date):
 		pass
-
 
 
 	def export_reference_frame(self):
@@ -550,9 +617,6 @@ class Simulation:
 			self.popupmsg("Reference frame exported successfully !")
 
 		
-
-
-	
 	def set_zone_to_simulate(self, RGB_map):
 		"""
 		Prototype: with this instance I'd like to
