@@ -572,38 +572,39 @@ class Simulation:
 
 	def export_reference_frame(self):
 
-		path = self.name.split('/')
-		mesh_name = path[-1]
-		fileName = mesh_name.rsplit(".", -1)[0]
-
-		centre = [[0, 0, 0] for i in range(len(self.ray_origins))]
-
 		info_map = {"zenith": [0, 1, 0],
 					"south": [0, 0, 1],
 					"east": [1, 0, 0]}
 
-		black_col = [0, 0, 0]
 		other_color = [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
 
 		for k, item in enumerate(info_map):
-			ray_direction = [info_map.get(item) for i in range(len(self.ray_origins))]
-			inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-																ray_directions=ray_direction)
 
-			col_ver = []
-			for comp in inf:
-				if not comp:
-					col_ver.append(other_color[k])
-				else:
-					col_ver.append(black_col)
+			curr_black = np.zeros((self.posture.number_faces, 3))
+
+			curr_color = np.ones((self.posture.number_faces, 3))*other_color[k]
+
+			ray_origins = self.posture.get_triangles_center + \
+				np.ones((self.posture.number_faces, 3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
+
+			ray_directions = -np.ones((self.posture.number_faces, 3))*info_map.get(item)
+
+			inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
+																ray_directions=ray_directions,
+																max_hits=1,
+																return_locations=False)
+
+			expo_mask = (inf==np.arange(self.posture.number_faces))
+
+			curr_black[expo_mask] += curr_color[expo_mask]
 
 			my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
 									faces=self.posture.get_faces,
 									process=True, 
-									face_colors=col_ver)
+									face_colors=curr_black)
 
-			tm.exchange.export.export_mesh(my_new_mesh, "output/" + "ref_frame_" + \
-												fileName + "_" + item + ".ply")
+			tm.exchange.export.export_mesh(my_new_mesh, 
+				"output/ref_frame_{}_{}.ply".format(self.output_name, item))
 
 		#OSVALDO'S GUI MODIFICATIONS
 		if sp.GUI_window:
