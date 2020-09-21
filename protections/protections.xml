@@ -1,0 +1,17 @@
+<!DOCTYPE Protections>
+<Protections>
+ <Clothing>
+  <Protection active="0" name="Pants" material="Linen" />
+  <Protection active="0" name = "T-Shirt" material="Cotton" />
+ </Clothing>
+ <Zone>
+  <Protection active="0" name="Face" IP="1" />
+  <Protection active="0" name="Head" IP="2" />
+  <Protection active="0" name="Neck" IP="2" />
+  <Protection active="0" name="Trunk" IP="2" />
+  <Protection active="0" name="Arm-Left" IP="2" />
+  <Protection active="0" name="Arm-Right" IP="2" />
+  <Protection active="0" name="Leg-Left" IP="2" />
+  <Protection active="0" name="Leg-Right" IP="2" />
+ </Zone>
+</Protections>

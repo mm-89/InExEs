@@ -1,0 +1,98 @@
+<!DOCTYPE zones>
+<Zones>
+ <ComposedZone active="1" name="Head" >
+  <Zone active="1" red="170" blue="0" name="Skull" green="0" />
+  <Zone active="1" red="0" blue="0" name="Face" green="85" />
+ </ComposedZone>
+ <ComposedZone active="1" name="Neck" >
+  <Zone active="1" red="170" blue="0" name="Neck_Front" green="85" />
+  <Zone active="1" red="0" blue="0" name="Neck_Back" green="170" />
+ </ComposedZone>
+ <ComposedZone active="1" name="Trunk" >
+  <Zone active="1" red="170" blue="0" name="Trunk_Top" green="170" />
+  <ComposedZone active="1" name="Trunk_Front" >
+   <Zone active="1" red="0" blue="0" name="Torso" green="255" />
+   <Zone active="1" red="170" blue="0" name="Belly" green="255" />
+   <Zone active="1" red="0" blue="127" name="Lower_Belly" green="0" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Trunk_Back" >
+   <Zone active="1" red="170" blue="127" name="Upper_Trunk_Back" green="0" />
+   <Zone active="1" red="0" blue="127" name="Lower_Trunk_Back" green="85" />
+   <Zone active="1" red="170" blue="127" name="Posterior" green="85" />
+  </ComposedZone>
+ </ComposedZone>
+ <ComposedZone active="1" name="Arm_Left" >
+  <Zone active="1" red="0" blue="127" name="Shoulder_Left" green="170" />
+  <ComposedZone active="1" name="Upper_Arm_Left" >
+   <Zone active="1" red="170" blue="127" name="Upper_Arm_Inside_Left" green="170" />
+   <Zone active="1" red="85" blue="255" name="Upper_Arm_Outside_Left" green="170" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Elbow_Left" >
+   <Zone active="1" red="0" blue="127" name="Elbow_Inside_Left" green="255" />
+   <Zone active="1" red="255" blue="255" name="Elbow_Outside_Left" green="170" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Lower_Arm_Left" >
+   <Zone active="1" red="170" blue="127" name="Lower_Arm_Inside_Left" green="255" />
+   <Zone active="1" red="85" blue="255" name="Lower_Arm_Outside_Left" green="255" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Hand_Left" >
+   <Zone active="1" red="0" blue="255" name="Palm_Left" green="0" />
+   <Zone active="1" red="170" blue="255" name="Hand_Back_Left" green="0" />
+  </ComposedZone>
+ </ComposedZone>
+ <ComposedZone active="1" name="Arm_Right" >
+  <Zone active="1" red="0" blue="255" name="Shoulder_Right" green="85" />
+  <ComposedZone active="1" name="Upper_Arm_Right" >
+   <Zone active="1" red="170" blue="255" name="Upper_Arm_Inside_Right" green="85" />
+   <Zone active="1" red="255" blue="255" name="Upper_Arm_Outside_Right" green="0" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Elbow_Right" >
+   <Zone active="1" red="0" blue="255" name="Elbow_Inside_Right" green="170" />
+   <Zone active="1" red="85" blue="255" name="Elbow_Outside_Right" green="0" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Lower_Arm_Right" >
+   <Zone active="1" red="170" blue="255" name="Lower_Arm_Inside_Right" green="170" />
+   <Zone active="1" red="255" blue="255" name="Lower_Arm_Outside_Right" green="85" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Hand_Right" >
+   <Zone active="1" red="0" blue="255" name="Palm_Right" green="255" />
+   <Zone active="1" red="170" blue="255" name="Back_Hand_Right" green="255" />
+  </ComposedZone>
+ </ComposedZone>
+ <ComposedZone active="1" name="Leg_Right" >
+  <ComposedZone active="1" name="Upper_Leg_Right" >
+   <Zone active="1" red="85" blue="0" name="Upper_Front_Leg_Right" green="0" />
+   <Zone active="1" red="255" blue="0" name="Upper_Back_Leg_Right" green="0" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Knee_Right" >
+   <Zone active="1" red="85" blue="0" name="Knee_Front_Right" green="85" />
+   <Zone active="1" red="85" blue="127" name="Knee_Back_Right" green="255" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Lower_Leg_Right" >
+   <Zone active="1" red="255" blue="0" name="Lower_Front_Leg_Right" green="85" />
+   <Zone active="1" red="85" blue="0" name="Lower_Back_Leg_Right" green="170" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Foot_Right" >
+   <Zone active="1" red="255" blue="0" name="Palm_Foot_Right" green="170" />
+   <Zone active="1" red="85" blue="0" name="Back_Foot_Right" green="255" />
+  </ComposedZone>
+ </ComposedZone>
+ <ComposedZone active="1" name="Leg_Left" >
+  <ComposedZone active="1" name="Upper_Leg_Left" >
+   <Zone active="1" red="255" blue="0" name="Upper_Front_Leg_Left" green="255" />
+   <Zone active="1" red="85" blue="127" name="Upper_Back_Leg_Left" green="0" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Knee_Left" >
+   <Zone active="1" red="255" blue="127" name="Knee_Front_Left" green="0" />
+   <Zone active="1" red="255" blue="127" name="Knee_Back_Left" green="255" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Lower_Leg_Left" >
+   <Zone active="1" red="85" blue="127" name="Lower_Front_Leg_Left" green="85" />
+   <Zone active="1" red="255" blue="127" name="Lower_Back_Leg_Left" green="85" />
+  </ComposedZone>
+  <ComposedZone active="1" name="Foot_Left" >
+   <Zone active="1" red="85" blue="127" name="Palm_Foot_Left" green="170" />
+   <Zone active="1" red="255" blue="127" name="Back_Foot_Left" green="170" />
+  </ComposedZone>
+ </ComposedZone>
+</Zones>
