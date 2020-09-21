@@ -49,8 +49,6 @@ class Simulation:
 				timestep, 
 				posture,
 				output_name,
-				protection_lib,
-				protections,
 				latitude=None,
 				read_data= False, 
 				data_path=None
@@ -70,7 +68,7 @@ class Simulation:
 		
 		self.beta = self.posture.get_beta
 
-		self.IP = prt.get_IP(protection_lib, protections, self.posture)
+		self.IP = np.ones(self.posture.number_faces)
 		
 		self.start_angle_azimuth = 0.
 
@@ -143,14 +141,6 @@ class Simulation:
 
 		if(self.start_date > self.end_date):
 			print("End date must me greater of start date!")
-
-
-		#irradiance_data
-		#BE CAREFUL! if the data will be cumulative, 
-		#you have to move this vector outside this cycle!
-		#data_output_dir = np.zeros(shape=len(self.ray_origins))
-		#data_output_dif = np.zeros(shape=len(self.ray_origins))
-		#data_output_ref = np.zeros(shape=len(self.ray_origins))
 		
 		if os.path.exists("{}{}.csv".format(self.output_file, self.output_name)):
 			os.remove("{}{}.csv".format(self.output_file, self.output_name))
@@ -375,6 +365,9 @@ class Simulation:
 
 		print("\nTotal time of simulation: {:.1f} seconds".format(time.time() - start))
 
+
+	def set_protections(self, protection_lib, protections):
+		self.IP = prt.get_IP(protection_lib, protections, self.posture)
 
 
 	def show_one_timestep(self, date):
