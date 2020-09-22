@@ -192,14 +192,14 @@ class Simulation:
 		
 			dimlines = self.total_timestep_of_simulation+1
 			
-			full_body_time = np.zeros((dimlines, self.posture.number_faces))
+			full_body_time = np.zeros((dimlines, np.shape(self.ray_origins)[0]))
 	
 			while(current_line < self.end_row_data + 1):
 				
 				progress_bar(acc, dimlines)
 				
 				# Total dose distributed on the mesh faces [J/m2]
-				data_output_total = np.zeros(self.posture.number_faces)
+				data_output_total = np.zeros(np.shape(self.ray_origins)[0])
 						
 				# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
 				data_output_dir = 0
@@ -230,7 +230,7 @@ class Simulation:
 				#compute only light days
 				if(self.data[current_line, dm.data_map["zenith"]]<90.):
 				
-					ray_directions = np.ones((self.posture.number_faces, 3))*(-ray_source_direction)
+					ray_directions = np.ones((np.shape(self.ray_origins)[0], 3))*(-ray_source_direction)
 		
 					ray_origins = self.ray_origins - ray_directions*sp.translation_factor*self.posture.get_max_bounds
 
@@ -250,8 +250,8 @@ class Simulation:
 																		ray_directions=np.array(ray_directions))
 					#--------------------------------------------------------
 
-					expo_mask = (inf==np.arange(self.posture.number_faces))
-		
+					expo_mask = (inf==self.faces)
+
 					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
 					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
 					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
@@ -657,6 +657,8 @@ class Simulation:
 		for item in vec_id:
 			new_faces_vector.append(item)
 		self.faces = new_faces_vector
+
+		self.IP = np.ones(np.shape(self.ray_origins)[0])
 
 
 	#GUI PROGRESS BAR :
