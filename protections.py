@@ -70,5 +70,5 @@ def get_IP(protection_lib, protections, posture):
 		return IP
 					
 	except IOError:
-		print("File ", protections, " don't find or don't exist.")
+		print("File ", protections, " doesn't find or doesn't exist.")
 	

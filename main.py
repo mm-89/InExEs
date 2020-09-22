@@ -21,9 +21,9 @@ from tkinter import *
 my_data_file = "input/irradiance_2009.csv"
 
 #my_posture_file = "postures/cube.ply"
-my_posture_file = "postures/my_posture.ply"
+my_posture_file = "postures/head_high_res/head.ply"
 
-output_name = "my_output_name"
+output_name = "head"
 
 # PROTECTIONS PARAMETERS---------------------
 
@@ -74,6 +74,8 @@ if not sp.GUI_window:
 	#my_simulation.set_start_angle(start_angle_azimuth)
 
 	#my_simulation.set_protections(protection_lib, protections)
+
+	#my_simulation.set_anatomical_zones(anat_zones)
 
 	#to make sure how your mesh is orientated in the space----
 	#my_simulation.export_reference_frame()

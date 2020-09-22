@@ -7,6 +7,7 @@ import data_map as dm
 import shared_parameters as sp
 import protections as prt
 from progressbar import *
+import anatomical_zones as anatZone
 
 import trimesh as tm
 import numpy as np
@@ -69,6 +70,8 @@ class Simulation:
 		self.beta = self.posture.get_beta
 
 		self.IP = np.ones(self.posture.number_faces)
+
+		self.simulate_anatomical_zones = False
 		
 		self.start_angle_azimuth = 0.
 
@@ -165,6 +168,28 @@ class Simulation:
 							"reflect intensity [J/m^2]",
 							"total intensity [J/m^2]"])
 
+		if (self.simulate_anatomical_zones):
+			#for now just sub_files, no interset files
+			for item in self.currAnatZone.sub_zone_name:
+				#delete old files
+				curr_file = "{}{}_{}.csv".format(self.output_file, self.output_name, item)
+
+				#delete old files
+				if os.path.exists("{}".format(curr_file)):
+					os.remove("{}".format(curr_file))
+
+				header = "['datetime', \
+							'direct intensity [J/m^2]', \
+							'diffuse intensity [J/m^2]', \
+							'reflect intensity [J/m^2]', \
+							'total intensity [J/m^2]']" \
+
+				#define variables
+				exec("file_out_%s = open('%s', 'w')" % (item, curr_file))
+				exec("file_writer_%s = csv.writer(file_out_%s, delimiter=',', \
+    										quoting=csv.QUOTE_NONNUMERIC)" % (item, item))
+				exec("file_writer_%s.writerow(%s)" % (item, header)) 
+
 		print("Start simulation...")
 		print("")
 
@@ -200,6 +225,10 @@ class Simulation:
 				
 				# Total dose distributed on the mesh faces [J/m2]
 				data_output_total = np.zeros(np.shape(self.ray_origins)[0])
+
+				data_T_dir = np.zeros(np.shape(self.ray_origins)[0])
+				data_T_dif = np.zeros(np.shape(self.ray_origins)[0])
+				data_T_ref = np.zeros(np.shape(self.ray_origins)[0])
 						
 				# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
 				data_output_dir = 0
@@ -268,6 +297,34 @@ class Simulation:
 											  /self.IP[expo_mask])
 					data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi/self.IP)
 					data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi/self.IP)
+
+					# anatomical zone (to be continued)----------
+
+					data_T_dir = rad_dir*proj[expo_mask]*self.areas[expo_mask]\
+											  /self.IP[expo_mask]
+					data_T_dif = rad_dif*self.beta[:,0]*self.areas/mt.pi/self.IP
+					data_T_ref = rad_ref*self.beta[:,1]*self.areas/mt.pi/self.IP
+
+				if(self.simulate_anatomical_zones):
+
+					for color, name in zip(self.currAnatZone.colors_vector, self.currAnatZone.sub_zone_name):
+							
+						expo_mask_anatZones =(np.where( self.posture.get_faces_color == color ) == self.faces)
+
+
+						data_partial_dir = np.sum(data_T_dir[expo_mask_anatZones])
+						data_partial_dif = np.sum(data_T_dif[expo_mask_anatZones])
+						data_partial_ref = np.sum(data_T_ref[expo_mask_anatZones])
+								
+						curr_data = data_update.strftime('%b %d %Y %H:%M:%S')
+
+						exec("file_writer_%s.writerow([curr_data, \
+								data_partial_dir, \
+								data_partial_dif, \
+								data_partial_ref, \
+								data_partial_dir+data_partial_dif+data_partial_ref])" % name)
+
+				#---------------------------------------------
 
 				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"),
 							rad_dir*data_output_dir*self.timestep/sum(self.areas),
@@ -368,6 +425,11 @@ class Simulation:
 
 	def set_protections(self, protection_lib, protections):
 		self.IP = prt.get_IP(protection_lib, protections, self.posture)
+
+	def set_anatomical_zones(self, path):
+		self.simulate_anatomical_zones = True
+		self.currAnatZone = anatZone.AnatomicalZones(path)
+
 
 
 	def show_one_timestep(self, date):
