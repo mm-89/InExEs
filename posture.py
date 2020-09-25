@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import xml.etree.ElementTree as ET
 
-zone_path = "zones_anatomiques.xml"
+zone_path = "anatomical_zones/anatomical_zones.xml"
 
 class Posture:
 
