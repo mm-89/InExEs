@@ -21,9 +21,9 @@ from tkinter import *
 my_data_file = "input/irradiance_2009.csv"
 
 #my_posture_file = "postures/cube.ply"
-my_posture_file = "postures/head_high_res/head.ply"
+my_posture_file = "my_posture.ply"
 
-output_name = "head"
+output_name = "my_output_name"
 
 # PROTECTIONS PARAMETERS---------------------
 
@@ -87,6 +87,9 @@ if not sp.GUI_window:
 
 	#to make a whole simulation---------------------------------
 	#my_simulation.make_simulation() 
+
+	#to visualize radiance received on 3D mesh-----------------
+	#my_simulation.show_one_timestep_received(4000)
 
 else:
 	

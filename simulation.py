@@ -9,6 +9,8 @@ import protections as prt
 from progressbar import *
 import anatomical_zones as anatZone
 
+from visualization import Visualization
+
 import trimesh as tm
 import numpy as np
 import math as mt
@@ -16,7 +18,7 @@ import datetime
 import time
 import csv
 import os
-from tqdm import tqdm
+#from tqdm import tqdm
 import matplotlib as mpl
 from matplotlib import cm
 
@@ -42,7 +44,7 @@ from .. import intersections
 from ..constants import log_time"""
 #--------------- IMPORT FOR PYEMBREE TESTS END ---------------
 
-class Simulation:
+class Simulation(Visualization):
 
 	def __init__(self,
 				start_date, 
@@ -276,7 +278,9 @@ class Simulation:
 					
 					#--------------------------------------------------------
 					inf = self.posture.get_posture.ray.intersects_first(ray_origins=np.array(ray_origins), 
-																		ray_directions=np.array(ray_directions))
+																		ray_directions=np.array(ray_directions))#,
+																		#multiple_hits=False,
+																		#return_locations=False)
 					#--------------------------------------------------------
 
 					expo_mask = (inf==self.faces)
