@@ -4,9 +4,11 @@ import math_refl_diff as mrd
 import shared_parameters as sp
 
 import trimesh as tm
+from vtkplotter import trimesh2vtk, show
 import sys
 import numpy as np
 import xml.etree.ElementTree as ET
+from math import pi
 
 zone_path = "anatomical_zones/anatomical_zones.xml"
 
@@ -48,6 +50,28 @@ class Posture:
 
 	def show_posture(self):
 		self.my_file.show()
+
+
+	def show_beta_coefficients(self, beta_coeff):
+		"""
+		beta_coeff can be diff or refl
+		"""
+		if( beta_coeff == 'diff' ):
+			this_beta = self.beta_coeff[:, 0]
+		elif( beta_coeff == 'refl'):
+			this_beta = self.beta_coeff[:, 1]
+		else:
+			raise TypeErro("Value not recognise! It can be 'diff' or 'refl'")
+
+		this_beta = this_beta/pi
+
+		vtkmeshes = trimesh2vtk(self.my_file)
+		vtkmeshes.cellColors(this_beta, cmap='jet', vmin=0., vmax=1.)
+		vtkmeshes.addScalarBar(title="Beta coefficients")
+
+		show(vtkmeshes)
+
+
 
 
 	def plyTests(self):
