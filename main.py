@@ -21,7 +21,7 @@ from tkinter import *
 my_data_file = "input/irradiance_2009.csv"
 
 #my_posture_file = "postures/cube.ply"
-my_posture_file = "my_posture.ply"
+my_posture_file = "postures/cube.ply"
 
 output_name = "my_output_name"
 
@@ -86,7 +86,7 @@ if not sp.GUI_window:
 	#my_simulation.set_zone_to_simulate(cm["red"])
 
 	#to make a whole simulation---------------------------------
-	#my_simulation.make_simulation() 
+	my_simulation.make_simulation() 
 
 	#to visualize radiance received on 3D mesh-----------------
 	#my_simulation.show_one_timestep_received(4000)

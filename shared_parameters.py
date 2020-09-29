@@ -24,7 +24,7 @@
 #        the mesh to ensure consistent results.
 #
 
-GUI_window = False
+GUI_window = True
 
 N = 10000
 translation_factor = 2.
