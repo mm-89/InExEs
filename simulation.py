@@ -132,8 +132,9 @@ class Simulation(Visualization):
 		self.faces = [i for i in range(len(self.posture.get_faces))]
 
 		self.output_name = output_name
-		self.output_file = "output/{}-{}/".format(self.start_date.strftime("%Y %b %d %H:%M:%S").replace(' ','_'),\
-						self.end_date.strftime("%Y %b %d %H:%M:%S").replace(' ','_'))
+
+		if not os.path.exists("output"):
+			os.mkdir("output")
 
 	def make_simulation(self):
 
@@ -147,19 +148,19 @@ class Simulation(Visualization):
 		if(self.start_date > self.end_date):
 			print("End date must me greater of start date!")
 		
-		if os.path.exists("{}{}.csv".format(self.output_file, self.output_name)):
-			os.remove("{}{}.csv".format(self.output_file, self.output_name))
+		if os.path.exists("output/{}_average.csv".format(self.output_name)):
+			os.remove("output/{}_average.csv".format(self.output_name))
 
-		if not os.path.exists(self.output_file):
-			os.mkdir(self.output_file)
+		if os.path.exists("output/{}_fullBody.csv".format(self.output_name)):
+			os.remove("output/{}_fullBody.csv".format(self.output_name))
 						
 		# Average over the mesh
-		file_out = open("{}{}_average.csv".format(self.output_file, self.output_name), mode='a')
+		file_out = open("output/{}_average.csv".format(self.output_name), mode='a')
 		file_writer = csv.writer(file_out, delimiter=",",
     										quoting=csv.QUOTE_NONNUMERIC)
 		
 		# Full body results
-		file_out_full = "{}{}_fullBody.txt".format(self.output_file, self.output_name)
+		file_out_full = "output/{}_fullBody.txt".format(self.output_name)
 		file_writer_full = open(file_out_full, 'w')
 
 

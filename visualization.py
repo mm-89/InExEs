@@ -7,7 +7,7 @@ class Visualization:
 
 		#row is timestep
 		#column is triangle
-		file_out_full = "{}{}_fullBody.txt".format(self.output_file, self.output_name)
+		file_out_full = "output/{}_fullBody.txt".format(self.output_name)
 
 		total_body_output = np.loadtxt(file_out_full)
 
