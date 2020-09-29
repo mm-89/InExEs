@@ -53,5 +53,5 @@ You may face some problems reguarding libraries installation. Where is some solu
 * Create an conda environment : `conda create --name ENV_NAME`
 * Active the conda environment : `conda activate ENV_NAME`
 * Install pyembree and trimesh with conda : `conda install -c conda-forge pyembree` and `conda install -c conda-forge trimesh`
-* Then you may need to install some others librairies, like matplotlib networkx pyglet scipy : `pip install LIBRAIRY_NAME`
+* Then you may need to install some others librairies, like matplotlib networkx pyglet scipy vtkplotter : `pip install LIBRAIRY_NAME`
 * Launch the programm with : `python3 main.py` (make sure your conda env is activate)
