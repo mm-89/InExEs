@@ -727,6 +727,9 @@ class Root(Tk):
         self.saveOutput = self.outputName
 
     def autocomplete_with_saved_form(self):
+        #check if saved form exist :
+        self.check_latest_form()
+
         self.meshName.insert(12,self.saveMesh)
         self.dataName.insert(12,self.saveData)
         self.timestepValue.insert(12,self.saveTimestep)
@@ -749,6 +752,17 @@ class Root(Tk):
         self.entry_4EDay.insert(12, endList[3])
         self.entry_5EDay.insert(12, endList[4])
         self.entry_6EDay.insert(12, endList[5])
+
+    def check_latest_form(self):
+        #we don't need to check all saved variables because we only save form after checking if everything is correct
+        try:
+            if(self.saveData == ''):
+                self.popupmsg("No saved form found")
+        except AttributeError as e:
+            self.popupmsg("No saved form found")
+        
+            
+
 
     def clear_all(self):
         widget_list = self.all_children()
