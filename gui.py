@@ -713,6 +713,7 @@ class Root(Tk):
         self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
         self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
         self.insert_date_from_data()
+        self.timestepValue.delete(0,'end')
         self.timestepValue.insert(12, '60')
         self.ouputValue.insert(12, 'test')
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
