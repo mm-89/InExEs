@@ -718,6 +718,16 @@ class Root(Tk):
         self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
         self.outputName = 'test'
 
+        #if want to dev with 1day simulation auto complete uncomment this part
+        self.entry_2EDay.delete(0,'end')
+        self.entry_3EDay.delete(0,'end')
+        self.entry_5EDay.delete(0,'end')
+        self.entry_2EDay.insert(12, '2')
+        self.entry_3EDay.insert(12, '2009')
+        self.entry_5EDay.insert(12, '1')
+
+
+
     def save_form(self):
         self.saveMesh = self.mesh
         self.saveData = self.dataPath
