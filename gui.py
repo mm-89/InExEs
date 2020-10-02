@@ -172,7 +172,7 @@ class Root(Tk):
         self.clearAllBtn.grid(column=1, row=3)
 
     def test(self):
-        self.timestep_selector()
+        self.clear_data_frame()
         
 
     #LOAD MESH FUNCTIONS -------------------------------------------
@@ -193,6 +193,8 @@ class Root(Tk):
 
     def file_dialog_data(self):
         self.fileNameData = filedialog.askopenfilename(initialdir = curr_dir + "/input", title = "select a data file")
+        #Clear input name if re-selecting a file
+        self.clear_data_frame()
         self.dataName.insert(12, self.fileNameData)
         self.dataPath = self.fileNameData
         self.insert_date_from_data()
@@ -226,6 +228,9 @@ class Root(Tk):
                 self.entry_4EDay.insert(12, allDates[-1][3])
                 self.entry_5EDay.insert(12, allDates[-1][4])
                 self.entry_6EDay.insert(12, allDates[-1][5])
+
+                #INSERT TIMESTEP DEFAULT VALUE
+                self.timestepValue.insert(12, '60')
 
         except IOError:
             self.popupmsg("An error occured : CSV file not found")
@@ -760,6 +765,32 @@ class Root(Tk):
                 _list.extend(item.winfo_children())
 
         return _list
+
+    #Clear all inputs if reselecting a data file
+    def clear_data_frame(self) :
+        #CLEAR DATA FILE NAME
+        self.dataName.delete(0,'end')
+
+        #START DATE CLEAR
+        self.entry_1SDay.delete(0,'end')
+        self.entry_2SDay.delete(0,'end')
+        self.entry_3SDay.delete(0,'end')
+        self.entry_4SDay.delete(0,'end')
+        self.entry_5SDay.delete(0,'end')
+        self.entry_6SDay.delete(0,'end')
+
+        #END DATE CLEAR
+        self.entry_1EDay.delete(0,'end')
+        self.entry_2EDay.delete(0,'end')
+        self.entry_3EDay.delete(0,'end')
+        self.entry_4EDay.delete(0,'end')
+        self.entry_5EDay.delete(0,'end')
+        self.entry_6EDay.delete(0,'end')
+
+        #TIMESTEP CLEAR
+        self.timestepValue.delete(0,'end')
+        
+
 
 
 
