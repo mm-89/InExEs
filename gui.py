@@ -12,6 +12,7 @@ import time
 import json
 import posture as ps
 import re
+import threading
 
 curr_dir = os.getcwd()
 
@@ -73,7 +74,7 @@ class Root(Tk):
 
         #Button to start simulation 
         StartBtnImg = PhotoImage(master = self.startFrame ,file='ColorBtn/start.png')
-        self.btnStartSimulation = Button(self.startFrame, text = "START SIMULATION", command=self.start_simulation)
+        self.btnStartSimulation = Button(self.startFrame, text = "START SIMULATION", command=self.thread_simulation)
 
         #User input for mesh path
         self.meshName = Entry(self.meshFrame, text = "", bg ="white", width = 20)
@@ -459,6 +460,10 @@ class Root(Tk):
 
 
     #START SIMULATION ----------------------------------------------
+    def thread_simulation(self):
+        print("trying to make start thread for simulation")
+        threading.Thread(target=self.start_simulation()).start()
+
     def start_simulation(self):
         self.get_dates_infos()
         self.get_output_name()
