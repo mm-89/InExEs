@@ -160,27 +160,36 @@ class Root(Tk):
         #-----------------------------------------------------------
 
         #TEST BUTTON FUNCTIONS !
+        #Purpose of test function button is only development oriented : you can create a new gui function and try it without interfiring with other gui objects
         self.tBtn = Button(self, text="test function", command=self.test)
         self.tBtn.grid(column=0, row=8)
 
+        #Dev only : auto complete form button
         self.autoBtn = Button(self.globalFrame3, text="auto complete form", command=self.autocomplete_form)
         self.autoBtn.grid(column=1, row=1)
 
+        #Button to autocomplete with last form
         self.autoCompleteBtn = Button(self.globalFrame3, text="auto complete with last form", command=self.autocomplete_with_saved_form)
         self.autoCompleteBtn.grid(column=1, row=2)
 
+        #Button that clear all form
         self.clearAllBtn = Button(self.globalFrame3, text="clear form", command=self.clear_all)
         self.clearAllBtn.grid(column=1, row=3)
 
+    #Dev only : function that can be modified for testing before implementation
     def test(self):
-        self.clear_data_frame()
+        tName = threading.get_ident("threadSim")
+        print("thread id = " ,tName)
+        threading.pause(tName)
         
 
     #LOAD MESH FUNCTIONS -------------------------------------------
+    #Load mesh creation button
     def load_mesh(self):
         self.btnMeshLoad = Button(self.meshFrame, text="select a mesh", command = self.file_dialog_mesh)
         self.btnMeshLoad.grid(column = 1, row = 1)
 
+    #File explorator for mesh
     def file_dialog_mesh(self):
         self.fileName = filedialog.askopenfilename(initialdir = curr_dir + "/postures", title = "select a mesh")
         self.meshName.insert(12, self.fileName)
@@ -188,10 +197,12 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #LOAD DATA FUNCTIONS -------------------------------------------
+    #Load csv file button creation
     def load_data(self):
         self.btnDataLoad = Button(self.dataFrame, text="select a data file", command = self.file_dialog_data)
         self.btnDataLoad.grid(column = 0, row = 3)
 
+    #File explorator for data file
     def file_dialog_data(self):
         self.fileNameData = filedialog.askopenfilename(initialdir = curr_dir + "/input", title = "select a data file")
         #Clear input name if re-selecting a file
@@ -200,6 +211,7 @@ class Root(Tk):
         self.dataPath = self.fileNameData
         self.insert_date_from_data()
 
+    #Function that auto complete inputs from start and end date with selected cvs first and last date
     def insert_date_from_data(self):
         allDates = [[]]
         try:
@@ -238,6 +250,7 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #USER INPUT DATE -----------------------------------------------
+    #Create all inputs for start date
     def start_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC START
         self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
@@ -273,7 +286,7 @@ class Root(Tk):
         self.entry_5SDay.bind('<KeyRelease>', lambda e: self._check(4, 2))
         self.entry_6SDay.bind('<KeyRelease>', lambda e: self._check(5, 2))
 
-
+    #Create all inputs for end date 
     def end_date_picker(self, r, col):
         #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC END
         self.entry_1EDay = Entry(self.dateFrame, width=2, bg = "white")
@@ -309,6 +322,7 @@ class Root(Tk):
         self.entry_5EDay.bind('<KeyRelease>', lambda e: self._check2(4, 2))
         self.entry_6EDay.bind('<KeyRelease>', lambda e: self._check2(5, 2))
 
+    #Backspace and check functions check start/end date inputs to only allow 2 or 4 and only numerical caracters for these specifics inputs
     def _backspace(self, entry):
         cont = entry.get()
         entry.delete(0, END)
@@ -343,6 +357,8 @@ class Root(Tk):
         if len(data) > 2 or not data.isdigit():
             self._backspace(entry)
 
+
+    #Get start/end date and timestep value from the form
     def get_dates_infos(self):
         self.startDate = self.entries[0].get() + '/' + self.entries[1].get() + '/' + self.entries[2].get() + ' ' + self.entries[3].get() + ':' + self.entries[4].get() + ':' + self.entries[5].get()
         self.endDate = self.entries2[0].get() + '/' + self.entries2[1].get() + '/' + self.entries2[2].get() + ' ' + self.entries2[3].get() + ':' + self.entries2[4].get() + ':' + self.entries2[5].get()
@@ -353,6 +369,7 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #USER INPUT FOR OUTPUT -----------------------------------------
+    #Get output name from the form
     def get_output_name(self):
         self.outputName = self.ouputValue.get()
     #---------------------------------------------------------------
@@ -361,6 +378,7 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #SHOW MESH AND TESTS MESH FUNCTIONS ----------------------------
+    #Show mesh in a new window
     def show_mesh(self):
         if(self.mesh == ""):
             self.popupmsg("Error : Mesh file not found !")
@@ -371,7 +389,7 @@ class Root(Tk):
             self.popupmsg("Error : Mesh file not found !")
             return
         
-    
+    #Export the reference frame
     def reference_frame(self):
         self.get_dates_infos()
         self.get_output_name()
@@ -382,6 +400,7 @@ class Root(Tk):
         except (IOError, ValueError) as e:
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
+    #Show mesh in a specific timestep
     def show_mesh_in_timestep(self):
         selectedTimestep = self.get_date_timestep_selector()
         if(selectedTimestep == ''):
@@ -396,7 +415,7 @@ class Root(Tk):
         except (IOError) as e:
             self.popupmsg("An error occured ! Please verify parameters...")      
 
-
+    #Display a timestep selector for the "show mesh in timestep" feature (works the same way as start/end date inputs)
     def timestep_selector(self):
         if(self.mesh == ""):
             self.popupmsg("You need to select a mesh before !")
@@ -460,10 +479,16 @@ class Root(Tk):
 
 
     #START SIMULATION ----------------------------------------------
+    #Start a simulation in a new thread 
     def thread_simulation(self):
         print("trying to make start thread for simulation")
-        threading.Thread(target=self.start_simulation()).start()
+        for t in threading.enumerate():
+            print("thread name before sim",t.getName())
+        threadSimulation = threading.Thread(target=self.start_simulation()).start()
+        for t in threading.enumerate():
+            print("thread name after sim",t.getName())
 
+    #Start simulation
     def start_simulation(self):
         self.get_dates_infos()
         self.get_output_name()
@@ -473,6 +498,7 @@ class Root(Tk):
         #self.termf_display()
         #save form
         self.save_form()
+        #Try to create simulation object
         try:
             self.curr_simulation = sim.Simulation(self.startDate,
                                         self.endDate,
@@ -487,22 +513,25 @@ class Root(Tk):
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...")
 
+        #Get colors input and check if there is selected colors (if yes --> color simulation)
         if(self.colorInput.get() != ''):
             print("Color simulation possible")
             self.make_color_simulation()
-        
+        #No color selected --> try normal simulation
         try:      
             self.curr_simulation.make_simulation()
         except IOError:
             self.popupmsg("An error occured ! Please verify simulation parameters...")
             
-
+        #Update the simulation information (simulation = done)
         self.simLoadingLabel['text'] = "Simulation : " + self.done
         self.simInfosFrame.update()
 
     #---------------------------------------------------------------
 
     #TESTS AND ERRORS USER -----------------------------------------
+    #Create a generic popup with a message for the user 
+    #@parameters : String : message you want to deliver
     def popupmsg(self,msg):
         popup = Tk()
         popup.wm_title("Error found !")
@@ -513,6 +542,7 @@ class Root(Tk):
         popup.update()
 
 
+    #Try to catch possible errors in the form
     def error_catch(self):
         try:
             start = dt.strptime(self.startDate,"%m/%d/%Y %H:%M:%S")
@@ -547,6 +577,7 @@ class Root(Tk):
             self.popupmsg("Error : Mesh file not found !")
 
 
+    #Create the frame with simulation informations 
     def infos_frame_creation(self):
         tmpMesh = self.mesh.split('/')
         tmpData = self.dataPath.split('/') 
@@ -575,6 +606,7 @@ class Root(Tk):
     #---------------------------------------------------------------
 
     #COLORS MANAGEMENT -----------------------------------------
+    #Create the color popup
     def colors_popup(self):
         self.popupColor = Tk()
         self.popupColor.wm_title("Choose the color to simulate")
@@ -593,6 +625,7 @@ class Root(Tk):
         closeColorBtn.grid(column = 0, row = 2, padx = 5)
         self.popupColor.mainloop()
 
+    #Inputs for colors in main frame
     def color_management(self):
         self.colorInput = Entry(self.colorFrame, width=10, bg = "white")
         self.colorInput.grid(column = 0, row = 0)
@@ -600,13 +633,14 @@ class Root(Tk):
         self.chooseColorBtn = Button(self.colorFrame, text="Choose a color", command = self.dynamic_color_btn)
         self.chooseColorBtn.grid(column = 1, row = 0, padx = 4)
 
-
+    #Add chosen color to color set
     def input_choosed_color(self, color,index):
         self.hexString += color+','
         self.colorInput.insert(12, color+',')
         self.buttons[index].config(state="disabled")
         #self.popupColor.destroy()
 
+    #Validate colors --> get rid of doubles by array to set to array transformation
     def validate_colors(self):
         #hexList = self.colorInput.get().split(',')
         hexList = self.hexString.split(',')
@@ -626,6 +660,7 @@ class Root(Tk):
         for c in self.rgbList:
             self.addColors += c
 
+    #Start a color simlation
     def make_color_simulation(self):
         try :
             #simulation = sim.Simulation(self.startDate,self.endDate,self.timestep,self.mesh,self.outputName,self.latitude,self.readData,self.dataPath,loop_on_faces=True)
@@ -636,7 +671,7 @@ class Root(Tk):
     def color_verification(self, color):
         check = any
         
-
+    #Create dynamicaly all colored buttons for the colors popup
     def dynamic_color_btn(self):
         self.colors = []
         self.read_colors_from_ply()
@@ -662,6 +697,7 @@ class Root(Tk):
         self.colorSaveBtn = Button(self.colorPopup, text="Validate color(s)", command= self.validate_colors)
         self.colorSaveBtn.grid()
 
+    #NOT USED : Can read colors from a json file and transform rgb to hex
     def read_json_color(self):
         with open('ColorBtn/colors.json') as json_file:
             data = json.load(json_file)
@@ -674,6 +710,7 @@ class Root(Tk):
                 print('Name: ' + c['name'])
                 print('')
 
+    #Read colors from ply file
     def read_colors_from_ply(self):
         print("Reading PLY colors :")
 
@@ -696,6 +733,7 @@ class Root(Tk):
         self.rgb_to_hex(rgbColorsSet)
 
 
+    #Rgb to hex transformation for validated colors
     def rgb_to_hex(self, rgb):
         self.colorsDict = {}
         rgb.pop()
@@ -779,14 +817,14 @@ class Root(Tk):
         
             
 
-
+    #clear the main form
     def clear_all(self):
         widget_list = self.all_children()
         for item in widget_list:
             if(isinstance(item, Entry)):
                 item.delete(0,'end')
 
-
+    #Get all widget children
     def all_children (self) :
         _list = self.winfo_children()
 

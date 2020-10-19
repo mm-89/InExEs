@@ -26,6 +26,7 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import gui as ui
+import threading
 #--------------- IMPORT FOR PYEMBREE TESTS ---------------
 """from copy import deepcopy
 
@@ -351,6 +352,8 @@ class Simulation(Visualization):
 				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 				#loadingBarSim.close()
 				#self.popup_process.destroy()
+				for t in threading.enumerate():
+					print("thread name",t.getName())
 				self.destroy_popup()
 				self.popup_end_simulation()
 		
@@ -734,15 +737,28 @@ class Simulation(Visualization):
 		self.popup_process.wm_title("Simulation process...")
 		#self.progressBar = ttk.Progressbar(self.popup_process, orient = 'horizontal', length = 286, mode = 'determinate')
 		#self.progressBar['maximum'] = 100
-		self.stopBtn = Button(self.popup_process, text="Stop Simulation", command = self.destroy_popup)
+		self.stopBtn = Button(self.popup_process, text="Stop simulation", command = self.destroy_popup)
+		self.pauseBtn = Button(self.popup_process, text="Pause simulation", command = self.pause_sim)
+		self.restartBtn = Button(self.popup_process, text="Restart simulation", command = self.restart_sim)
 		#self.progressBar.grid(column = 1, row = 1, pady = 10)
-		self.stopBtn.grid(column = 1, row = 2)
+		self.stopBtn.grid(column = 1, row = 4)
+		#self.pauseBtn.grid(column = 2, row = 4)
+		#self.restartBtn.grid(column = 3, row = 4)
 
 		self.labelPercentage = Label(self.popup_process, text="Simulation is processing, you can follow the progress on your terminal !")
 		self.labelPercentage.grid(column = 1, row = 3, pady = 10)
 
 	def destroy_popup(self):
-    		self.popup_process.destroy()
+		for t in threading.enumerate():
+			t.stop()		
+		self.popup_process.destroy()
+
+	def pause_sim(self):
+		print("Simulation paused ...")
+		print("thread id = ",threading.get_ident())
+
+	def restart_sim(self):
+		print("Simulation has restarted ...")
 
 	def popup_end_simulation(self):
 		self.popupEnd = Toplevel()
