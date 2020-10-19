@@ -44,7 +44,7 @@ def compute_beta(path, file):
 	"""
 	path = path.split('/')
 	mesh_name = path[-1]
-	fileName = "input/beta_{}_{}.txt".format(mesh_name.rsplit(".", -1)[0], sp.N)
+	fileName = "beta_coeff/beta_{}_{}.txt".format(mesh_name.rsplit(".", -1)[0], sp.N)
 
 	try:
 		with open(fileName) as f:

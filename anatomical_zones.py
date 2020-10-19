@@ -12,7 +12,7 @@ class AnatomicalZones:
         print("***")
         document_read = minidom.parse(path)
 
-        #this is all COmposedZone
+        #this is all ComposedZone
         items = document_read.getElementsByTagName('ComposedZone')
 
         self.zone_name = []

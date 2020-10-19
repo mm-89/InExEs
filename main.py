@@ -18,12 +18,11 @@ from tkinter import *
 #POSTURE PARAMETERS-------------------------
 #choosing and charging the posture
 
-my_data_file = "input/irradiance_2009.csv"
+my_data_file = "input_irradiance/irradiance_2009.csv"
 
-#my_posture_file = "postures/cube.ply"
-my_posture_file = "my_posture.ply"
+my_posture_file = "postures/head_high_res/head.ply"
 
-output_name = "my_output_name"
+output_name = "head"
 
 # PROTECTIONS PARAMETERS---------------------
 
@@ -42,11 +41,6 @@ timestep = 60.
 #GEO PARAMETERS------------------------------
 
 latitude = 40.
-
-#SIM POSTURE PARAMETERS----------------------
-#need start angle
-
-start_angle_azimuth = 0.
 
 #DATA PARAMETERS-----------------------------
 #set start date
@@ -71,8 +65,6 @@ if not sp.GUI_window:
 								)
 
 
-	#my_simulation.set_start_angle(start_angle_azimuth)
-
 	#my_simulation.set_protections(protection_lib, protections)
 
 	#my_simulation.set_anatomical_zones(anat_zones)
@@ -86,10 +78,10 @@ if not sp.GUI_window:
 	#my_simulation.set_zone_to_simulate(cm["red"])
 
 	#to make a whole simulation---------------------------------
-	#my_simulation.make_simulation() 
+	my_simulation.make_simulation() 
 
 	#to visualize radiance received on 3D mesh-----------------
-	#my_simulation.show_one_timestep_received(4000)
+	#my_simulation.show_one_timestep_received(720)
 
 else:
 	

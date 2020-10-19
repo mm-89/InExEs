@@ -1,13 +1,12 @@
 import posture as ps
 import sun_ray_direction as srd
 import math_refl_diff as mrd
-import input_data_handle as idh
-import data_map as dm
 #import color_map as cm
 import shared_parameters as sp
 import protections as prt
 from progressbar import *
 import anatomical_zones as anatZone
+import csvReader as cr
 
 from visualization import Visualization
 
@@ -53,7 +52,7 @@ class Simulation(Visualization):
 				posture,
 				output_name,
 				latitude=None,
-				read_data= False, 
+				read_data=False, 
 				data_path=None
 				):
 
@@ -67,52 +66,32 @@ class Simulation(Visualization):
 		
 		# Try to correct the color code of the mesh which doesn't correspond to the
 		# anatomical code
-#		self.posture.correct_colors()
-		
+		#self.posture.correct_colors()
+
 		self.beta = self.posture.get_beta
 
 		self.IP = np.ones(self.posture.number_faces)
 
 		self.simulate_anatomical_zones = False
-		
-		self.start_angle_azimuth = 0.
 
 		self.read_data = read_data
 
 		if(self.read_data):
 
-			self.data = []
-			self.timestep = 60
+			curr_input = cr.CsvReader(data_path)
+			curr_input.checkDatesAndTimestep(start_date, end_date, timestep)
 
-			try:
+			self.timestep = timestep
 
-				with open(data_path, mode='r') as csv_file:
+			self.timeline = curr_input.timeline
 
-					#to avoid to read header
-					next(csv_file)
+			self.directions = curr_input.angles
 
-					#charge data line numpy array
-					self.data = np.array([i for i in csv.reader(csv_file, delimiter=",",
-															 quoting=csv.QUOTE_NONNUMERIC)])
-					#REMEBER: probably this last matrix is a string
+			self.irr_dir = curr_input.irr_dir
+			self.irr_dif = curr_input.irr_dif
+			self.irr_ref = curr_input.irr_ref
 
-		    		#check if the data exists
-					if(idh.is_data_exists_in_file(self.start_date, self.data)==False or \
-						idh.is_data_exists_in_file(self.end_date, self.data)==False):
-						print("Selected dates does not exist in the file ", data_path)
-					else:
-						self.start_row_data = idh.select_rows_in_file(self.start_date, self.data)
-						self.end_row_data = idh.select_rows_in_file(self.end_date, self.data)
-						self.total_timestep_of_simulation = self.end_row_data - self.start_row_data
-
-						#to avoid negative values
-						self.data = idh.repair_data(self.data)
-			
-
-			except IOError:
-
-				print("File ", data_path, " don't find or don't exist.")
-				print("With read data=True the file MUST be specified")
+			self.is_day = curr_input.is_day
 
 		else:
 
@@ -125,11 +104,6 @@ class Simulation(Visualization):
 				self.source_light = srd.Sun_ray_direction(latitude=self.latitude)
 
 		self.name = posture
-
-		self.ray_origins = self.posture.get_triangles_center
-		self.face_normals = self.posture.get_normals
-		self.areas = self.posture.get_area_faces
-		self.faces = [i for i in range(len(self.posture.get_faces))]
 
 		self.output_name = output_name
 
@@ -196,6 +170,11 @@ class Simulation(Visualization):
 		print("Start simulation...")
 		print("")
 
+		face_centers = self.posture.get_triangles_center
+		face_normals = self.posture.get_normals
+		areas = self.posture.get_area_faces
+		faces_index = np.arange(len(face_centers))
+
 		if sp.GUI_window:
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim = tqdm(total = self.total_timestep_of_simulation, position = 0, leave = False)
@@ -210,28 +189,22 @@ class Simulation(Visualization):
 
 		if(self.read_data):
 
-			current_line = self.start_row_data
-			data_update = self.start_date
-
-			vertex_degree = self.posture.get_posture.vertex_degree
-			vertex_faces = self.posture.get_posture.vertex_faces
-			areas = self.areas
 			area_tot = np.sum(areas)
 		
-			dimlines = self.total_timestep_of_simulation+1
+			dimlines = len(self.timeline) + 1
 			
-			full_body_time = np.zeros((dimlines, np.shape(self.ray_origins)[0]))
+			full_body_time = np.zeros((dimlines, np.shape(face_centers)[0]))
 	
-			while(current_line < self.end_row_data + 1):
+			for k, item in enumerate(self.timeline):
 				
 				progress_bar(acc, dimlines)
 				
 				# Total dose distributed on the mesh faces [J/m2]
-				data_output_total = np.zeros(np.shape(self.ray_origins)[0])
+				data_output_total = np.zeros(np.shape(face_centers)[0])
 
-				data_T_dir = np.zeros(np.shape(self.ray_origins)[0])
-				data_T_dif = np.zeros(np.shape(self.ray_origins)[0])
-				data_T_ref = np.zeros(np.shape(self.ray_origins)[0])
+				data_T_dir = np.zeros(np.shape(face_centers)[0])
+				data_T_dif = np.zeros(np.shape(face_centers)[0])
+				data_T_ref = np.zeros(np.shape(face_centers)[0])
 						
 				# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
 				data_output_dir = 0
@@ -254,27 +227,17 @@ class Simulation(Visualization):
 				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
 				self.popupFeedback.update()'''
 
-
-				#compute source rays direction
-				ray_source_direction = mrd.from_polar_to_cartesian(self.data[current_line, dm.data_map["zenith"]], \
-									self.data[current_line, dm.data_map["azimuth"]] - self.start_angle_azimuth)
-
 				#compute only light days
-				if(self.data[current_line, dm.data_map["zenith"]]<90.):
-				
-					ray_directions = np.ones((np.shape(self.ray_origins)[0], 3))*(-ray_source_direction)
-		
-					ray_origins = self.ray_origins - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+				if(self.is_day[k]):	
 
-					#just to check
-					if not len(ray_origins)==len(ray_directions):
-						print("Some problems occured")
-						break
-			
+					ray_directions = np.ones((np.shape(face_centers)[0], 3))*(-self.directions[k])
+					ray_origins = face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+
+
 					#compute dot product between ray direction and face normals
-					proj = np.dot(self.face_normals, ray_source_direction)
+					proj = np.dot(face_normals, self.directions[k])
 					
-					# Set to zero if negative, i.e coming from more than pi/2
+					# Set to zero if negative, i.e. coming from more than pi/2
 					proj[proj<0.] = 0.
 					
 					#--------------------------------------------------------
@@ -284,31 +247,27 @@ class Simulation(Visualization):
 																		#return_locations=False)
 					#--------------------------------------------------------
 
-					expo_mask = (inf==self.faces)
+					expo_mask = (inf==faces_index)
 
-					rad_dir = self.data[current_line, dm.data_map["uvdirect"]]
-					rad_dif = self.data[current_line, dm.data_map["uvdiffuse"]]
-					rad_ref = self.data[current_line, dm.data_map["uvreflect"]]
 					
-					data_output_total[expo_mask] += proj[expo_mask] * rad_dir
-					data_output_total += self.beta[:,0]/mt.pi * rad_dif
-					data_output_total += self.beta[:,1]/mt.pi * rad_ref
+					data_output_total[expo_mask] += proj[expo_mask] * self.irr_dir[k]
+					data_output_total += self.beta[:,0]/mt.pi * self.irr_dif[k]
+					data_output_total += self.beta[:,1]/mt.pi * self.irr_ref[k]
 					data_output_total *= self.timestep
 					data_output_total /= self.IP
 					
 					full_body_time[acc] = data_output_total
 						
-					data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask]\
-											  /self.IP[expo_mask])
-					data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi/self.IP)
-					data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi/self.IP)
+					data_output_dir = np.sum(proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask])
+					data_output_dif = np.sum(self.beta[:,0]*areas/mt.pi/self.IP)
+					data_output_ref = np.sum(self.beta[:,1]*areas/mt.pi/self.IP)
 
 					# anatomical zone (to be continued)----------
-
-					data_T_dir = rad_dir*proj[expo_mask]*self.areas[expo_mask]\
+				"""
+					data_T_dir = self.irr_dir[k]*proj[expo_mask]*areas[expo_mask]\
 											  /self.IP[expo_mask]
-					data_T_dif = rad_dif*self.beta[:,0]*self.areas/mt.pi/self.IP
-					data_T_ref = rad_ref*self.beta[:,1]*self.areas/mt.pi/self.IP
+					data_T_dif = self.irr_dif[k]*self.beta[:,0]*areas/mt.pi/self.IP
+					data_T_ref = self.irr_ref[k]*self.beta[:,1]*areas/mt.pi/self.IP
 
 				if(self.simulate_anatomical_zones):
 
@@ -328,21 +287,18 @@ class Simulation(Visualization):
 								data_partial_dif, \
 								data_partial_ref, \
 								data_partial_dir+data_partial_dif+data_partial_ref])" % name)
-
+				"""
 				#---------------------------------------------
 
-				file_writer.writerow([data_update.strftime("%b %d %Y %H:%M:%S"),
-							rad_dir*data_output_dir*self.timestep/sum(self.areas),
-							rad_dif*data_output_dif*self.timestep/sum(self.areas),
-							rad_ref*data_output_ref*self.timestep/sum(self.areas),
-							(rad_dir*data_output_dir + \
-							 rad_dif*data_output_dif + \
-							 rad_ref*data_output_ref)*self.timestep/sum(self.areas)
+				file_writer.writerow([item,
+							float(self.irr_dir[k])*data_output_dir*self.timestep/area_tot,
+							float(self.irr_dif[k])*data_output_dif*self.timestep/area_tot,
+							float(self.irr_ref[k])*data_output_ref*self.timestep/area_tot,
+							(float(self.irr_dir[k])*data_output_dir + \
+							 float(self.irr_dif[k])*data_output_dif + \
+							 float(self.irr_ref[k])*data_output_ref)*self.timestep/area_tot
 									])
 				
-				data_update += datetime.timedelta(seconds=self.timestep)
-				current_line += 1
-
 				acc += 1
 
 			np.savetxt(file_out_full, full_body_time, fmt='%4.3f')
@@ -627,15 +583,6 @@ class Simulation(Visualization):
 		
 			print("File {} don't find or don't exist.".format(result_path))
 
-		
-
-	def set_start_angle(self, angle):
-		self.start_angle_azimuth = angle*mt.pi/180.
-
-
-	def show_one_timestep_input_irradiace(self, date):
-		pass
-
 
 	def export_reference_frame(self):
 
@@ -652,7 +599,7 @@ class Simulation(Visualization):
 			curr_color = np.ones((self.posture.number_faces, 3))*other_color[k]
 
 			ray_origins = self.posture.get_triangles_center + \
-				np.ones((self.posture.number_faces, 3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
+				np.ones((self.posture.number_faces,                     3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
 
 			ray_directions = -np.ones((self.posture.number_faces, 3))*info_map.get(item)
 

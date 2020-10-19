@@ -5,7 +5,6 @@ import simulation as sim
 from datetime import datetime as dt
 import trimesh as tm
 import numpy as np
-import input_data_handle as idh
 import csv
 import os
 import time
