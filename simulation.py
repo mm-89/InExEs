@@ -525,35 +525,32 @@ class Simulation(Visualization):
 
 		for k, item in enumerate(info_map):
 
-			curr_black = np.zeros((self.posture.number_faces, 3))
-
+			color_storage = np.zeros((self.posture.number_faces, 3))
 			curr_color = np.ones((self.posture.number_faces, 3))*other_color[k]
 
 			ray_origins = self.posture.get_triangles_center + \
-				np.ones((self.posture.number_faces,                     3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
+				np.ones((self.posture.number_faces, 3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
 
 			ray_directions = -np.ones((self.posture.number_faces, 3))*info_map.get(item)
 
-			inf, _ = self.posture.get_posture.ray.intersects_id(ray_origins=ray_origins, 
-																ray_directions=ray_directions,
-																max_hits=1,
-																return_locations=False)
+			inf = self.posture.get_posture.ray.intersects_first(ray_origins=ray_origins, 
+																ray_directions=ray_directions)
 
-			expo_mask = (inf==np.arange(self.posture.number_faces))
+			expo_mask = ( inf==np.arange(self.posture.number_faces) )
 
-			curr_black[expo_mask] += curr_color[expo_mask]
+			color_storage[expo_mask] += curr_color[expo_mask]
 
 			my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
 									faces=self.posture.get_faces,
 									process=True, 
-									face_colors=curr_black)
+									face_colors=color_storage)
 
 			tm.exchange.export.export_mesh(my_new_mesh, 
 				"output/ref_frame_{}_{}.ply".format(self.output_name, item))
 
 		#OSVALDO'S GUI MODIFICATIONS
 		if sp.GUI_window:
-			self.popupmsg("Reference frame exported successfully !")
+			self.popupmsg("Reference frame exported successfully!")
 
 		
 	def set_zone_to_simulate(self, RGB_map):
