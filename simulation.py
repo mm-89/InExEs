@@ -74,9 +74,11 @@ class Simulation(Visualization):
 
 		self.simulate_anatomical_zones = False
 
-		self.read_data = read_data
+		self.name = posture
 
-		if(self.read_data):
+		self.output_name = output_name
+
+		if(read_data):
 
 			curr_input = cr.CsvReader(data_path)
 			curr_input.checkDatesAndTimestep(start_date, end_date, timestep)
@@ -95,17 +97,23 @@ class Simulation(Visualization):
 
 		else:
 
+			if(latitude==None):
+				raise TypeError("With read_data=True latitude MUST be defined!")
+	
+			curr_input = srd.SunRayDirection(latitude)
+			curr_input.checkDatesAndTimestep(start_date, end_date, timestep)
+
 			self.timestep = timestep
-			self.total_timestep_of_simulation = (self.end_date - self.start_date).total_seconds()/timestep
-			if not latitude:
-				print("Warning: you MUST define latitude without reading data")
-			else:
-				self.latitude = latitude*mt.pi/180.
-				self.source_light = srd.Sun_ray_direction(latitude=self.latitude)
 
-		self.name = posture
+			raise TypeError("Internal algorithm must be still finished")
 
-		self.output_name = output_name
+			#self.directions = curr_input.angles
+
+			#self.irr_dir = curr_input.irr_dir
+			#self.irr_dif = curr_input.irr_dif
+			#self.irr_ref = curr_input.irr_ref
+
+			#self.is_day = curr_input.is_day
 
 		if not os.path.exists("output"):
 			os.mkdir("output")
@@ -187,94 +195,88 @@ class Simulation(Visualization):
 
 		start = time.time()
 
-		if(self.read_data):
 
-			area_tot = np.sum(areas)
-		
-			dimlines = len(self.timeline) + 1
-			
-			full_body_time = np.zeros((dimlines, np.shape(face_centers)[0]))
+		area_tot = np.sum(areas)
+		dimlines = len(self.timeline) + 1	
+		full_body_time = np.zeros((dimlines, np.shape(face_centers)[0]))
 	
-			for k, item in enumerate(self.timeline):
+		for k, item in enumerate(self.timeline):
 				
-				progress_bar(acc, dimlines)
+			progress_bar(acc, dimlines)
 				
-				# Total dose distributed on the mesh faces [J/m2]
-				data_output_total = np.zeros(np.shape(face_centers)[0])
+			# Total dose distributed on the mesh faces [J/m2]
+			data_output_total = np.zeros(np.shape(face_centers)[0])
 
-				data_T_dir = np.zeros(np.shape(face_centers)[0])
-				data_T_dif = np.zeros(np.shape(face_centers)[0])
-				data_T_ref = np.zeros(np.shape(face_centers)[0])
+			data_T_dir = np.zeros(np.shape(face_centers)[0])
+			data_T_dif = np.zeros(np.shape(face_centers)[0])
+			data_T_ref = np.zeros(np.shape(face_centers)[0])
 						
-				# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
-				data_output_dir = 0
-				data_output_dif = 0
-				data_output_ref = 0
+			# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
+			data_output_dir = 0
+			data_output_dif = 0
+			data_output_ref = 0
 
-				rad_dir = 0
-				rad_dif = 0
-				rad_ref = 0 
+			rad_dir = 0
+			rad_dif = 0
+			rad_ref = 0 
 				
-				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-				#loadingBarSim.set_description("Simulating...".format(k))
-				#loadingBarSim.update(1)
-				'''if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
-					self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
-					self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
-				'''	
-				#UPDATE POPUP FEEDBACK
-				'''self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
-				self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
-				self.popupFeedback.update()'''
+			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+			#loadingBarSim.set_description("Simulating...".format(k))
+			#loadingBarSim.update(1)
+			'''if(round(k/self.total_timestep_of_simulation*100,1).is_integer()):
+				self.update_value_process_bar(k/self.total_timestep_of_simulation*100)
+				self.labelPercentage['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+			'''	
+			#UPDATE POPUP FEEDBACK
+			'''self.labelTimestep['text'] = "Current timestep : " + str(data_update.strftime("%b %d %Y %H:%M:%S"))
+			self.labelPercentage2['text'] = "Percentage complete : " + str(round(k/self.total_timestep_of_simulation*100,1)) + "%"
+			self.popupFeedback.update()'''
 
-				#compute only light days
-				if(self.is_day[k]):	
+			#compute only light days
+			if(self.is_day[k]):	
 
-					ray_directions = np.ones((np.shape(face_centers)[0], 3))*(-self.directions[k])
-					ray_origins = face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+				ray_directions = np.ones((np.shape(face_centers)[0], 3))*(-self.directions[k])
+				ray_origins = face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
 
 
-					#compute dot product between ray direction and face normals
-					proj = np.dot(face_normals, self.directions[k])
+				#compute dot product between ray direction and face normals
+				proj = np.dot(face_normals, self.directions[k])
 					
-					# Set to zero if negative, i.e. coming from more than pi/2
-					proj[proj<0.] = 0.
+				# Set to zero if negative, i.e. coming from more than pi/2
+				proj[proj<0.] = 0.
 					
-					#--------------------------------------------------------
-					inf = self.posture.get_posture.ray.intersects_first(ray_origins=np.array(ray_origins), 
-																		ray_directions=np.array(ray_directions))#,
-																		#multiple_hits=False,
-																		#return_locations=False)
-					#--------------------------------------------------------
+				#--------------------------------------------------------
+				inf = self.posture.get_posture.ray.intersects_first(ray_origins=np.array(ray_origins), 
+																	ray_directions=np.array(ray_directions))#,
+																	#multiple_hits=False,
+																	#return_locations=False)
+				#--------------------------------------------------------
 
-					expo_mask = (inf==faces_index)
+				expo_mask = (inf==faces_index)
 
+				data_output_total[expo_mask] += proj[expo_mask] * self.irr_dir[k]
+				data_output_total += self.beta[:,0]/mt.pi * self.irr_dif[k]
+				data_output_total += self.beta[:,1]/mt.pi * self.irr_ref[k]
+				data_output_total *= self.timestep
+				data_output_total /= self.IP
 					
-					data_output_total[expo_mask] += proj[expo_mask] * self.irr_dir[k]
-					data_output_total += self.beta[:,0]/mt.pi * self.irr_dif[k]
-					data_output_total += self.beta[:,1]/mt.pi * self.irr_ref[k]
-					data_output_total *= self.timestep
-					data_output_total /= self.IP
-					
-					full_body_time[acc] = data_output_total
+				full_body_time[acc] = data_output_total
 						
-					data_output_dir = np.sum(proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask])
-					data_output_dif = np.sum(self.beta[:,0]*areas/mt.pi/self.IP)
-					data_output_ref = np.sum(self.beta[:,1]*areas/mt.pi/self.IP)
+				data_output_dir = np.sum(proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask])
+				data_output_dif = np.sum(self.beta[:,0]*areas/mt.pi/self.IP)
+				data_output_ref = np.sum(self.beta[:,1]*areas/mt.pi/self.IP)
 
-					# anatomical zone (to be continued)----------
+				# anatomical zone (to be continued)----------
 				"""
-					data_T_dir = self.irr_dir[k]*proj[expo_mask]*areas[expo_mask]\
-											  /self.IP[expo_mask]
-					data_T_dif = self.irr_dif[k]*self.beta[:,0]*areas/mt.pi/self.IP
-					data_T_ref = self.irr_ref[k]*self.beta[:,1]*areas/mt.pi/self.IP
+				data_T_dir = self.irr_dir[k]*proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask]
+				data_T_dif = self.irr_dif[k]*self.beta[:,0]*areas/mt.pi/self.IP
+				data_T_ref = self.irr_ref[k]*self.beta[:,1]*areas/mt.pi/self.IP
 
 				if(self.simulate_anatomical_zones):
 
 					for color, name in zip(self.currAnatZone.colors_vector, self.currAnatZone.sub_zone_name):
 							
 						expo_mask_anatZones =(np.where( self.posture.get_faces_color == color ) == self.faces)
-
 
 						data_partial_dir = np.sum(data_T_dir[expo_mask_anatZones])
 						data_partial_dif = np.sum(data_T_dif[expo_mask_anatZones])
@@ -290,96 +292,25 @@ class Simulation(Visualization):
 				"""
 				#---------------------------------------------
 
-				file_writer.writerow([item,
-							float(self.irr_dir[k])*data_output_dir*self.timestep/area_tot,
-							float(self.irr_dif[k])*data_output_dif*self.timestep/area_tot,
-							float(self.irr_ref[k])*data_output_ref*self.timestep/area_tot,
-							(float(self.irr_dir[k])*data_output_dir + \
-							 float(self.irr_dif[k])*data_output_dif + \
-							 float(self.irr_ref[k])*data_output_ref)*self.timestep/area_tot
+			file_writer.writerow([item,
+						float(self.irr_dir[k])*data_output_dir*self.timestep/area_tot,
+						float(self.irr_dif[k])*data_output_dif*self.timestep/area_tot,
+						float(self.irr_ref[k])*data_output_ref*self.timestep/area_tot,
+						(float(self.irr_dir[k])*data_output_dir + \
+						 float(self.irr_dif[k])*data_output_dif + \
+						 float(self.irr_ref[k])*data_output_ref)*self.timestep/area_tot
 									])
 				
-				acc += 1
+			acc += 1
 
-			np.savetxt(file_out_full, full_body_time, fmt='%4.3f')
+		np.savetxt(file_out_full, full_body_time, fmt='%4.3f')
 
-			if sp.GUI_window:
-				#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
-				#loadingBarSim.close()
-				#self.popup_process.destroy()
-				self.destroy_popup()
-				self.popup_end_simulation()
-		
-
-		else:
-
-			#reference data
-			current_data = self.start_date
-			current_day = self.day_of_beginning
-			current_second = self.start_date.second + self.start_date.minute*60 + self.start_date.hour*3600
-
-			while(current_data < self.end_date):
-
-				print("Current date of simulation: ", 
-					current_data.strftime("%b %d %Y %H:%M:%S"))
-
-				data_output_dir = np.zeros(shape=len(self.ray_origins))
-				data_output_dif = np.zeros(shape=len(self.ray_origins))
-				data_output_ref = np.zeros(shape=len(self.ray_origins))
-
-				rad_dir = 0
-				
-				print("Percent complete: ", round(acc/self.total_timestep_of_simulation*100,1))
-
-
-				#compute source rays direction
-				ray_source_direction = self.source_light.get_sun_direction(current_day, current_second)
-				
-				#check if it is daylight or not
-				if(self.source_light.is_day(current_day, current_second)):
-
-					ray_direction = [ray_source_direction for i in range(len(self.ray_origins))]
-
-					#just to check
-					if not len(self.ray_origins)==len(ray_direction):
-						print("Some problems occured")
-						break
-
-					#compute dot product between ray direction and face normals
-					proj = np.dot(self.face_normals, np.array([ray_source_direction]).T)
-
-					inf = self.posture.get_posture.ray.intersects_any(ray_origins=self.ray_origins, 
-																		ray_directions=ray_direction)
-
-					for j, comp in enumerate(inf):
-						if not comp:
-								
-							data_output_dir[j] = abs(proj[j])*self.timestep*self.areas[j]
-
-						data_output_dif[j] = self.timestep*self.areas[j]*self.beta[j,0]
-
-						data_output_ref[j] = self.timestep*self.areas[j]*self.beta[j,1]
-
-						rad_dir = self.source_light.get_daily_sun_irradiance(current_day, current_second)
-					
-				file_writer.writerow([current_data.strftime("%b %d %Y %H:%M:%S"), 
-							rad_dir*sum(data_output_dir)*self.timestep/sum(self.areas),
-							0.2*rad_dir*sum(data_output_dif)*self.timestep/sum(self.areas),
-							0.05*rad_dir*sum(data_output_ref)*self.timestep/sum(self.areas),
-									rad_dir*(sum(data_output_dir) + \
-									0.2*sum(data_output_dif) + \
-									0.05*sum(data_output_ref))*self.timestep/sum(self.areas)
-									])
-				
-
-				current_data += datetime.timedelta(seconds=self.timestep)
-				current_second += self.timestep
-
-				if(current_second > 86400): 
-					current_second = 86400 - current_second
-					current_day += 1
-
-				acc += 1
+		if sp.GUI_window:
+			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
+			#loadingBarSim.close()
+			#self.popup_process.destroy()
+			self.destroy_popup()
+			self.popup_end_simulation()
 
 		print("\nTotal time of simulation: {:.1f} seconds".format(time.time() - start))
 
