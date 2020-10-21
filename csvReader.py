@@ -74,10 +74,10 @@ class CsvReader:
 
 		mult_timetep = int(timestep/ind[0])
 
-		self.timeline = self.datetime[s_date_row:e_date_row:mult_timetep]
+		self.timeline = self.datetime[s_date_row:e_date_row + 1:mult_timetep]
 
 		try:
-			angles_tmp = (self.other_data[s_date_row:e_date_row:mult_timetep, 0:2]).astype(np.float)
+			angles_tmp = (self.other_data[s_date_row:e_date_row + 1:mult_timetep, 0:2]).astype(np.float)
 
 		except:
 			print("Float conversion didn't work for this angles data!")
@@ -91,9 +91,9 @@ class CsvReader:
 
 		try:
 
-			self.irr_dir = (self.other_data[s_date_row:e_date_row:mult_timetep, 2]).astype(np.float)
-			self.irr_dif = (self.other_data[s_date_row:e_date_row:mult_timetep, 3]).astype(np.float)
-			self.irr_ref = (self.other_data[s_date_row:e_date_row:mult_timetep, 4]).astype(np.float)
+			self.irr_dir = (self.other_data[s_date_row:e_date_row + 1:mult_timetep, 2]).astype(np.float)
+			self.irr_dif = (self.other_data[s_date_row:e_date_row + 1:mult_timetep, 3]).astype(np.float)
+			self.irr_ref = (self.other_data[s_date_row:e_date_row + 1:mult_timetep, 4]).astype(np.float)
 
 		except:
 			print("Float conversion didn't work for this irradiance data!")
