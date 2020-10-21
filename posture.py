@@ -72,8 +72,6 @@ class Posture:
 		show(vtkmeshes)
 
 
-
-
 	def plyTests(self):
 		self.my_file.remove_degenerate_faces()
 		self.my_file.remove_duplicate_faces()
@@ -82,9 +80,9 @@ class Posture:
 		v = self.my_file.is_volume
 		w = self.my_file.is_winding_consistent
 		wa = self.my_file.is_watertight
-		if(not v) or (not w) or (not wa):
+		if( (not v) or (not w) or (not wa) ):
 			self.my_file.fill_holes()
-			if(not v) or (not w) or (not wa):
+			if( (not v) or (not w) or (not wa) ):
 				print("Mesh is corrupted")
 				sys.exit()
 				
@@ -175,7 +173,7 @@ class Posture:
 					col.append([element.attrib['red'], element.attrib['green'],\
 				   element.attrib['blue'], '255'])					
 		except IOError:
-			print("File ", protections, " don't find or don't exist.")		
+			print("File ", protections, " doesn't find or doesn't exist.")		
 
 		col = np.array(col).astype(int)
 		
