@@ -21,11 +21,11 @@ delta_range = 1e-4
 
 my_posture_file_cube = "postures_test/cube_test.ply"
 output_name_cube = "this_test_cube"
-input_test = "input/input_test.csv"
+input_test = "input_irradiance/input_test.csv"
 timestep = 60.
 latitude = 45.
 start_date  = '01/01/2009 00:01:00'
-end_date    = '01/01/2009 23:59:00'
+end_date    = '01/02/2009 00:00:00'
 
 my_sim_cube = sim.Simulation(start_date, 
 			end_date, 
@@ -40,11 +40,11 @@ my_sim_cube = sim.Simulation(start_date,
 
 my_posture_file_tetr = "postures_test/tetrahedron_test.ply"
 output_name_tetr = "this_test_tetrahedron"
-input_test = "input/input_test.csv"
+input_test = "input_irradiance/input_test.csv"
 timestep = 60.
 latitude = 45.
 start_date  = '01/01/2009 00:01:00'
-end_date    = '01/01/2009 23:59:00'
+end_date    = '01/02/2009 00:00:00'
 
 my_sim_tetr = sim.Simulation(start_date, 
 			end_date, 
@@ -62,14 +62,16 @@ my_sim_tetr.make_simulation()
 
 def open_output(path):
 
-	with open("output/" + path + ".csv", mode='r') as csv_file:
+	with open("output/" + path + "_average" + ".csv", mode='r') as csv_file:
 
 		next(csv_file)
 		data = np.array([i for i in csv.reader(csv_file, delimiter=",")])
-		data = np.delete(data, 0, 1)
-		data = data.astype(np.float)
 
-	return data[:, 0], data[:, 1], data[:, 2]
+		rad_dir = data[:, 1].astype(float)
+		rad_dif = data[:, 2].astype(float)
+		rad_ref = data[:, 3].astype(float)
+
+	return rad_dir, rad_dif, rad_ref
 
 
 def open_sunDir_input(path):
@@ -80,9 +82,13 @@ def open_sunDir_input(path):
 	with open(path, mode='r') as csv_file:
 
 		next(csv_file)
-		data = np.array([i for i in csv.reader(csv_file, delimiter=",",
-						quoting=csv.QUOTE_NONNUMERIC)])
-		return data[:, 5], data[:, 6]
+		data_read = np.array([i for i in csv.reader(csv_file, delimiter=",")])
+		zenith = data_read[:, 1].astype(float)
+		azimuth = data_read[:, 2].astype(float)
+
+		polar_output = fpc(zenith, azimuth)
+
+		return polar_output
 
 #-----------------------------------------
 
@@ -97,28 +103,24 @@ def make_refl_diff_cube(vec):
 
 #-----------------------------------------
 
-def simulate_face(directions, face_normal):
-
-	res = []
-	for item in directions:
-
-		# see this if condition in 
-		# simulation class (<90). It means
-		# that I want to simulate
-		# just a day sun
-
-		if(item[1]>0):
-			dot_comp = np.dot(item, face_normal)
-
-			# less than 0 means visible
-			if(dot_comp < 0):
-				res.append( -dot_comp )
-			else:
-				res.append( 0. )
+def make_refl_diff_tetr(vec):
+	out = []
+	for item in vec:
+		if(item==0.):
+			out.append( 0. )
 		else:
-			res.append( 0. )
+			out.append( 0.5 )
+	return out
 
-	return res
+#-----------------------------------------
+
+def simulate_face(directions, face_normal):
+	if(directions[1]<0.):
+		return 0.
+	else:
+		res = np.dot(directions, face_normal)
+		if(res < 0): return 0.
+		else: return res
 
 #-----------------------------------------
 
@@ -129,84 +131,72 @@ class TestGeneral(unittest.TestCase):
 
 	def setUp(self):
 
-		tmp_zenith, tmp_azimuth = open_sunDir_input(input_test)
-
-		directions = [fpc(i, j) for i, j in zip(tmp_zenith, tmp_azimuth)]
+		directions = open_sunDir_input(input_test)
 
 		# charge data for cube --------------------------------------------
-		cube_dir, cube_dif, cube_ref = open_output(output_name_cube)
-
-		self.cub_dir_tot = [i/60. for i in cube_dir] # output is in Joule
-		self.cub_dif_tot = [i/60. for i in cube_dif] # output is in Joule
-		self.cub_ref_tot = [i/60. for i in cube_ref] # output is in Joule
+		self.cube_dir, self.cube_dif, self.cube_ref = open_output(output_name_cube) #simulated by InExES
 
 		cube_faces = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
-
-		tot_rad_cube_rcv = []
-		for item in cube_faces:
-			tot_rad_cube_rcv.append( simulate_face(directions, item) )
-
+		
 		self.rad_cub_fin = []
-		for item in np.array(tot_rad_cube_rcv).T:
-			self.rad_cub_fin.append( sum(item)/6 )
+		for item1 in directions:
+			tmp_res = []
+			for item2 in cube_faces:
+				tmp_res.append( simulate_face(item1, item2) )
 
+			self.rad_cub_fin.append( sum(tmp_res)/6. )
 
-		self.diff_cube = make_refl_diff_cube(self.cub_dif_tot)
-		self.refl_cube = make_refl_diff_cube(self.cub_ref_tot)
+		self.diff_cube = make_refl_diff_cube(self.cube_dif)
+		self.refl_cube = make_refl_diff_cube(self.cube_ref)
 
 		#------------------------------------------------------------------
 		# charge data for tetrahedron--------------------------------------
 		
-		tetr_dir, tetr_dif, tetr_ref = open_output(output_name_tetr)
-
-		self.tet_dir_tot = [i/60. for i in tetr_dir] # output is in Joule
-		self.tet_dif_tot = [i/60. for i in tetr_dif] # output is in Joule
-		self.tet_ref_tot = [i/60. for i in tetr_ref] # output is in Joule
+		self.tetr_dir, self.tetr_dif, self.tetr_ref = open_output(output_name_tetr)
 
 		tetr_faces = [[1./sqrt(3), 1./sqrt(3), -1./sqrt(3)], 
 					[-1./sqrt(3), 1./sqrt(3), 1./sqrt(3)], 
 					[1./sqrt(3), -1./sqrt(3), 1./sqrt(3)], 
 					[-1./sqrt(3), -1./sqrt(3), -1./sqrt(3)]]
 
-		tot_rad_tetr_rcv = []
-		for item in tetr_faces:
-			tot_rad_tetr_rcv.append( simulate_face(directions, item) )
-
 		self.rad_tet_fin = []
-		for item in np.array(tot_rad_tetr_rcv).T:
-			self.rad_tet_fin.append( sum(item)/4 )
+		for item1 in directions:
+			tmp_res = []
+			for item2 in tetr_faces:
+				tmp_res.append( simulate_face(item1, item2) )
 
+			self.rad_tet_fin.append( sum(tmp_res)/4. ) 
 
-		self.diff_tetr = make_refl_diff_cube(self.tet_dif_tot)
-		self.refl_tetr = make_refl_diff_cube(self.tet_ref_tot)
+		self.diff_tetr = make_refl_diff_tetr(self.tetr_dif)
+		self.refl_tetr = make_refl_diff_tetr(self.tetr_ref)
 		
 		#------------------------------------------------------------------
 
     # CUBE--------------
 
 	def test_simulation_direct_cube(self):
-		self.assertListAlmostEqual(self.cub_dir_tot, self.rad_cub_fin, delta=delta_range_dir)
+		self.assertListAlmostEqual(self.cube_dir/60., self.rad_cub_fin, delta=delta_range_dir)
 
 
 	def test_simulation_diffuse_cube(self):
-		self.assertListAlmostEqual(self.cub_dif_tot, self.diff_cube, delta=delta_range)
+		self.assertListAlmostEqual(self.cube_dif/60., self.diff_cube, delta=delta_range)
 
 
 	def test_simulation_reflect_cube(self):
-		self.assertListAlmostEqual(self.cub_ref_tot, self.refl_cube, delta=delta_range)
+		self.assertListAlmostEqual(self.cube_ref/60., self.refl_cube, delta=delta_range)
 
 	# TETRAHEDRON--------
 
 	def test_simulation_direct_tetr(self):
-		self.assertListAlmostEqual(self.tet_dir_tot, self.rad_tet_fin, delta=delta_range_dir)
+		self.assertListAlmostEqual(self.tetr_dir/60., self.rad_tet_fin, delta=delta_range_dir)
 
 
 	def test_simulation_diffuse_tetr(self):
-		self.assertListAlmostEqual(self.tet_dif_tot, self.diff_tetr, delta=delta_range)
+		self.assertListAlmostEqual(self.tetr_dif/60., self.diff_tetr, delta=delta_range)
 
 
 	def test_simulation_reflect_tetr(self):
-		self.assertListAlmostEqual(self.tet_ref_tot, self.refl_tetr, delta=delta_range)
+		self.assertListAlmostEqual(self.tetr_ref/60., self.refl_tetr, delta=delta_range)
 
 	#------------------------------------------------------------------------
 	# this is needed because, as far as I know,
