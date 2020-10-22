@@ -329,38 +329,23 @@ class Simulation(Visualization):
 		# Visualize the exposed zones for one time step
 		
 		date_to_vis = datetime.datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
-
 		print("You are visualizing: ", date_to_vis.strftime("%b %d %Y %H:%M:%S"))
 
-		current_day = (date_to_vis.date() - \
-								datetime.date(date_to_vis.year, 1, 1)).days + 1
-		current_second = date_to_vis.second + date_to_vis.minute*60 + date_to_vis.hour*3600
+		ind_date_to_vis = np.where( date_to_vis.strftime("%b %d %Y %H:%M:%S") == np.array(self.timeline) )[0][0]
 
-		#make rays of sun (direction)
-		if(self.read_data):
+		ray_directions = self.directions[ind_date_to_vis]
 
-			#check if the data exists
-			if(idh.is_data_exists_in_file(date_to_vis, self.data)==False or \
-				idh.is_data_exists_in_file(date_to_vis, self.data)==False):
-				print("Selected dates does not exist in the file ", data_path)
-			else:
-				row_data = idh.select_rows_in_file(date_to_vis, self.data)
-
-			ray_source_direction = 	mrd.from_polar_to_cartesian(self.data[row_data, dm.data_map["zenith"]], \
-									self.data[row_data, dm.data_map["azimuth"]] - self.start_angle_azimuth)
-		else:
-			ray_source_direction = 	self.source_light.get_sun_direction(current_day, current_second)
-
-		ray_directions = np.ones((self.posture.number_faces, 3))*(-ray_source_direction)
-		ray_origins = self.ray_origins - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+		ray_directions = -np.ones((self.posture.number_faces, 3))*ray_directions
+		ray_origins = self.posture.get_triangles_center - \
+		ray_directions*sp.translation_factor*self.posture.get_max_bounds
 
 		inf = self.posture.get_posture.ray.intersects_first(ray_origins= ray_origins, 
 															ray_directions= ray_directions)
 
-		expo_mask = (inf==np.arange(self.posture.number_faces))
+		expo_mask = ( inf==np.arange(self.posture.number_faces) )
 
 		col = np.zeros((self.posture.number_faces, 3)) # Black color
-		col[expo_mask] = [255, 255, 255] #White color
+		col[ expo_mask ] = [255, 255, 255] #White color
 		
 		# Re-write a mesh
 		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
@@ -370,24 +355,25 @@ class Simulation(Visualization):
 
 		# Add a ray and the reference frame
 		
-		ray_or = self.posture.get_triangles_center[100]-ray_directions[100]*3
-		ray_visualize = tm.load_path(np.hstack((
-		ray_or,
-		ray_or + ray_directions[100])).reshape(-1, 2, 3))
+#		ray_or = self.posture.get_triangles_center[100]-ray_directions[100]*3
+#		ray_visualize = tm.load_path(np.hstack((
+#		ray_or,
+#		ray_or + ray_directions[100])).reshape(-1, 2, 3))
 
-		xaxis = tm.load_path(np.array([[1,0,0],[2,0,0]]).reshape( 2, 3))
-		yaxis = tm.load_path(np.array([[1,0,0],[1,1,0]]).reshape( 2, 3))
-		zaxis = tm.load_path(np.array([[1,0,0],[1,0,1]]).reshape( 2, 3))
+#		xaxis = tm.load_path(np.array([[1,0,0],[2,0,0]]).reshape( 2, 3))
+#		yaxis = tm.load_path(np.array([[1,0,0],[1,1,0]]).reshape( 2, 3))
+#		zaxis = tm.load_path(np.array([[1,0,0],[1,0,1]]).reshape( 2, 3))
 		
-		scene = tm.Scene([
-						my_new_mesh,
-						ray_visualize,
-							xaxis, yaxis, zaxis
-						])
+#		scene = tm.Scene([
+#						my_new_mesh,
+#						ray_visualize,
+#							xaxis, yaxis, zaxis
+#						])
 
-		bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
-		scene.set_camera(angles=(0.,0.,0.), distance=4.*bounds_no, fov=(30.,50.))
-		
+#		bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
+#		scene.set_camera(angles=(0.,0.,0.), distance=4.*bounds_no, fov=(30.,50.))
+
+		scene = tm.Scene([my_new_mesh])
 		scene.show()
 
 
