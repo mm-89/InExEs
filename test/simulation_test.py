@@ -107,14 +107,10 @@ def make_refl_diff_tetr(vec):
 #-----------------------------------------
 
 def simulate_face(directions, face_normal):
-	if(directions[1]<0.):
-		return 0.
-	else:
-		res = np.dot(directions, face_normal)
-		if(res < 0): return 0.
-		else: return res
-
-#-----------------------------------------
+	res = np.dot(directions, face_normal)
+	res[ directions[:, 1]<0. ] = 0.	#only day light
+	res[ res<0. ] = 0.				#remove shadows
+	return res
 
 
 # MAIN CLASS
@@ -129,14 +125,9 @@ class TestGeneral(unittest.TestCase):
 		self.cube_dir, self.cube_dif, self.cube_ref = open_output(output_name_cube) #simulated by InExES
 
 		cube_faces = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
-		
-		self.rad_cub_fin = []
-		for item1 in directions:
-			tmp_res = []
-			for item2 in cube_faces:
-				tmp_res.append( simulate_face(item1, item2) )
 
-			self.rad_cub_fin.append( sum(tmp_res)/6. )
+		rad_cub_tmp = np.array([simulate_face(directions, i) for i in cube_faces])
+		self.rad_cub_fin = np.sum(rad_cub_tmp, 0)/6.
 
 		self.diff_cube = make_refl_diff_cube(self.cube_dif)
 		self.refl_cube = make_refl_diff_cube(self.cube_ref)
@@ -151,13 +142,8 @@ class TestGeneral(unittest.TestCase):
 					[1./sqrt(3), -1./sqrt(3), 1./sqrt(3)], 
 					[-1./sqrt(3), -1./sqrt(3), -1./sqrt(3)]]
 
-		self.rad_tet_fin = []
-		for item1 in directions:
-			tmp_res = []
-			for item2 in tetr_faces:
-				tmp_res.append( simulate_face(item1, item2) )
-
-			self.rad_tet_fin.append( sum(tmp_res)/4. ) 
+		rad_tet_tmp = np.array([simulate_face(directions, i) for i in tetr_faces])
+		self.rad_tet_fin = np.sum(rad_tet_tmp, 0)/4.
 
 		self.diff_tetr = make_refl_diff_tetr(self.tetr_dif)
 		self.refl_tetr = make_refl_diff_tetr(self.tetr_ref)
