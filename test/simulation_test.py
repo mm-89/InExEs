@@ -93,13 +93,9 @@ def open_sunDir_input(path):
 #-----------------------------------------
 
 def make_refl_diff_cube(vec):
-	out = []
-	for item in vec:
-		if(item==0.):
-			out.append( 0. )
-		else:
-			out.append( 0.5 )
-	return out
+	res = np.zeros(len(vec))
+	res[ vec!=0. ] = 0.5
+	return res
 
 #-----------------------------------------
 
