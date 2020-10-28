@@ -48,7 +48,7 @@ You may face some problems reguarding libraries installation. Where is some solu
 	* Be sure to know which N value and mesh name you're using. Exemple of complete beta file name : `beta_head_2.txt`
 	* Destination path must be the complete path ! 
 
-## Speed up simulation process (20 times faster) with conda :
+## Speed up simulation process with conda :
 * Install [anaconda](https://www.anaconda.com/products/individual)
 * Create an conda environment : `conda create --name ENV_NAME`
 * Active the conda environment : `conda activate ENV_NAME`
