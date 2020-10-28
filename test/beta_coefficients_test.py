@@ -46,9 +46,7 @@ class Test_Beta_Coefficients(unittest.TestCase):
     def setUp(self):
         #for the cube mesh------------------------------------------
         self.beta_coeff_cube = bc.compute_beta(my_cube,
-                                my_mesh_cube,
-                                my_mesh_cube.face_normals,
-                                my_mesh_cube.triangles_center)
+                                my_mesh_cube)
 
         #diff and refl parameter - analitical
         self.top_diff, self.top_diff_err = quad(integral_cube, 0, pi/2., args=(0.))
@@ -60,9 +58,7 @@ class Test_Beta_Coefficients(unittest.TestCase):
 
         #for the tetrahedron mesh------------------------------------------
         self.beta_coeff_tetr = bc.compute_beta(my_tetrahedron,
-                                my_mesh_tetrahedron,
-                                my_mesh_tetrahedron.face_normals,
-                                my_mesh_tetrahedron.triangles_center)
+                                my_mesh_tetrahedron)
 
         #diff parameter - analitical
         #divide the domain in 1/4 of sphere + 1/8 of sphere
