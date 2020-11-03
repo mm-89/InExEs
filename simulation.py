@@ -166,7 +166,7 @@ class Simulation(Visualization):
 			#for now just sub_files, no interset files
 			for item in self.currAnatZone.sub_zone_name:
 				#delete old files
-				curr_file = "{}{}_{}.csv".format(self.output_file, self.output_name, item)
+				curr_file = "output/{}_{}.csv".format( self.output_name, item)
 
 				#delete old files
 				if os.path.exists("{}".format(curr_file)):
@@ -204,19 +204,12 @@ class Simulation(Visualization):
 				
 			# Total dose distributed on the mesh faces [J/m2]
 			data_output_total = np.zeros(np.shape(self.face_centers)[0])
-
-			data_T_dir = np.zeros(np.shape(self.face_centers)[0])
-			data_T_dif = np.zeros(np.shape(self.face_centers)[0])
-			data_T_ref = np.zeros(np.shape(self.face_centers)[0])
 						
 			# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
-			data_output_dir = 0
+
+			data_output_dir = np.zeros(np.shape(self.face_centers)[0])
 			data_output_dif = 0
 			data_output_ref = 0
-
-			rad_dir = 0
-			rad_dif = 0
-			rad_ref = 0 
 				
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
 			#loadingBarSim.set_description("Simulating...".format(k))
@@ -259,44 +252,36 @@ class Simulation(Visualization):
 				data_output_total /= self.IP
 					
 				full_body_time[acc] = data_output_total
-						
-				data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask]/self.IP[expo_mask])
-				data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi/self.IP)
-				data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi/self.IP)
 
-				# anatomical zone (to be continued)----------
-				"""
-				data_T_dir = self.irr_dir[k]*proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask]
-				data_T_dif = self.irr_dif[k]*self.beta[:,0]*areas/mt.pi/self.IP
-				data_T_ref = self.irr_ref[k]*self.beta[:,1]*areas/mt.pi/self.IP
-
+				data_output_dir[expo_mask] += proj[expo_mask]*self.areas[expo_mask]/self.IP[expo_mask]
+				data_output_dif = self.beta[:,0]*self.areas/mt.pi/self.IP
+				data_output_ref = self.beta[:,1]*self.areas/mt.pi/self.IP
+				
 				if(self.simulate_anatomical_zones):
 
 					for color, name in zip(self.currAnatZone.colors_vector, self.currAnatZone.sub_zone_name):
-							
-						expo_mask_anatZones =(np.where( self.posture.get_faces_color == color ) == self.faces)
 
-						data_partial_dir = np.sum(data_T_dir[expo_mask_anatZones])
-						data_partial_dif = np.sum(data_T_dif[expo_mask_anatZones])
-						data_partial_ref = np.sum(data_T_ref[expo_mask_anatZones])
-								
-						curr_data = data_update.strftime('%b %d %Y %H:%M:%S')
+						expo_mask_anatZones = np.all( self.posture.get_faces_color == color , axis=1)
 
-						exec("file_writer_%s.writerow([curr_data, \
+						print(expo_mask)
+
+						data_partial_dir = float(self.irr_dir[k])*np.sum(data_output_dir[expo_mask_anatZones])
+						data_partial_dif = float(self.irr_dif[k])*np.sum(data_output_dif[expo_mask_anatZones])
+						data_partial_ref = float(self.irr_ref[k])*np.sum(data_output_ref[expo_mask_anatZones])
+
+						exec("file_writer_%s.writerow([item, \
 								data_partial_dir, \
 								data_partial_dif, \
 								data_partial_ref, \
 								data_partial_dir+data_partial_dif+data_partial_ref])" % name)
-				"""
-				#---------------------------------------------
 
 			file_writer.writerow([item,
-						float(self.irr_dir[k])*data_output_dir*self.timestep/area_tot,
-						float(self.irr_dif[k])*data_output_dif*self.timestep/area_tot,
-						float(self.irr_ref[k])*data_output_ref*self.timestep/area_tot,
-						(float(self.irr_dir[k])*data_output_dir + \
-						 float(self.irr_dif[k])*data_output_dif + \
-						 float(self.irr_ref[k])*data_output_ref)*self.timestep/area_tot
+						float(self.irr_dir[k])*np.sum(data_output_dir)*self.timestep/area_tot,
+						float(self.irr_dif[k])*np.sum(data_output_dif)*self.timestep/area_tot,
+						float(self.irr_ref[k])*np.sum(data_output_ref)*self.timestep/area_tot,
+						(float(self.irr_dir[k])*np.sum(data_output_dir) + \
+						 float(self.irr_dif[k])*np.sum(data_output_dif) + \
+						 float(self.irr_ref[k])*np.sum(data_output_ref))*self.timestep/area_tot
 									])
 				
 			acc += 1
