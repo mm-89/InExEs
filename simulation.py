@@ -20,6 +20,7 @@ import os
 #from tqdm import tqdm
 import matplotlib as mpl
 from matplotlib import cm
+from vtkplotter import trimesh2vtk, show
 
 from tkinter import *
 from tkinter import ttk
@@ -347,12 +348,9 @@ class Simulation(Visualization):
 		col = np.zeros((self.posture.number_faces, 3)) # Black color
 		col[ expo_mask ] = [255, 255, 255] #White color
 		
-		# Re-write a mesh
-		my_new_mesh = tm.Trimesh(vertices=self.posture.get_vertices, 
-								faces=self.posture.get_faces,
-								process=True, 
-								face_colors=col)
-
+		vtkmeshes = trimesh2vtk(self.posture.get_posture)
+		vtkmeshes.cellColors(col, cmap='Greys_r')
+		show(vtkmeshes)
 		# Add a ray and the reference frame
 		
 #		ray_or = self.posture.get_triangles_center[100]-ray_directions[100]*3
@@ -373,8 +371,8 @@ class Simulation(Visualization):
 #		bounds_no = float(np.linalg.norm(self.posture.get_posture.extents[0]))
 #		scene.set_camera(angles=(0.,0.,0.), distance=4.*bounds_no, fov=(30.,50.))
 
-		scene = tm.Scene([my_new_mesh])
-		scene.show()
+#		scene = tm.Scene([my_new_mesh])
+#		scene.show()
 
 
 	def show_face_colors(self):
