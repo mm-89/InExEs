@@ -61,9 +61,9 @@ def from_polar_to_cartesian(zenith, azimuth):
     and it is used only for this
     """
  
-    res = np.array([np.sin(np.radians(zenith))*np.sin(np.radians(-azimuth)),
+    res = np.array([np.sin(np.radians(zenith))*np.sin(np.radians(azimuth)),
             np.cos(np.radians(zenith)),
-            -np.sin(np.radians(zenith))*np.cos(np.radians(-azimuth))])
+            -np.sin(np.radians(zenith))*np.cos(np.radians(azimuth))])
 
     return res.T
     
