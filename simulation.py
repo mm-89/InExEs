@@ -71,6 +71,11 @@ class Simulation(Visualization):
 
 		self.beta = self.posture.get_beta
 
+		self.face_centers = self.posture.get_triangles_center
+		self.face_normals = self.posture.get_normals
+		self.areas = self.posture.get_area_faces
+		self.faces_index = np.arange(len(self.face_centers))
+
 		self.IP = np.ones(self.posture.number_faces)
 
 		self.simulate_anatomical_zones = False
@@ -119,6 +124,7 @@ class Simulation(Visualization):
 		if not os.path.exists("output"):
 			os.mkdir("output")
 
+
 	def make_simulation(self):
 
 		#some information for users
@@ -146,13 +152,15 @@ class Simulation(Visualization):
 		file_out_full = "output/{}_fullBody.txt".format(self.output_name)
 		file_writer_full = open(file_out_full, 'w')
 
+		header = ["datetime", 
+					"direct intensity [J/m^2]",
+					"diffuse intensity [J/m^2]",
+					"reflect intensity [J/m^2]",
+					"total intensity [J/m^2]"]
+
 
 		#write the header
-		file_writer.writerow(["datetime", 
-							"direct intensity [J/m^2]",
-							"diffuse intensity [J/m^2]",
-							"reflect intensity [J/m^2]",
-							"total intensity [J/m^2]"])
+		file_writer.writerow(header)
 
 		if (self.simulate_anatomical_zones):
 			#for now just sub_files, no interset files
@@ -164,25 +172,14 @@ class Simulation(Visualization):
 				if os.path.exists("{}".format(curr_file)):
 					os.remove("{}".format(curr_file))
 
-				header = "['datetime', \
-							'direct intensity [J/m^2]', \
-							'diffuse intensity [J/m^2]', \
-							'reflect intensity [J/m^2]', \
-							'total intensity [J/m^2]']" \
-
 				#define variables
 				exec("file_out_%s = open('%s', 'w')" % (item, curr_file))
 				exec("file_writer_%s = csv.writer(file_out_%s, delimiter=',', \
     										quoting=csv.QUOTE_NONNUMERIC)" % (item, item))
-				exec("file_writer_%s.writerow(%s)" % (item, header)) 
+				exec("file_writer_%s.writerow(%s)" % (item, header))
 
 		print("Start simulation...")
 		print("")
-
-		face_centers = self.posture.get_triangles_center
-		face_normals = self.posture.get_normals
-		areas = self.posture.get_area_faces
-		faces_index = np.arange(len(face_centers))
 
 		if sp.GUI_window:
 			#OSVALDO'S MODIFICATIONS FOR LOADING BAR : ----------
@@ -197,20 +194,20 @@ class Simulation(Visualization):
 		start = time.time()
 
 
-		area_tot = np.sum(areas)
+		area_tot = np.sum(self.areas)
 		dimlines = len(self.timeline) + 1	
-		full_body_time = np.zeros((dimlines, np.shape(face_centers)[0]))
+		full_body_time = np.zeros((dimlines, np.shape(self.face_centers)[0]))
 	
 		for k, item in enumerate(self.timeline):
 				
 			progress_bar(acc, dimlines)
 				
 			# Total dose distributed on the mesh faces [J/m2]
-			data_output_total = np.zeros(np.shape(face_centers)[0])
+			data_output_total = np.zeros(np.shape(self.face_centers)[0])
 
-			data_T_dir = np.zeros(np.shape(face_centers)[0])
-			data_T_dif = np.zeros(np.shape(face_centers)[0])
-			data_T_ref = np.zeros(np.shape(face_centers)[0])
+			data_T_dir = np.zeros(np.shape(self.face_centers)[0])
+			data_T_dif = np.zeros(np.shape(self.face_centers)[0])
+			data_T_ref = np.zeros(np.shape(self.face_centers)[0])
 						
 			# Direct, difffuse and reflected doses averaged over the mesh [J/m2]
 			data_output_dir = 0
@@ -236,12 +233,12 @@ class Simulation(Visualization):
 			#compute only light days
 			if(self.is_day[k]):	
 
-				ray_directions = np.ones((np.shape(face_centers)[0], 3))*(-self.directions[k])
-				ray_origins = face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+				ray_directions = np.ones((np.shape(self.face_centers)[0], 3))*(-self.directions[k])
+				ray_origins = self.face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
 
 
 				#compute dot product between ray direction and face normals
-				proj = np.dot(face_normals, self.directions[k])
+				proj = np.dot(self.face_normals, self.directions[k])
 					
 				# Set to zero if negative, i.e. coming from more than pi/2
 				proj[proj<0.] = 0.
@@ -253,7 +250,7 @@ class Simulation(Visualization):
 																	#return_locations=False)
 				#--------------------------------------------------------
 
-				expo_mask = (inf==faces_index)
+				expo_mask = (inf==self.faces_index)
 
 				data_output_total[expo_mask] += proj[expo_mask] * self.irr_dir[k]
 				data_output_total += self.beta[:,0]/mt.pi * self.irr_dif[k]
@@ -263,9 +260,9 @@ class Simulation(Visualization):
 					
 				full_body_time[acc] = data_output_total
 						
-				data_output_dir = np.sum(proj[expo_mask]*areas[expo_mask]/self.IP[expo_mask])
-				data_output_dif = np.sum(self.beta[:,0]*areas/mt.pi/self.IP)
-				data_output_ref = np.sum(self.beta[:,1]*areas/mt.pi/self.IP)
+				data_output_dir = np.sum(proj[expo_mask]*self.areas[expo_mask]/self.IP[expo_mask])
+				data_output_dif = np.sum(self.beta[:,0]*self.areas/mt.pi/self.IP)
+				data_output_ref = np.sum(self.beta[:,1]*self.areas/mt.pi/self.IP)
 
 				# anatomical zone (to be continued)----------
 				"""
@@ -351,6 +348,7 @@ class Simulation(Visualization):
 		vtkmeshes = trimesh2vtk(self.posture.get_posture)
 		vtkmeshes.cellColors(col, cmap='Greys_r')
 		show(vtkmeshes)
+
 		# Add a ray and the reference frame
 		
 #		ray_or = self.posture.get_triangles_center[100]-ray_directions[100]*3
@@ -561,8 +559,8 @@ class Simulation(Visualization):
 
 		new_vector = []
 		for item in vec_id:
-			new_vector.append(self.ray_origins[item])
-		self.ray_origins = new_vector
+			new_vector.append(self.face_centers[item])
+		self.face_centers = new_vector
 
 		new_normals_vector = []
 		for item in vec_id:
@@ -582,9 +580,9 @@ class Simulation(Visualization):
 		new_faces_vector = []
 		for item in vec_id:
 			new_faces_vector.append(item)
-		self.faces = new_faces_vector
+		self.faces_index = new_faces_vector
 
-		self.IP = np.ones(np.shape(self.ray_origins)[0])
+		self.IP = np.ones(np.shape(self.face_centers)[0])
 
 
 	#GUI PROGRESS BAR :
