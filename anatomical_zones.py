@@ -1,4 +1,5 @@
 from xml.dom import minidom
+import numpy as np
 
 class AnatomicalZones:
 
@@ -13,8 +14,24 @@ class AnatomicalZones:
         document_read = minidom.parse(path)
 
         #this is all ComposedZone
-        items = document_read.getElementsByTagName('ComposedZone')
+        items = document_read.getElementsByTagName('Zone')
 
+        self.colors = []
+        self.names = []
+
+        items2 = document_read.getElementsByTagName('Zone')
+
+        #!!!!!! to add activation state
+        self.names = [item.getAttribute("name") for item in items2]
+        self.colors = [ [ int(item.getAttribute("red")),
+                        int(item.getAttribute("blue")),
+                        int(item.getAttribute("green")), 255] for item in items2]
+
+        """
+        item = document_read.getElementsByTagName('ComposedZone')
+        print( item[2].getElementsByTagName("Zone")[6].getAttribute("name") )
+
+        
         self.zone_name = []
         self.sub_zone_name = []
 
@@ -32,6 +49,8 @@ class AnatomicalZones:
                         green = comp.getAttribute("green")
                         blue = comp.getAttribute("blue")
                         self.colors_vector.append([int(red), int(blue), int(green), 255])
-
+        """
     def get_total_zones_name(self):
         return self.zone_name + self.sub_zone_name
+
+my = AnatomicalZones("anatomical_zones/anatomical_zones.xml")
