@@ -8,8 +8,7 @@ class AnatomicalZones:
         print("\n Anatomical Zones used \n")
         print("***")
         print("whatch out!")
-        print("Sperimental code: twice timestep in the csv file")
-        print("Need to be fix, with colour detection")
+        print("Sperimental code: need to be reviewed! \n")
         print("***")
         document_read = minidom.parse(path)
 
@@ -52,5 +51,3 @@ class AnatomicalZones:
         """
     def get_total_zones_name(self):
         return self.zone_name + self.sub_zone_name
-
-my = AnatomicalZones("anatomical_zones/anatomical_zones.xml")

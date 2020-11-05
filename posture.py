@@ -3,6 +3,8 @@ import skin_reflection as sr
 import math_refl_diff as mrd
 import shared_parameters as sp
 
+from checkPostureColor import CheckPostureColor
+
 import trimesh as tm
 from vtkplotter import trimesh2vtk, show
 import sys
@@ -10,9 +12,10 @@ import numpy as np
 import xml.etree.ElementTree as ET
 from math import pi
 
+#Theo's MOD
 zone_path = "anatomical_zones/anatomical_zones.xml"
 
-class Posture:
+class Posture(CheckPostureColor):
 
 	compute_skin_refl = False
 
@@ -23,7 +26,7 @@ class Posture:
                                 process=sp.process,
                                 validate=sp.validate)
 
-
+		self._checkPostureColor_andRepair2()
 
 		self.beta_coeff = bc.compute_beta(self.path, self.my_file)
 
