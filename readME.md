@@ -2,7 +2,7 @@
 
 **WIP we recommend to wait the release version before cloning it**
 
-We suppose that InExES can work on every machine, but we only try on a Mac, Linux Ubuntu 16.04 and Linux Mint 19.3
+We suppose that InExES can work on every machine, but we only tried on a Mac, Linux Ubuntu 16.04 and Linux Mint 19.3
 
 
 ## Prerequisite
@@ -37,6 +37,10 @@ You may face some problems reguarding libraries installation. Where is some solu
 
 * `python3 main.py`
 
+## Deactivate Graphic User Interface (GUI)
+
+* open the file `shared_parameters.py` and replace True with False in GUI_window parameter.
+
 ## Docker user guide :
 * First of all make sure to have [docker](https://hub.docker.com/search?q=&type=edition&offering=community&sort=updated_at&order=desc) setup on your computer
 * Go on project folder
@@ -53,9 +57,5 @@ You may face some problems reguarding libraries installation. Where is some solu
 * Create an conda environment : `conda create --name ENV_NAME`
 * Active the conda environment : `conda activate ENV_NAME`
 * Install pyembree and trimesh with conda : `conda install -c conda-forge pyembree` and `conda install -c conda-forge trimesh`
-<<<<<<< HEAD
-* Then you may need to install some others librairies, like matplotlib networkx pyglet scipy : `pip install LIBRAIRY_NAME`
-=======
 * Then you may need to install some others librairies, like matplotlib networkx pyglet scipy vtkplotter : `pip install LIBRAIRY_NAME`
->>>>>>> 7d621f312878598496098089b7d85d8ebe173afb
 * Launch the programm with : `python3 main.py` (make sure your conda env is activate)
