@@ -164,9 +164,10 @@ class Simulation(Visualization):
 
 		if (self.simulate_anatomical_zones):
 			#for now just sub_files, no interset files
-			for item in self.currAnatZone.sub_zone_name:
+
+			for item in self.currAnatZone.names:
 				#delete old files
-				curr_file = "output/{}_{}.csv".format( self.output_name, item)
+				curr_file = "output/{}_{}.csv".format(self.output_name, item)
 
 				#delete old files
 				if os.path.exists("{}".format(curr_file)):
@@ -197,6 +198,9 @@ class Simulation(Visualization):
 		area_tot = np.sum(self.areas)
 		dimlines = len(self.timeline) + 1	
 		full_body_time = np.zeros((dimlines, np.shape(self.face_centers)[0]))
+
+		#for check anatomical zones
+		check_area_NO_valid = False
 	
 		for k, item in enumerate(self.timeline):
 				
@@ -257,34 +261,48 @@ class Simulation(Visualization):
 				data_output_dif = self.beta[:,0]*self.areas/mt.pi/self.IP
 				data_output_ref = self.beta[:,1]*self.areas/mt.pi/self.IP
 				
-				if(self.simulate_anatomical_zones):
-
-					for color, name in zip(self.currAnatZone.colors_vector, self.currAnatZone.sub_zone_name):
-
-						expo_mask_anatZones = np.all( self.posture.get_faces_color == color , axis=1)
-
-						print(expo_mask)
-
-						data_partial_dir = float(self.irr_dir[k])*np.sum(data_output_dir[expo_mask_anatZones])
-						data_partial_dif = float(self.irr_dif[k])*np.sum(data_output_dif[expo_mask_anatZones])
-						data_partial_ref = float(self.irr_ref[k])*np.sum(data_output_ref[expo_mask_anatZones])
-
-						exec("file_writer_%s.writerow([item, \
-								data_partial_dir, \
-								data_partial_dif, \
-								data_partial_ref, \
-								data_partial_dir+data_partial_dif+data_partial_ref])" % name)
-
 			file_writer.writerow([item,
 						float(self.irr_dir[k])*np.sum(data_output_dir)*self.timestep/area_tot,
 						float(self.irr_dif[k])*np.sum(data_output_dif)*self.timestep/area_tot,
 						float(self.irr_ref[k])*np.sum(data_output_ref)*self.timestep/area_tot,
 						(float(self.irr_dir[k])*np.sum(data_output_dir) + \
 						 float(self.irr_dif[k])*np.sum(data_output_dif) + \
-						 float(self.irr_ref[k])*np.sum(data_output_ref))*self.timestep/area_tot
-									])
+						 float(self.irr_ref[k])*np.sum(data_output_ref))*self.timestep/area_tot])
+
+			#anatomical zones
+			if(self.simulate_anatomical_zones):
+
+				data_partial_dir = 0
+				data_partial_dif = 0
+				data_partial_ref = 0
+
+				#sub_zones
+				for color, name in zip(self.currAnatZone.colors, self.currAnatZone.names):
+
+					if(self.is_day[k]):
+
+						expo_mask_anatZones = np.all( np.array(self.posture.get_faces_color) == color , axis=1)
+
+						zone_area = np.sum(self.areas[expo_mask_anatZones])
+
+						if(zone_area != 0):
+
+							data_partial_dir = float(self.irr_dir[k])*np.sum(data_output_dir[expo_mask_anatZones])/zone_area
+							data_partial_dif = float(self.irr_dif[k])*np.sum(data_output_dif[expo_mask_anatZones])/zone_area
+							data_partial_ref = float(self.irr_ref[k])*np.sum(data_output_ref[expo_mask_anatZones])/zone_area
+
+						else: check_area_NO_valid = True
+
+					exec("file_writer_%s.writerow([item, \
+								data_partial_dir*self.timestep, \
+								data_partial_dif*self.timestep, \
+								data_partial_ref*self.timestep, \
+								(data_partial_dir+data_partial_dif+data_partial_ref)*self.timestep])" % name)
 				
 			acc += 1
+
+		if(self.simulate_anatomical_zones and check_area_NO_valid): 
+			print("Some zones selected don't exist! Area = 0!!!")
 
 		np.savetxt(file_out_full, full_body_time, fmt='%4.3f')
 
