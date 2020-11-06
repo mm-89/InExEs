@@ -133,9 +133,6 @@ class Simulation(Visualization):
 		print("end date is:   ", self.end_date.strftime("%b %d %Y %H:%M:%S"))
 		print("Posture that has to be simulated is: ", self.name)
 		print("")
-
-		if(self.start_date > self.end_date):
-			print("End date must me greater of start date!")
 		
 		if os.path.exists("output/{}_average.csv".format(self.output_name)):
 			os.remove("output/{}_average.csv".format(self.output_name))
@@ -157,7 +154,6 @@ class Simulation(Visualization):
 					"diffuse intensity [J/m^2]",
 					"reflect intensity [J/m^2]",
 					"total intensity [J/m^2]"]
-
 
 		#write the header
 		file_writer.writerow(header)
