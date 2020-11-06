@@ -16,9 +16,9 @@ class CsvReader:
 
 				data =  np.array([i for i in csv.reader(csv_file, delimiter=",")])
 
-		except IOError:
-			print("File {} doesn't find or doesn't exist.".format(input_irradiance_path))
-			print("With read data=True the file MUST be specified")
+		except:
+			raise TypeError("File {} doesn't find or doesn't exist.".format(input_irradiance_path))
+
 
 		#to check the input has 6 columns
 		if ( np.shape(data.T)[0] != 6):
@@ -32,7 +32,6 @@ class CsvReader:
 
 		except:
 			print("Something gone wrong setting dates input file.")
-
 
 
 	def checkDatesAndTimestep(self, start_date, end_date, timestep):
