@@ -191,7 +191,7 @@ class Root(Tk):
         self.btnDataLoad.grid(column = 0, row = 3)
 
     def file_dialog_data(self):
-        self.fileNameData = filedialog.askopenfilename(initialdir = curr_dir + "/input", title = "select a data file")
+        self.fileNameData = filedialog.askopenfilename(initialdir = curr_dir + "/input_irradiance", title = "select a data file")
         self.dataName.insert(12, self.fileNameData)
         self.dataPath = self.fileNameData
         self.insert_date_from_data()
@@ -703,14 +703,14 @@ class Root(Tk):
     #SAVE AND AUTO COMPLETE FORM -----------------------------------------
 
     def autocomplete_form(self):
-        self.dataPath = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv"
-        self.mesh = "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply"
-        self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
-        self.insert_date_from_data()
+        self.dataPath = curr_dir + "input_irradiance/irradiance_2009.csv"
+        self.mesh = curr_dir + "postures/cube.ply"
+        #self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
+        #self.insert_date_from_data()
         self.timestepValue.insert(12, '60')
-        self.ouputValue.insert(12, 'test')
-        self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
-        self.outputName = 'test'
+        #self.ouputValue.insert(12, 'test')
+        #self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
+        #self.outputName = 'test'
 
     def save_form(self):
         self.saveMesh = self.mesh
