@@ -17,8 +17,6 @@ zone_path = "anatomical_zones/anatomical_zones.xml"
 
 class Posture(CheckPostureColor):
 
-	compute_skin_refl = False
-
 	def __init__(self, my_file):
 		self.path = my_file
 		self.my_file = tm.load(my_file, 
@@ -37,19 +35,9 @@ class Posture(CheckPostureColor):
 		
 		self.number_vertices = np.shape(self.my_file.vertices)[0]
 
-		if(self.compute_skin_refl):
-			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path,
-											self.my_file,
-											self.my_file.face_normals,
-											self.my_file.triangles_center)
-
-			if len(np.shape(self.skinRefl_coeff[0])) != len(np.shape(self.skinRefl_coeff[2])):
-				raise TypeError("Something gone wrong in skinRefl upload")
+		if(sp.skin_reflection):
+			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path, self.my_file)
 			
-	
-	def get_angles_from_normals(self):
-		return self.angles_normals
-
 
 	def show_posture(self):
 		self.my_file.show()

@@ -2,6 +2,9 @@ import numpy as np
 
 import math_refl_diff as mrd
 import shared_parameters as sp
+from progressbar import *
+
+import time 
 
 #----------------------------------------------
 
@@ -11,7 +14,7 @@ def resh_APE(current_list, current_index):
     
 #----------------------------------------------
 
-def compute_skin_reflection_map(path, file, face_normals, face_centers):
+def compute_skin_reflection_map(path, file):
     """
     Generate skin reflection map (matrix NxN 
     where N is the number of faces) for 
@@ -44,7 +47,7 @@ def compute_skin_reflection_map(path, file, face_normals, face_centers):
 
     path = path.split('/')
     mesh_name = path[-1]
-    fileName = "input/skinRefl_" + mesh_name.rsplit(".", -1)[0] + "_" + str(2*sp.N) + ".txt"
+    fileName = "input_skinRefl/skinRefl_{}_{}.txt".format(mesh_name.rsplit(".", -1)[0], sp.N)
 
     try:
         with open(fileName) as f:
@@ -62,47 +65,49 @@ def compute_skin_reflection_map(path, file, face_normals, face_centers):
     except IOError:
         #If not we ask user for an N value, compute beta and create a beta coeff file
         print("No skinRefl file found for this N value, a new skinRefl file will be created please wait")
+        start = time.time()
 
         skinRefl_coeff = []
 
         if(sp.random_points):
-
+            # N rays over all of directions
             ray_directions = mrd.random_points_hemisphere(sp.N, True) + \
                             mrd.random_points_hemisphere(sp.N, False)
  
         else:
-            # N rays on upper hemisphere
+            # N rays over all of directions
             ray_directions = mrd.uniform_points_hemisphere(sp.N, True) + \
                             mrd.uniform_points_hemisphere(sp.N, False) 
 
         # if not py_embree self intersection are not safe
-        single_origin = [i + j*1e-6 for i, j in zip(face_centers, face_normals)]
-
-
+        single_origin = [i + j*1e-4 for i, j in zip(file.triangles_center, file.face_normals)]
     
-        # matrix_comp is the matrix with every row
+        # matrix_comp is the matrix with each row
         # is a specific face of the mesh. Each column
         # specifies where there is a visible other face
 
-        matrix_comp = np.zeros( shape=(len(single_origin), len(single_origin)) )
-        matrix_pdot = np.zeros( shape=(len(single_origin), len(single_origin)) )
-        matrix_dist = np.zeros( shape=(len(single_origin), len(single_origin)) )
+        matrix_actv = np.zeros((len(single_origin), len(single_origin)))
+        matrix_pdot = np.zeros((len(single_origin), len(single_origin)))
+        matrix_dist = np.zeros((len(single_origin), len(single_origin)))
 
         for j,item in enumerate(single_origin):
-            ray_origins = [item for i in range(sp.N)]
+
+            progress_bar(j, np.shape(single_origin)[0])
+
+            ray_origins = np.ones((sp.N, 3))*item
+
             res = file.ray.intersects_first(ray_origins=ray_origins, ray_directions=ray_directions)
             real_list = resh_APE(res, j)
-            for i in real_list:
-                matrix_comp[j, i] = 1
-                matrix_pdot[j, i] = abs( np.dot( face_normals[j], face_normals[i] ) )
-                matrix_dist[j, i] = ( (face_centers[j, 0] - face_centers[i, 0])**2 + \
-                                     (face_centers[j, 1] - face_centers[i, 1])**2 + \
-                                     (face_centers[j, 2] - face_centers[i, 2])**2 )**0.5
-        	
-            print("Computing skin reflection ... ", 
-                round(j/len(face_normals)*100,1), 
-                " percent complete", end="\r")
 
+            mask = ( real_list == np.arange(len(single_origin)) )
+
+            matrix_actv[j, mask] = 1
+            matrix_pdot[j, :] = abs( np.dot( file.face_normals, file.face_normals[j] ) )
+            matrix_dist[j, :] = np.sqrt( np.sum( (np.ones((len(single_origin), 3))*file.triangles_center[j] - \
+                                file.triangles_center)**2 , axis=1 ))
+
+        print('\nSkinRefl took {:.1f} seconds.'.format(time.time()-start))
+        
         np.savetxt(fileName, matrix_comp)
 
     return np.loadtxt(fileName)

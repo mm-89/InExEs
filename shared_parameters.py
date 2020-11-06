@@ -30,6 +30,8 @@ N = 10000
 translation_factor = 2.
 random_points = False
 
+skin_reflection = False
+
 py_embree = True
 process = True
 validate = False
