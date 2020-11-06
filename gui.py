@@ -201,33 +201,31 @@ class Root(Tk):
 
     def insert_date_from_data(self):
         
-        curr_input = cr.CsvReader("{}/input_irradiance/irradiance_2009.csv".format(curr_dir))
+        curr_input = cr.CsvReader(self.dataPath)
 
         first_data = dt.strptime(curr_input.datetime[0], "%b %d %Y %H:%M:%S")
         last_data = dt.strptime(curr_input.datetime[-1], "%b %d %Y %H:%M:%S")
 
-        if(True):
-            if(True):
-                  #START DATE AUTO INPUT 
-                self.entry_1SDay.insert(12, first_data.month)
-                self.entry_2SDay.insert(12, first_data.day)
-                self.entry_3SDay.insert(12, first_data.year)
-                self.entry_4SDay.insert(12, first_data.hour)
-                self.entry_5SDay.insert(12, first_data.minute)
-                self.entry_6SDay.insert(12, first_data.second)
+        #START DATE AUTO INPUT 
+        self.entry_1SDay.insert(12, first_data.month)
+        self.entry_2SDay.insert(12, first_data.day)
+        self.entry_3SDay.insert(12, first_data.year)
+        self.entry_4SDay.insert(12, first_data.hour)
+        self.entry_5SDay.insert(12, first_data.minute)
+        self.entry_6SDay.insert(12, first_data.second)
 
-                #END DATE AUTO INPUT 
-                self.entry_1EDay.insert(12, last_data.month)
-                self.entry_2EDay.insert(12, last_data.day)
-                self.entry_3EDay.insert(12, last_data.year)
-                self.entry_4EDay.insert(12, last_data.hour)
-                self.entry_5EDay.insert(12, last_data.minute)
-                self.entry_6EDay.insert(12, last_data.second)
+        #END DATE AUTO INPUT 
+        self.entry_1EDay.insert(12, last_data.month)
+        self.entry_2EDay.insert(12, last_data.day)
+        self.entry_3EDay.insert(12, last_data.year)
+        self.entry_4EDay.insert(12, last_data.hour)
+        self.entry_5EDay.insert(12, last_data.minute)
+        self.entry_6EDay.insert(12, last_data.second)
     #---------------------------------------------------------------
 
     #USER INPUT DATE -----------------------------------------------
     def start_date_picker(self, r, col):
-        #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC START
+        #DATE --> MONTH/DAY/YEAR and HOUR:MIN:SEC START
         self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
         self.label_1SDay = Label(self.dateFrame, text='MM/')
         self.entry_2SDay = Entry(self.dateFrame, width=2, bg = "white")
@@ -515,12 +513,6 @@ class Root(Tk):
         if(self.outputName == ""):
             self.popupmsg("you need to enter a output name !")
 
-        if(self.readData == True and self.dataPath == ""):
-            self.popupmsg("You choose to use a data file, but no file selected !")
-
-        if(self.readData == False and self.latitude == ""):
-            self.popupmsg("You choose to generate data automatically, but no latitude value found !")
-        
         try :
             file = open(self.dataPath,'r')
         except IOError:
@@ -698,12 +690,13 @@ class Root(Tk):
     #SAVE AND AUTO COMPLETE FORM -----------------------------------------
 
     def autocomplete_form(self):
-        self.mesh = curr_dir + "postures/cube.ply"
+        #self.mesh = curr_dir + "postures/cube.ply"
         #self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
+        self.dataPath = "{}/input_irradiance/irradiance_2009.csv".format(curr_dir)
         self.insert_date_from_data()
-        self.timestepValue.insert(12, '60')
+        #self.timestepValue.insert(12, '60.')
         #self.ouputValue.insert(12, 'test')
-        #self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
+        self.dataName.insert(12, "{}/input_irradiance/irradiance_2009.csv".format(curr_dir))
         #self.outputName = 'test'
 
     def save_form(self):
