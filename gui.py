@@ -89,7 +89,7 @@ class Root(Tk):
         self.endDateLabel = Label(self.dateFrame, text = "End date")
         #User input for timestep
         self.timestepLabel = Label(self.dateFrame,text='Timestep : ')
-        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 2,
+        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 10,
                                     textvariable=StringVar(self.dateFrame, 
                                             value='60.'))
         self.timestepValue.bind('<KeyRelease>', lambda e: self._check_timestep())
