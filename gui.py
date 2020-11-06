@@ -1,7 +1,11 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+
 import simulation as sim
+import posture as ps
+import csvReader as cr
+
 from datetime import datetime as dt
 import trimesh as tm
 import numpy as np
@@ -9,7 +13,6 @@ import csv
 import os
 import time
 import json
-import posture as ps
 import re
 
 curr_dir = os.getcwd()
@@ -197,37 +200,29 @@ class Root(Tk):
         self.insert_date_from_data()
 
     def insert_date_from_data(self):
-        allDates = [[]]
-        try:
+        
+        curr_input = cr.CsvReader("{}/input_irradiance/irradiance_2009.csv".format(curr_dir))
 
-            with open(self.dataPath, mode='r') as csv_file:
-                csv_reader = csv.DictReader(csv_file)
-                line_count = 0
-                for row in csv_reader:
-                    if line_count == 0:
-                        line_count += 1
-                    date = [row["jour"],row["mois"],row["anne"],row["heure"],row["min"],row["sec"]]
-                    allDates.append(date)
-                    line_count += 1
+        first_data = dt.strptime(curr_input.datetime[0], "%b %d %Y %H:%M:%S")
+        last_data = dt.strptime(curr_input.datetime[-1], "%b %d %Y %H:%M:%S")
 
-                #START DATE AUTO INPUT 
-                self.entry_1SDay.insert(12, allDates[1][0])
-                self.entry_2SDay.insert(12, allDates[1][1])
-                self.entry_3SDay.insert(12, allDates[1][2])
-                self.entry_4SDay.insert(12, allDates[1][3])
-                self.entry_5SDay.insert(12, allDates[1][4])
-                self.entry_6SDay.insert(12, allDates[1][5])
+        if(True):
+            if(True):
+                  #START DATE AUTO INPUT 
+                self.entry_1SDay.insert(12, first_data.month)
+                self.entry_2SDay.insert(12, first_data.day)
+                self.entry_3SDay.insert(12, first_data.year)
+                self.entry_4SDay.insert(12, first_data.hour)
+                self.entry_5SDay.insert(12, first_data.minute)
+                self.entry_6SDay.insert(12, first_data.second)
 
                 #END DATE AUTO INPUT 
-                self.entry_1EDay.insert(12, allDates[-1][0])
-                self.entry_2EDay.insert(12, allDates[-1][1])
-                self.entry_3EDay.insert(12, allDates[-1][2])
-                self.entry_4EDay.insert(12, allDates[-1][3])
-                self.entry_5EDay.insert(12, allDates[-1][4])
-                self.entry_6EDay.insert(12, allDates[-1][5])
-
-        except IOError:
-            self.popupmsg("An error occured : CSV file not found")
+                self.entry_1EDay.insert(12, last_data.month)
+                self.entry_2EDay.insert(12, last_data.day)
+                self.entry_3EDay.insert(12, last_data.year)
+                self.entry_4EDay.insert(12, last_data.hour)
+                self.entry_5EDay.insert(12, last_data.minute)
+                self.entry_6EDay.insert(12, last_data.second)
     #---------------------------------------------------------------
 
     #USER INPUT DATE -----------------------------------------------
@@ -703,10 +698,9 @@ class Root(Tk):
     #SAVE AND AUTO COMPLETE FORM -----------------------------------------
 
     def autocomplete_form(self):
-        self.dataPath = curr_dir + "input_irradiance/irradiance_2009.csv"
         self.mesh = curr_dir + "postures/cube.ply"
         #self.meshName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/postures/cube.ply")
-        #self.insert_date_from_data()
+        self.insert_date_from_data()
         self.timestepValue.insert(12, '60')
         #self.ouputValue.insert(12, 'test')
         #self.dataName.insert(12, "/Users/osvaldo/Projet_dev/PYTHON/inexes/InExEs/input/irradiance_2009.csv")
