@@ -5,10 +5,10 @@ class AnatomicalZones:
 
     def __init__(self, path):
         print("***")
-        print("\n Anatomical Zones used \n")
+        print("Anatomical Zones used")
         print("***")
-        print("whatch out!")
-        print("Sperimental code: need to be reviewed! \n")
+        print("Whatch Out!")
+        print("Sperimental code: it needs to be reviewed!")
         print("***")
         document_read = minidom.parse(path)
 
