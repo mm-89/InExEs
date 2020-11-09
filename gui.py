@@ -22,11 +22,21 @@ class Root(Tk):
         super(Root,self).__init__()
         self.title("InExES")
         self.minsize(1000,600)
+
+        #MICHELE
+        #can be interesting ---------------
+        #width = self.winfo_screenwidth()
+        #height = self.winfo_screenheight()
+
+        #top = self.winfo_toplevel()
+        #top.rowconfigure(0, weight=1)
+        #top.columnconfigure(0, weight=1)  
+
         #self.wm_iconbitmap('blabla.ico') get an icon 
+        #----------------------------------
 
-
-        # FRAMES ---------------------------------------------------
-        self.globalFrame = Frame(self, bd= 10, relief = RIDGE, padx = 12)
+        #GLOBAL FRAMES ---------------------------------------------------
+        self.globalFrame = Frame(self, bd= 10,relief = RIDGE, padx = 12)
         self.globalFrame.grid(column = 0, row = 0, sticky='nw')
 
         self.globalFrame2 = Frame(self, bd= 10, relief = RIDGE, padx = 12)
@@ -35,6 +45,8 @@ class Root(Tk):
         self.globalFrame3 = Frame(self, bd= 10, relief = RIDGE, padx = 12)
         self.globalFrame3.grid(column = 0, row = 1, sticky='nw')
 
+        #----------------------------------------------------------- 
+
         self.meshFrame = LabelFrame(self.globalFrame, text = "Load a mesh")
         self.meshFrame.grid(column = 0, row = 0, pady= 10, sticky='w')
         #self.meshFrame.place(x=30,y=30,height=20,width=100)
@@ -42,17 +54,20 @@ class Root(Tk):
         self.dataFrame = LabelFrame(self.globalFrame, text = "Simulation Data")
         self.dataFrame.grid(column = 0, row = 1, pady= 10, sticky='w')
 
-        self.dateFrame = LabelFrame(self.globalFrame, text = "Date and Timestep")
+        self.dateFrame = LabelFrame(self.globalFrame, text = "Date")
         self.dateFrame.grid(column = 0, row = 2, pady= 10, sticky='w')
 
+        self.timestepFrame = LabelFrame(self.globalFrame, text = "Simulation timestep")
+        self.timestepFrame.grid(column = 0, row = 3, pady= 10, sticky='w')
+
         self.outputFrame = LabelFrame(self.globalFrame, text = "Output")
-        self.outputFrame.grid(column = 0, row = 3, pady= 10, sticky='w')
+        self.outputFrame.grid(column = 0, row = 4, pady= 10, sticky='w')
 
         self.colorFrame = LabelFrame(self.globalFrame, text = "Color simulation")
-        self.colorFrame.grid(column = 0, row = 4, pady= 10, sticky='w')
+        self.colorFrame.grid(column = 0, row = 5, pady= 10, sticky='w')
 
         self.startFrame = LabelFrame(self.globalFrame, text = "Start simulation")
-        self.startFrame.grid(column = 0, row = 7, pady= 10, sticky='e')
+        self.startFrame.grid(column = 0, row = 8, pady= 10, sticky='e')
 
         self.simInfosFrame = LabelFrame(self.globalFrame2, text = "Simulation informations")
         self.simInfosFrame.grid(column = 1, row = 0, padx = 15, sticky='nw')
@@ -65,13 +80,13 @@ class Root(Tk):
 
         # WIDGET CREATION ------------------------------------------
         #Button to show mesh in new window
-        self.btnShow = Button(self.meshFrame, text="show mesh", bg ="green", command=self.show_mesh)
+        self.btnShow = Button(self.meshFrame, text="show mesh", command=self.show_mesh)
         
         #Button to show mesh orientation
         self.btnShowOrientation = Button(self.meshFrame, text="export reference frame", command=self.reference_frame)
 
         #Button to show mesh in a precise timestep
-        self.btnShowMeshTimestep = Button(self.meshFrame, text = "show mesh in timestep", command = self.timestep_selector)
+        self.btnShowMeshTimestep = Button(self.meshFrame, text = "show mesh in one timestep exposition", command = self.timestep_selector)
 
         #Button to start simulation 
         StartBtnImg = PhotoImage(master = self.startFrame ,file='ColorBtn/start.png')
@@ -88,8 +103,8 @@ class Root(Tk):
         #User input for end date
         self.endDateLabel = Label(self.dateFrame, text = "End date")
         #User input for timestep
-        self.timestepLabel = Label(self.dateFrame,text='Timestep : ')
-        self.timestepValue = Entry(self.dateFrame,bg = "white", width = 10,
+        self.timestepLabel = Label(self.timestepFrame,text='Timestep : ')
+        self.timestepValue = Entry(self.timestepFrame,bg = "white", width = 10,
                                     textvariable=StringVar(self.dateFrame, 
                                             value='60.'))
         self.timestepValue.bind('<KeyRelease>', lambda e: self._check_timestep())
@@ -102,13 +117,35 @@ class Root(Tk):
         self.color_management()
         # ----------------------------------------------------------
 
+        #MICHELE - new date to show --------........................
+        month_txt = Label(self.dateFrame, text='mm')
+        month_txt.grid(column = 3, row = 5)
+
+        day_txt = Label(self.dateFrame, text='dd')
+        day_txt.grid(column = 4, row = 5)
+
+        year_txt = Label(self.dateFrame, text='yyyy')
+        year_txt.grid(column = 5, row = 5)
+
+        pause_txt = Label(self.dateFrame, text=' ')
+        pause_txt.grid(column = 6, row = 5)
+
+        hour_txt = Label(self.dateFrame, text='h')
+        hour_txt.grid(column = 8, row = 5)
+
+        month_txt = Label(self.dateFrame, text='m')
+        month_txt.grid(column = 9, row = 5)
+
+        second_txt = Label(self.dateFrame, text='s')
+        second_txt.grid(column = 10, row = 5)
+
         # SHOW WIDGET INTO THE MAIN WINDOW -------------------------
         self.load_mesh()
         self.load_data()
         #Date picker for start date
-        self.start_date_picker(r = 4, col = 2)
+        self.start_date_picker(r = 6, col = 2)
         #Date picker for end date
-        self.end_date_picker(r = 5, col = 2)
+        self.end_date_picker(r = 7, col = 2)
         #Button to show mesh in new window
         self.btnShow.grid(column = 1, row = 2)
         #Button to test mesh orientation
@@ -123,12 +160,12 @@ class Root(Tk):
         self.dataName.grid(column = 2, row = 3)
 
         #User input for start date
-        self.startDateLabel.grid(column = 1, row = 4)
+        self.startDateLabel.grid(column = 1, row = 6)
         #User input for start date
-        self.endDateLabel.grid(column = 1, row = 5)
+        self.endDateLabel.grid(column = 1, row = 7)
         #User input for timestep
-        self.timestepLabel.grid(column = 1, row = 6)
-        self.timestepValue.grid(column = 2, row = 6)
+        self.timestepLabel.grid(column = 1, row = 8)
+        self.timestepValue.grid(column = 2, row = 8)
 
         #User input for output value
         self.ouputLabel.grid(column = 1, row = 1)
@@ -226,29 +263,30 @@ class Root(Tk):
     #USER INPUT DATE -----------------------------------------------
     def start_date_picker(self, r, col):
         #DATE --> MONTH/DAY/YEAR and HOUR:MIN:SEC START
+        # plus old labels
         self.entry_1SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1SDay = Label(self.dateFrame, text='MM/')
+        #self.label_1SDay = Label(self.dateFrame, text='MM/')
         self.entry_2SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2SDay = Label(self.dateFrame, text='DD/')
+        #self.label_2SDay = Label(self.dateFrame, text='DD/')
         self.entry_3SDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_4SDay = Label(self.dateFrame, text='H:')
+        #self.label_4SDay = Label(self.dateFrame, text='H:')
         self.entry_5SDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_5SDay = Label(self.dateFrame, text='M:')
+        #self.label_5SDay = Label(self.dateFrame, text='M:')
         self.entry_6SDay = Entry(self.dateFrame, width=2, bg = "white")
 
-        self.entry_1SDay.grid(column = col, row = r)
-        self.label_1SDay.grid(column = col+1, row = r)
+        self.entry_1SDay.grid(column = col+1, row = r)
+        #self.label_1SDay.grid(column = col+1, row = r)
         self.entry_2SDay.grid(column = col+2, row = r)
-        self.label_2SDay.grid(column = col+3, row = r)
-        self.entry_3SDay.grid(column = col+4, row = r)
+        #self.label_2SDay.grid(column = col+3, row = r)
+        self.entry_3SDay.grid(column = col+3, row = r)
 
-        self.entry_4SDay.grid(column = col+5, row = r)
-        self.label_4SDay.grid(column = col+6, row = r)
+        self.entry_4SDay.grid(column = col+6, row = r)
+        #self.label_4SDay.grid(column = col+6, row = r)
         self.entry_5SDay.grid(column = col+7, row = r)
-        self.label_5SDay.grid(column = col+8, row = r)
-        self.entry_6SDay.grid(column = col+9, row = r)
+        #self.label_5SDay.grid(column = col+8, row = r)
+        self.entry_6SDay.grid(column = col+8, row = r)
 
         self.entries = [self.entry_1SDay, self.entry_2SDay, self.entry_3SDay, self.entry_4SDay, self.entry_5SDay, self.entry_6SDay]
 
@@ -261,30 +299,31 @@ class Root(Tk):
 
 
     def end_date_picker(self, r, col):
-        #DATE --> DAY/MONTH/YEAR and HOUR:MIN:SEC END
+        #DATE --> MONTH/DAY/YEAR and HOUR:MIN:SEC END
+        # plus, old labels
         self.entry_1EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_1EDay = Label(self.dateFrame, text='MM/')
+        #self.label_1EDay = Label(self.dateFrame, text='MM/')
         self.entry_2EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_2EDay = Label(self.dateFrame, text='DD/')
+        #self.label_2EDay = Label(self.dateFrame, text='DD/')
         self.entry_3EDay = Entry(self.dateFrame, width=4, bg = "white")
 
         self.entry_4EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_4EDay = Label(self.dateFrame, text='H:')
+        #self.label_4EDay = Label(self.dateFrame, text='H:')
         self.entry_5EDay = Entry(self.dateFrame, width=2, bg = "white")
-        self.label_5EDay = Label(self.dateFrame, text='M:')
+        #self.label_5EDay = Label(self.dateFrame, text='M:')
         self.entry_6EDay = Entry(self.dateFrame, width=2, bg = "white")
 
-        self.entry_1EDay.grid(column = col, row = r)
-        self.label_1EDay.grid(column = col+1, row = r)
+        self.entry_1EDay.grid(column = col+1, row = r)
+        #self.label_1EDay.grid(column = col+1, row = r)
         self.entry_2EDay.grid(column = col+2, row = r)
-        self.label_2EDay.grid(column = col+3, row = r)
-        self.entry_3EDay.grid(column = col+4, row = r)
+        #self.label_2EDay.grid(column = col+3, row = r)
+        self.entry_3EDay.grid(column = col+3, row = r)
 
-        self.entry_4EDay.grid(column = col+5, row = r)
-        self.label_4EDay.grid(column = col+6, row = r)
+        self.entry_4EDay.grid(column = col+6, row = r)
+        #self.label_4EDay.grid(column = col+6, row = r)
         self.entry_5EDay.grid(column = col+7, row = r)
-        self.label_5EDay.grid(column = col+8, row = r)
-        self.entry_6EDay.grid(column = col+9, row = r)
+        #self.label_5EDay.grid(column = col+8, row = r)
+        self.entry_6EDay.grid(column = col+8, row = r)
 
         self.entries2 = [self.entry_1EDay, self.entry_2EDay, self.entry_3EDay, self.entry_4EDay, self.entry_5EDay, self.entry_6EDay]
 
@@ -330,8 +369,18 @@ class Root(Tk):
             self._backspace(entry)
 
     def get_dates_infos(self):
-        self.startDate = self.entries[0].get() + '/' + self.entries[1].get() + '/' + self.entries[2].get() + ' ' + self.entries[3].get() + ':' + self.entries[4].get() + ':' + self.entries[5].get()
-        self.endDate = self.entries2[0].get() + '/' + self.entries2[1].get() + '/' + self.entries2[2].get() + ' ' + self.entries2[3].get() + ':' + self.entries2[4].get() + ':' + self.entries2[5].get()
+        self.startDate = self.entries[0].get() + \
+                    '/' + self.entries[1].get() + \
+                    '/' + self.entries[2].get() + \
+                    ' ' + self.entries[3].get() + \
+                    ':' + self.entries[4].get() + \
+                    ':' + self.entries[5].get()
+        self.endDate = self.entries2[0].get() + \
+                    '/' + self.entries2[1].get() + \
+                    '/' + self.entries2[2].get() + \
+                    ' ' + self.entries2[3].get() + \
+                    ':' + self.entries2[4].get() + \
+                    ':' + self.entries2[5].get()
         if(self.timestepValue.get() == ''):
             self.popupmsg("Missing timestep !")
         else:
