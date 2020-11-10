@@ -149,7 +149,7 @@ class Posture(CheckPostureColor):
 	
 	@property
 	def get_max_bounds(self):
-		return np.linalg.norm(self.my_file.bounds[1])
+		return 2*( 3*self.my_file.bounding_sphere.volume/(4*mt.pi) )**(1/3)
 
 
 	def correct_colors(self):
