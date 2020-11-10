@@ -227,7 +227,7 @@ class Simulation(Visualization):
 			if(self.is_day[k]):	
 
 				ray_directions = np.ones((np.shape(self.face_centers)[0], 3))*(-self.directions[k])
-				ray_origins = self.face_centers - ray_directions*sp.translation_factor*self.posture.get_max_bounds
+				ray_origins = self.face_centers - ray_directions*self.posture.get_max_bounds
 
 
 				#compute dot product between ray direction and face normals

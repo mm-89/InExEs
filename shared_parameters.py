@@ -27,7 +27,6 @@
 GUI_window = False
 
 N = 10000
-translation_factor = 2.
 random_points = False
 
 skin_reflection = False
