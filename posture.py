@@ -149,7 +149,7 @@ class Posture(CheckPostureColor):
 	
 	@property
 	def get_max_bounds(self):
-		return 2*( 3*self.my_file.bounding_sphere.volume/(4*mt.pi) )**(1/3)
+		return 2*( 3*self.my_file.bounding_sphere.volume/(4*pi) )**(1/3)
 
 
 	def correct_colors(self):
