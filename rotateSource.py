@@ -27,7 +27,7 @@ class RotateSource:
 
 	def __init__(self, timeline_list):
 
-		self.angles = np.zeros((len(timeline_list), 3))
+		self.angles = np.zeros((len(timeline_list), 2))
 		for k, item in enumerate(timeline_list):
 			if( item == self.timeline[k] ):
 				self.angles[k] = self.angles_tmp[k]
@@ -38,4 +38,10 @@ class RotateSource:
 
 
 	def update_direction(self, datestep, direction):
-		pass
+
+		x_angle = np.radians(self.angles[datestep, 0])
+		y_angle = np.radians(self.angles[datestep, 1])
+
+		first_rot = np.dot( mrd.rotation_matrix_3D_xz(x_angle), direction )
+		second_rot = np.dot( mrd.rotation_matrix_3D_xy(y_angle), first_rot ) 
+		return second_rot

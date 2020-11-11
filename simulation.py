@@ -229,12 +229,17 @@ class Simulation(Visualization):
 			#compute only light days
 			if(self.is_day[k]):	
 
-				ray_directions = np.ones((np.shape(self.face_centers)[0], 3))*(-self.directions[k])
+				curr_direction = self.directions[k]
+
+				if(self.rotate_mesh):
+					curr_direction = self.posture_rotations.update_direction(k,curr_direction)
+
+				ray_directions = np.ones((np.shape(self.face_centers)[0], 3))*(-curr_direction)
 				ray_origins = self.face_centers - ray_directions*self.posture.get_max_bounds
 
 
 				#compute dot product between ray direction and face normals
-				proj = np.dot(self.face_normals, self.directions[k])
+				proj = np.dot(self.face_normals,curr_direction)
 					
 				# Set to zero if negative, i.e. coming from more than pi/2
 				proj[proj<0.] = 0.
