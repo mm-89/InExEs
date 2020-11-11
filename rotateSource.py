@@ -1,0 +1,41 @@
+import math_refl_diff as mrd
+import csv
+
+import numpy as np
+
+class RotateSource:
+
+	input_angles_rotation = "input_irradiance/angles_rotation.csv"
+
+	try:
+
+		with open(input_angles_rotation, mode='r') as csv_file:
+
+			#to avoid to read header
+			next(csv_file)
+
+			data =  np.array([i for i in csv.reader(csv_file, delimiter=",")])
+
+			timeline = data[:, 0]
+
+			angles_tmp = data[:, 1:]
+
+
+	except:
+		raise TypeError("File {} doesn't find or doesn't exist.".format(input_irradiance_path))
+
+
+	def __init__(self, timeline_list):
+
+		self.angles = np.zeros((len(timeline_list), 3))
+		for k, item in enumerate(timeline_list):
+			if( item == self.timeline[k] ):
+				self.angles[k] = self.angles_tmp[k]
+
+
+	def update_beta_coefficients(self, datestep, beta_coefficients):
+		pass
+
+
+	def update_direction(self, datestep, direction):
+		pass

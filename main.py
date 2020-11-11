@@ -47,7 +47,7 @@ latitude = 40.
 
 #--------------mm-dd-yyyy-hh-mm-ss
 start_date  = '01/01/2009 00:01:00'
-end_date    = '01/02/2009 00:01:00'
+end_date    = '01/01/2009 23:59:00'
 
 #---------------------------------------------
 #USE IF YOU WANT TO USE THE PROGRAMM WITHOUT GUI
@@ -75,13 +75,17 @@ if not sp.GUI_window:
 	#to visualize a particular timestep-----------------------
 	#my_simulation.show_one_timestep(start_date)
 
+	#to rotate the mesh during a simulation
+	#my_simulation.rotate_mesh_during_simulation()
+
+	#to simulate a particular color
 	#my_simulation.set_zone_to_simulate(cm["red"])
 
 	#to make a whole simulation---------------------------------
-	my_simulation.make_simulation() 
+	#my_simulation.make_simulation() 
 
 	#to visualize radiance received on 3D mesh-----------------
-	#my_simulation.show_one_timestep_received(720)
+	#my_simulation.show_one_timestep_received(600)
 
 else:
 	

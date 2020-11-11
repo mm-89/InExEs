@@ -10,6 +10,8 @@ import csvReader as cr
 
 from visualization import Visualization
 
+import rotateSource as rs
+
 import trimesh as tm
 import numpy as np
 import math as mt
@@ -79,6 +81,7 @@ class Simulation(Visualization):
 		self.IP = np.ones(self.posture.number_faces)
 
 		self.simulate_anatomical_zones = False
+		self.rotate_mesh = False
 
 		self.name = posture
 
@@ -318,6 +321,10 @@ class Simulation(Visualization):
 	def set_anatomical_zones(self, path):
 		self.simulate_anatomical_zones = True
 		self.currAnatZone = anatZone.AnatomicalZones(path)
+
+	def rotate_mesh_during_simulation(self):
+		self.rotate_mesh = True
+		self.posture_rotations = rs.RotateSource(self.timeline)
 
 
 
