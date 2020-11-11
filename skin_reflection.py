@@ -45,6 +45,17 @@ def compute_skin_reflection_map(path, file):
     ???
     """
 
+    print("")
+    print("***")
+    print("")
+    print("Skin reflection model:")
+    print("")
+    print("This part is still being implemented.")
+    print("Please, don't use.")
+    print("")
+    print("***")
+    print("")
+
     path = path.split('/')
     mesh_name = path[-1]
     fileName = "input_skinRefl/skinRefl_{}_{}.txt".format(mesh_name.rsplit(".", -1)[0], sp.N)
