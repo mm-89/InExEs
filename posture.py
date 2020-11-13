@@ -28,8 +28,8 @@ class Posture(CheckPostureColor):
 
 		self.beta_coeff = bc.compute_beta(self.path, self.my_file)
 
-		
-		self.max_bounds = np.linalg.norm(self.my_file.bounds[1])
+		# double ray of the bounding sphere
+		self.max_bounds = 2*( 3*self.my_file.bounding_sphere.volume/(4*pi) )**(1/3)
 	
 		self.number_faces = np.shape(self.my_file.triangles_center)[0]
 		
