@@ -164,7 +164,7 @@ class Simulation(Visualization):
 		if (self.simulate_anatomical_zones):
 			#for now just sub_files, no interset files
 
-			for item in self.currAnatZone.names:
+			for item in self.currAnatZone.get_total_zones_name():
 				#delete old files
 				curr_file = "output/{}_{}.csv".format(self.output_name, item)
 
@@ -280,12 +280,11 @@ class Simulation(Visualization):
 				data_partial_dif = 0
 				data_partial_ref = 0
 
-				#sub_zones
-				for color, name in zip(self.currAnatZone.colors, self.currAnatZone.names):
+				for name in self.currAnatZone.get_total_zones_name():
 
 					if(self.is_day[k]):
 
-						expo_mask_anatZones = np.all( np.array(self.posture.get_faces_color) == color , axis=1)
+						expo_mask_anatZones = self.currAnatZone.get_zone_mask(name)
 
 						zone_area = np.sum(self.areas[expo_mask_anatZones])
 
@@ -325,7 +324,7 @@ class Simulation(Visualization):
 
 	def set_anatomical_zones(self, path):
 		self.simulate_anatomical_zones = True
-		self.currAnatZone = anatZone.AnatomicalZones(path)
+		self.currAnatZone = anatZone.AnatomicalZones(path, self.posture)
 
 	def rotate_mesh_during_simulation(self):
 		self.rotate_mesh = True
@@ -346,7 +345,7 @@ class Simulation(Visualization):
 
 		ray_directions = -np.ones((self.posture.number_faces, 3))*ray_directions
 		ray_origins = self.posture.get_triangles_center - \
-		ray_directions*sp.translation_factor*self.posture.get_max_bounds
+		ray_directions*self.posture.get_max_bounds
 
 		inf = self.posture.get_posture.ray.intersects_first(ray_origins= ray_origins, 
 															ray_directions= ray_directions)

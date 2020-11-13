@@ -81,7 +81,7 @@ def compute_beta(path, file):
 			ray_refl_hem = mrd.uniform_points_hemisphere(sp.N, False)
 		#in this case fnm is triangle centres
 
-		bounds_no = 2*( 3*self.file.bounding_sphere.volume/(4*mt.pi) )**(1/3)
+		bounds_no = 2*( 3*file.bounding_sphere.volume/(4*mt.pi) )**(1/3)
 
 		# Dot product of all hem vectors with all face normals
 		dot_mat_diff = np.matmul(ray_diff_hem, file.face_normals.T) # (N, number_faces)
@@ -113,7 +113,7 @@ def compute_beta(path, file):
 			# --------------------------------------------------------------------------
 			# reflective part of beta coefficient---------------------------------------
 
-			ray_origins = face_N + ray_refl_hem*bounds_no*tf_no
+			ray_origins = face_N + ray_refl_hem*bounds_no
 
 			res_refl = file.ray.intersects_first(ray_origins=ray_origins, 
 												ray_directions=-ray_refl_hem)
