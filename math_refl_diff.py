@@ -5,7 +5,7 @@ import random
 import shared_parameters as sp
 
 
-def from_cartesian_to_polar(comp):
+def from_cartesian_to_polar(x, y, z):
     """
     Convert cartesian coordinates
     of InExEs referent frame
@@ -25,9 +25,9 @@ def from_cartesian_to_polar(comp):
         in InExEs reference frame
 
     """
-    polar_coordinates = np.array([mt.acos(comp[1]),
-                        np.arctan2(comp[0], -comp[2])])
-    return polar_coordinates
+    polar_coordinates = np.array([np.arccos(y),
+                        np.arctan2(x, -z)])
+    return polar_coordinates.T
 
 
 def from_polar_to_cartesian(zenith, azimuth):
