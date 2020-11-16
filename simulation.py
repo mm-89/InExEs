@@ -521,7 +521,7 @@ class Simulation(Visualization):
 			curr_color = np.ones((self.posture.number_faces, 3))*other_color[k]
 
 			ray_origins = self.posture.get_triangles_center + \
-				np.ones((self.posture.number_faces, 3))*info_map.get(item)*sp.translation_factor*self.posture.get_max_bounds
+				np.ones((self.posture.number_faces, 3))*info_map.get(item)*self.posture.get_max_bounds
 
 			ray_directions = -np.ones((self.posture.number_faces, 3))*info_map.get(item)
 
