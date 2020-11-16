@@ -1,5 +1,6 @@
 import math_refl_diff as mrd
 import csv
+from math import cos
 
 import numpy as np
 
@@ -33,8 +34,19 @@ class RotateSource:
 				self.angles[k] = self.angles_tmp[k]
 
 
-	def update_beta_coefficients(self, datestep, beta_coefficients):
-		pass
+	def update_beta_coefficients(self, datestep, beta_coefficients, face_normals):
+		
+		angle = np.radians(self.angles[datestep, 0])
+		
+		angles = np.zeros(len(face_normals))*angle
+
+		angle_normals =  mrd.from_cartesian_to_polar(face_normals[:, 0],
+													face_normals[:, 1],
+													face_normals[:, 2]) 
+
+		beta_coefficients[:, 0] *= (1 + np.cos(angle_normals[:, 0] - angles))/2
+		
+		return beta_coefficients
 
 
 	def update_direction(self, datestep, direction):
@@ -43,5 +55,6 @@ class RotateSource:
 		y_angle = np.radians(self.angles[datestep, 1])
 
 		first_rot = np.dot( mrd.rotation_matrix_3D_xz(x_angle), direction )
-		second_rot = np.dot( mrd.rotation_matrix_3D_xy(y_angle), first_rot ) 
+		second_rot = np.dot( mrd.rotation_matrix_3D_xy(y_angle), first_rot )
+
 		return second_rot
