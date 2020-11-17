@@ -344,6 +344,11 @@ class Simulation(Visualization):
 
 		ray_directions = self.directions[ind_date_to_vis]
 
+		if(self.rotate_mesh):
+			ray_directions = self.posture_rotations.update_direction(ind_date_to_vis, ray_directions)
+		else:
+			ray_directions = self.directions[ind_date_to_vis]
+
 		ray_directions = -np.ones((self.posture.number_faces, 3))*ray_directions
 		ray_origins = self.posture.get_triangles_center - \
 		ray_directions*self.posture.get_max_bounds
