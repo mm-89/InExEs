@@ -1,6 +1,6 @@
 import math_refl_diff as mrd
 import csv
-from math import cos
+from math import cos, pi
 
 import numpy as np
 
@@ -26,7 +26,25 @@ class RotateSource:
 		raise TypeError("File {} doesn't find or doesn't exist.".format(input_irradiance_path))
 
 
-	def __init__(self, timeline_list):
+	def __init__(self, timeline_list, beta_coefficients, face_normals):
+
+		self.beta_coefficients = beta_coefficients
+
+		self.angle_normals =  mrd.from_cartesian_to_polar(face_normals[:, 0],
+											face_normals[:, 1],
+											face_normals[:, 2])
+
+		#fraction of solid angle in shadow
+		self.beta_shadow = pi*0.5*(1 + np.cos(self.angle_normals[:, 0])) - beta_coefficients[:, 0]
+
+		#mask (to check if a 0 is a cover face and not totally in shadow)
+		self.mask = []
+		for item1, item2 in zip(self.beta_coefficients[:, 0], self.angle_normals[:, 0]):
+			if(item1 == 0. and item2 != 0.):
+				self.mask.append( False )
+			else:
+				self.mask.append( True ) 
+
 
 		self.angles = np.zeros((len(timeline_list), 2))
 		for k, item in enumerate(timeline_list):
@@ -34,19 +52,20 @@ class RotateSource:
 				self.angles[k] = self.angles_tmp[k]
 
 
-	def update_beta_coefficients(self, datestep, beta_coefficients, face_normals):
+	def update_beta_coefficients(self, datestep):
 		
+		#angle of rotation
 		angle = np.radians(self.angles[datestep, 0])
+		angles = np.ones(len(self.angle_normals))*angle
 		
-		angles = np.zeros(len(face_normals))*angle
 
-		angle_normals =  mrd.from_cartesian_to_polar(face_normals[:, 0],
-													face_normals[:, 1],
-													face_normals[:, 2]) 
+		beta = np.ones(len(self.angle_normals))
+		beta *= pi*0.5*(1 + np.cos(self.angle_normals[:, 0] - angles))
+		beta -= self.beta_shadow
 
-		beta_coefficients[:, 0] *= (1 + np.cos(angle_normals[:, 0] - angles))/2
-		
-		return beta_coefficients
+		self.beta_coefficients[self.mask, 0] = beta[self.mask]
+
+		return self.beta_coefficients
 
 
 	def update_direction(self, datestep, direction):

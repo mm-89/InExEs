@@ -233,7 +233,7 @@ class Simulation(Visualization):
 
 				if(self.rotate_mesh):
 					curr_direction = self.posture_rotations.update_direction(k,curr_direction)
-					self.beta = self.posture_rotations.update_beta_coefficients(k, self.beta, self.face_normals)
+					self.beta = self.posture_rotations.update_beta_coefficients(k)
 
 				ray_directions = np.ones((np.shape(self.face_centers)[0], 3))*(-curr_direction)
 				ray_origins = self.face_centers - ray_directions*self.posture.get_max_bounds
@@ -329,7 +329,7 @@ class Simulation(Visualization):
 
 	def rotate_mesh_during_simulation(self):
 		self.rotate_mesh = True
-		self.posture_rotations = rs.RotateSource(self.timeline)
+		self.posture_rotations = rs.RotateSource(self.timeline, self.beta, self.face_normals)
 
 
 
