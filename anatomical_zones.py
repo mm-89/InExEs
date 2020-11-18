@@ -19,12 +19,18 @@ class AnatomicalZones:
 		self.zone_name = [item.attrib['name'] for item in self.root.iter('Zone')]
 		self.composed_zone_name = [item.attrib['name'] for item in self.root.iter('ComposedZone')]
 
+		self._make_dict_maks()
+
 
 	def get_total_zones_name(self):
 		return self.zone_name + self.composed_zone_name
 
 
 	def get_zone_mask(self, zone):
+		return self.AnatZonesDict.get(zone)
+
+
+	def _get_single_zone_mask(self, zone):
 		
 		# Find the colors corresponding to the zone name in the xml file
 		col = []
@@ -60,3 +66,14 @@ class AnatomicalZones:
 			self.mask[ifaces] = True
 			
 		return self.mask
+
+
+	def _make_dict_maks(self):
+
+		self.AnatZonesDict = {}
+
+		for item in self.get_total_zones_name():
+			self.AnatZonesDict[item] = self._get_single_zone_mask(item)
+
+
+
