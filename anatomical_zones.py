@@ -19,29 +19,6 @@ class AnatomicalZones:
 		self.zone_name = [item.attrib['name'] for item in self.root.iter('Zone')]
 		self.composed_zone_name = [item.attrib['name'] for item in self.root.iter('ComposedZone')]
 
-		"""
-		item = document_read.getElementsByTagName('ComposedZone')
-		print( item[2].getElementsByTagName("Zone")[6].getAttribute("name") )
-
-		self.zone_name = []
-		self.sub_zone_name = []
-
-		self.colors_vector = []
-
-		for item in items:
-			activation = item.getAttribute("active")
-			self.zone_name.append(item.getAttribute("name"))
-			if ( activation == '1' ):
-				for comp in item.getElementsByTagName('Zone'):
-					sub_activation = comp.getAttribute("active")
-					self.sub_zone_name.append(comp.getAttribute("name"))
-					if ( sub_activation == '1' ):
-						red = comp.getAttribute("red")
-						green = comp.getAttribute("green")
-						blue = comp.getAttribute("blue")
-						self.colors_vector.append([int(red), int(blue), int(green), 255])
-		"""
-
 
 	def get_total_zones_name(self):
 		return self.zone_name + self.composed_zone_name
