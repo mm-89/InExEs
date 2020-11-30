@@ -71,7 +71,7 @@ class Simulation(Visualization):
 		# anatomical code
 		#self.posture.correct_colors()
 
-		self.beta = self.posture.get_beta
+		self.beta = self.posture.get_beta[:,:2]
 
 		self.face_centers = self.posture.get_triangles_center
 		self.face_normals = self.posture.get_normals
@@ -552,14 +552,7 @@ class Simulation(Visualization):
 
 		
 	def set_zone_to_simulate(self, RGB_map):
-		"""
-		Prototype: with this instance I'd like to
-		select just a part f mesh (for example eyes)
-		and avoid a simulation with 100% of original
-		mesh - TO TEST
-		Need to re-initialize beta coefficients 
-		vector too - (previous error - TO TEST)
-		"""
+
 		vec_id = []
 		ver = False
 		compon_RGB = int(len(RGB_map) / 4)
@@ -573,32 +566,36 @@ class Simulation(Visualization):
 		if not ver:
 			raise TypeError("No face/vertex with this color!")
 
-		new_vector = []
-		for item in vec_id:
-			new_vector.append(self.face_centers[item])
-		self.face_centers = new_vector
-
-		new_normals_vector = []
-		for item in vec_id:
-			new_normals_vector.append(self.face_normals[item])
-		self.face_normals = new_normals_vector
-
-		new_beta_vector = np.zeros(shape=(len(vec_id), 2))
-		for i, item in enumerate(vec_id):
-			new_beta_vector[i] = self.beta[item, 0:2]
-		self.beta = new_beta_vector
-
-		new_area_vector = np.zeros(shape=len(vec_id))
-		for i, item in enumerate(vec_id):
-			new_area_vector[i] = self.areas[item]
-		self.areas = new_area_vector
-
-		new_faces_vector = []
-		for item in vec_id:
-			new_faces_vector.append(item)
-		self.faces_index = new_faces_vector
-
+		self.face_centers = [self.face_centers[item] for item in vec_id]
+		self.face_normals = [self.face_normals[item] for item in vec_id]
+		self.beta = np.array([self.beta[item] for item in vec_id])
+		self.areas = np.array([self.areas[item] for item in vec_id])
+		self.faces_index = np.copy(vec_id)
 		self.IP = np.ones(np.shape(self.face_centers)[0])
+
+		#for item in vec_id:
+		#	new_vector.append(self.face_centers[item])
+		#self.face_centers = new_vector
+
+		#new_normals_vector = []
+		#for item in vec_id:
+		#	new_normals_vector.append(self.face_normals[item])
+		#self.face_normals = new_normals_vector
+
+		#new_beta_vector = np.zeros(shape=(len(vec_id), 2))
+		#for i, item in enumerate(vec_id):
+		#	new_beta_vector[i] = self.beta[item, 0:2]
+		#self.beta = new_beta_vector
+
+		#new_area_vector = np.zeros(shape=len(vec_id))
+		#for i, item in enumerate(vec_id):
+		#	new_area_vector[i] = self.areas[item]
+		#self.areas = new_area_vector
+
+		#new_faces_vector = []
+		#for item in vec_id:
+		#	new_faces_vector.append(item)
+		#self.faces_index = new_faces_vector
 
 
 	#GUI PROGRESS BAR :
