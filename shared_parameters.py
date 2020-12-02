@@ -29,8 +29,6 @@ GUI_window = False
 N = 10000
 random_points = False
 
-skin_reflection = False
-
 py_embree = True
 process = True
 validate = False

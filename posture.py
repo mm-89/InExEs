@@ -34,9 +34,6 @@ class Posture(CheckPostureColor):
 		self.number_faces = np.shape(self.my_file.triangles_center)[0]
 		
 		self.number_vertices = np.shape(self.my_file.vertices)[0]
-
-		if(sp.skin_reflection):
-			self.skinRefl_coeff = sr.compute_skin_reflection_map(self.path, self.my_file)
 			
 
 	def show_posture(self):
