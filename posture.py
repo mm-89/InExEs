@@ -96,16 +96,6 @@ class Posture(CheckPostureColor):
 
 
 	@property
-	def get_normals_minimized(self):
-    		return self.normals_minimized
-
-
-	@property
-	def get_vertices_normals_minimized(self):
-		return self.vertices_normals_minimized
-
-
-	@property
 	def get_beta(self):
 		return self.beta_coeff
 
