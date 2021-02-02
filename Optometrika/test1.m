@@ -5,20 +5,15 @@ function focal = test1()
 %{
     Creating a custom pattern for rays bundle.
     Testing raysManualConstructor with custom position
-    (direction, intensity and wavelength by default)
 %}
 
 % Creating the positions vector of a concaveLamp using pre-exisiting functions
 lens            = Lens( [-40 0 0], 58, 40, -1, {'air' 'bk7'} ); %parabolic surface
-rays            = Rays(200, 'collimated', [-90 0 0], [1 0 0], 100, 'random');
+rays            = Rays(5000, 'collimated', [-90 0 0], [1 0 0], 100, 'random');
 ConcaveLampPos  = rays.intersection(lens).r;
 
 % Creating bundle of rays (direction, intensity and wavelength by default)
 ConcaveLamp     = raysManualConstructor(ConcaveLampPos);
-
-ConcaveLamp.r;
-ConcaveLamp.n;
-
 
 % Setting up a bench to draw ConcaveLamp rays
 bench = Bench;
@@ -43,9 +38,22 @@ bench.append( screen );
 rays_through = bench.trace(ConcaveLamp);
 
 % Drawing
-%rays_through = bench.trace(rays);
 bench.draw(rays_through, 'lines');
 
+% Changing others parameters
+
+% Random directions
+ConcaveLampN    = ConcaveLamp.copy();
+[m n]           = size(ConcaveLampN.n);
+ConcaveLamp.n   = rand(m,n);
+rays_through    = bench.trace(ConcaveLampN);
+bench.draw(rays_through, 'lines');
+
+% Random Intensity
+ConcaveLampI    = ConcaveLamp.copy();
+ConcaveLampI.I  = rand(m,1);
+rays_through    = bench.trace(ConcaveLampI);
+bench.draw(rays_through, 'lines');
 
 end
 
