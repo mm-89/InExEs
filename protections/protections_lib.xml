@@ -1,0 +1,34 @@
+<!DOCTYPE Protections>
+<Protections>
+ <Clothes>
+  <Clothing name="Pants" >
+   <Zone name="Lower-Belly" />
+   <Zone name="Posterior" />
+   <Zone name="Upper-Leg-Left" />
+   <Zone name="Knee-Left" />
+   <Zone name="Lower-Leg-Left" />
+   <Zone name="Upper-Leg-Right" />
+   <Zone name="Knee-Right" />
+   <Zone name="Lower-Leg-Right" />
+  </Clothing>
+  <Clothing name="T-Shirt" >
+   <Zone name="Trunk" />
+   <Zone name="Shoulder-Left" />
+   <Zone name="Shoulder-Right" />
+  </Clothing>
+  <Clothing name="Sweatshirt" >
+   <Zone name="Trunk" />
+   <Zone name="Arm-Right" />
+   <Zone name="Arm-Left" />
+  </Clothing>
+ </Clothes>
+ <Materials>
+  <Material IP="4" name="Cotton" />
+  <Material IP="5" name="Linen" />
+  <Material IP="30" name="Polyester double" />
+  <Material IP="12" name="Polyester simple" />
+  <Material IP="11" name="Polyester-Cotton" />
+  <Material IP="22" name="Wool" />
+  <Material IP="1" name="New Material" />
+ </Materials>
+</Protections>
